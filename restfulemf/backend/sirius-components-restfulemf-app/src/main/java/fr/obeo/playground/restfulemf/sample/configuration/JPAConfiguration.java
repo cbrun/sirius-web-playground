@@ -1,4 +1,3 @@
-package fr.obeo.playground.restfulemf;
 /*******************************************************************************
  * Copyright (c) 2019, 2023 Obeo.
  * This program and the accompanying materials
@@ -11,15 +10,20 @@ package fr.obeo.playground.restfulemf;
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
+package fr.obeo.playground.restfulemf.sample.configuration;
 
-
-import java.util.UUID;
-
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.sirius.components.core.api.IInput;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
- * @author Cedric Brun <cedric.brun@obeo.fr>
+ * Configuration of JPA.
+ *
+ * @author sbegaudeau
  */
-public record ReplaceResourceContentInput(UUID id, String editingContextId, Resource newResourceContent) implements IInput {
+@Configuration
+@EntityScan(basePackages = { "org.eclipse.sirius.web.persistence.entities" })
+@EnableJpaRepositories(basePackages = { "org.eclipse.sirius.web.persistence.repositories" })
+public class JPAConfiguration {
+
 }

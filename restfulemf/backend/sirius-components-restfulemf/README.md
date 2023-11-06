@@ -4,18 +4,59 @@ Component to provide REST endpoints for model documents exposed as XMI, Binary, 
 Thanks to this you can:
  - access the model elements as CSV suitable for Jupyter notebook.
  - open and edit an EMF model in Sirius Desktop when it is hosted on Sirius Web
- - write a Java program which gets the model, do something, and save the changes back to the server while only using EMF APIs.
+ - write a Java program which gets the model, do something, and save the changes back to the server while only using EMF APIs, even without having the dedicated Ecore Java API (the EPackages can be retrieved from a REST endpoint)
 
-ID's are provided in XMI serialization.
+
+### REST Endpoints
+
+#### Binary Resource
+
+
+`/projects/{Name or ID of the project}/{Name or ID of the document}/bin`
+
+
+Should be the preferred resource format when the client is using the EMF runtime as the serialization is compact, fast, and supports the element IDs.
+Here is a sample usage from a Java client using the EMF runtime.
+
+```java
+Map<String, Object> options = new HashMap<>();
+options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+Resource model = new XMLResourceImpl(URI.createURI("http://localhost:8080/projects/Travel Agency/MyModel.uml"));
+model.load(options);
+//...
+// do some changes on the model
+//
+model.save(options); // changes gets propagated back on the server.
+
+```
+
+
+#### XMI Resource
+
+`/projects/{Name or ID of the project}/{Name or ID of the document}/xmi`
+
+
+#### Zipped XMI Resource
+
+`/projects/{Name or ID of the project}/{Name or ID of the document}/xmi.zip`
+
+
+#### CSV Resource
+
+`/projects/{Name or ID of the project}/{Name or ID of the document}/csv`
+
+**The CSV endpoint** currently only supports `GET` requests and no `PUT`.
+
+### Maturity & Status
+This is prototype, suitable for POC but not for production, this is a starting point.
+**/!\ All the model/projects data gets accessible for non-logged users**
+
+
+ID's are provided in XMI and Binary serialization, that means when you save the resource back the objects identity will be kept.
 
 `GET` and `PUT` are supported for XMI, XMI.zip and Binary endpoints.
-Only `GET` is supported for CSV.
 
-
-### Maturity
-
-This is prototype, suitable for POC but not for production.
-**/!\ All the model/projects data gets accessible for non-logged users**
+Only `GET` is supported for CSV for now.
 
 #### Notably missing
 

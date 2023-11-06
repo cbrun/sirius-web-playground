@@ -20,7 +20,7 @@ import java.util.Optional;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.xmi.XMIResource;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.sirius.components.collaborative.api.ChangeDescription;
 import org.eclipse.sirius.components.collaborative.api.ChangeKind;
@@ -75,7 +75,7 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
 		if (input instanceof ReplaceResourceContentInput) {
 
 			ReplaceResourceContentInput uploadDocumentInput = (ReplaceResourceContentInput) input;
-			Resource newVersionOfResource = uploadDocumentInput.file();
+			Resource newVersionOfResource = uploadDocumentInput.newResourceContent();
 
 			// @formatter:off
             Optional<AdapterFactoryEditingDomain> optionalEditingDomain = Optional.of(editingContext)
@@ -88,14 +88,14 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
 				AdapterFactoryEditingDomain adapterFactoryEditingDomain = optionalEditingDomain.get();
 
 				for (Resource r : adapterFactoryEditingDomain.getResourceSet().getResources()) {
-					if (newVersionOfResource.getURI().lastSegment().equals(r.getURI().lastSegment())) {
+					if (newVersionOfResource.getURI().equals(r.getURI())) {
 						Map<EObject, String> idsFromNewRes = Maps.newLinkedHashMap();
 						Iterator<EObject> it = newVersionOfResource.getAllContents();
 						while (it.hasNext()) {
 							EObject e = it.next();
 							String id = null;
-							if (newVersionOfResource instanceof XMIResource) {
-								id = ((XMIResource) newVersionOfResource).getID(e);
+							if (newVersionOfResource instanceof XMLResource) {
+								id = ((XMLResource) newVersionOfResource).getID(e);
 							} else {
 								id = EcoreUtil.getID(e);
 							}

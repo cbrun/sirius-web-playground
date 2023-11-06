@@ -11,13 +11,15 @@
  Contributors:
      Obeo - initial API and implementation
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>papyrus-web</groupId>
-		<artifactId>papyrus-web-parent</artifactId>
-		<version>2023.3.0</version>
-<!--		<relativePath>../papyrus-web-parent</relativePath>-->
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.0.6</version>
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>fr.obeo.playground</groupId>
 	<artifactId>sirius-components-restful</artifactId>
@@ -25,10 +27,10 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<sirius.components.version>2023.8.3</sirius.components.version>
+		<sirius.components.version>2023.10.4</sirius.components.version>
 	</properties>
 
-<repositories>
+	<repositories>
 		<repository>
 			<id>Central</id>
 			<url>https://repo.maven.apache.org/maven2</url>
@@ -70,7 +72,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.sirius</groupId>
+			<artifactId>sirius-components-domain-emf</artifactId>
+			<version>${sirius.components.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.sirius</groupId>
 			<artifactId>sirius-web-services-api</artifactId>
+			<version>${sirius.components.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.sirius</groupId>
+			<artifactId>sirius-web-services</artifactId>
 			<version>${sirius.components.version}</version>
 		</dependency>
 		<dependency>
@@ -78,11 +90,6 @@
 			<artifactId>sirius-components-tests</artifactId>
 			<version>${sirius.components.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.sirius</groupId>
-			<artifactId>sirius-web-services</artifactId>
-			<version>${sirius.components.version}</version>
 		</dependency>
 	</dependencies>
 
