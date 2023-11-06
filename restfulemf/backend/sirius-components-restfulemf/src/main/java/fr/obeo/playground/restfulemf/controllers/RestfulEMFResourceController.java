@@ -28,6 +28,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.sirius.components.collaborative.api.IEditingContextEventProcessorRegistry;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.EObjectIDManager;
+import org.eclipse.sirius.components.emf.utils.EMFResourceUtils;
 import org.eclipse.sirius.emfjson.resource.JsonResource;
 import org.eclipse.sirius.emfjson.resource.JsonResourceImpl;
 import org.eclipse.sirius.web.services.api.document.Document;
@@ -325,7 +326,7 @@ public class RestfulEMFResourceController {
 						}
 					}
 					Map<String, Object> optionsXMI = new HashMap<>();
-
+					optionsXMI.putAll(new EMFResourceUtils().getXMILoadOptions());
 					if (zipped) {
 						optionsXMI.put(Resource.OPTION_ZIP, Boolean.TRUE);
 					}
@@ -373,10 +374,11 @@ public class RestfulEMFResourceController {
 				}
 				xmiRes.load(inputStream, options);
 
-				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), doc.getProject().getId().toString(),
-						xmiRes);
+				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(),
+						doc.getProject().getId().toString(), xmiRes);
 
-				Mono<IPayload> result = this.editingContextEventProcessorRegistry.dispatchEvent(doc.getProject().getId().toString(), input);
+				Mono<IPayload> result = this.editingContextEventProcessorRegistry
+						.dispatchEvent(doc.getProject().getId().toString(), input);
 				this.logger.info("pushed document " + result);
 
 			} catch (IOException e) {
