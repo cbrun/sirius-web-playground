@@ -47,6 +47,28 @@ model.save(options); // changes gets propagated back on the server.
 
 **The CSV endpoint** currently only supports `GET` requests and no `PUT`.
 
+
+#### Reflective access to EPackages
+If you don't have prior knowledge of the specific EPackages you can retrieve the list of EPackages declared for a given project using this endpoint:
+
+`/projects/{Name or ID of the project}/epackages/bin`
+
+You'll get a binary resource with all the EPackages, enabling you to load and process the models reflectively in such a way:
+
+```java
+Resource usedEPackages = new XMLResourceImpl(URI.createURI(baseURL + projectNameOrID + "/epackages/bin"));
+	set.getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
+	usedEPackages.load(options);
+
+	for (EPackage pak : Iterables.filter(usedEPackages.getContents(), EPackage.class)) {
+		if (set.getPackageRegistry().getEPackage(pak.getNsURI()) == null) {
+			set.getPackageRegistry().put(pak.getNsURI(), pak);
+		}
+		System.out.println("Registered : " + pak.getNsURI());
+	}
+```
+
+
 ### Maturity & Status
 This is prototype, suitable for POC but not for production, this is a starting point.
 **/!\ All the model/projects data gets accessible for non-logged users**
