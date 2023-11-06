@@ -14,6 +14,8 @@ package fr.obeo.playground.restfulemf.sample.configuration;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EPackage;
+import org.obeonetwork.dsl.bpmn2.Bpmn2Package;
+import org.obeonetwork.dsl.bpmn2.provider.Bpmn2ItemProviderAdapterFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +37,16 @@ public class SampleEMFConfiguration {
 	@Bean
 	public EPackage flowEPackage() {
 		return FlowPackage.eINSTANCE;
+	}
+
+	@Bean
+	public AdapterFactory bpmnAdapterFactory() {
+		return new Bpmn2ItemProviderAdapterFactory();
+	}
+
+	@Bean
+	public EPackage bpmnEPackage() {
+		return Bpmn2Package.eINSTANCE;
 	}
 
 }
