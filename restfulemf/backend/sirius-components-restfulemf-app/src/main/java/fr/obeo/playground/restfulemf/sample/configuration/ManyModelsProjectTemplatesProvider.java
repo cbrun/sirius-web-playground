@@ -31,7 +31,7 @@ public class ManyModelsProjectTemplatesProvider implements IProjectTemplateProvi
 		return List.of(ProjectTemplate
 				.newProjectTemplate(MANYMODELS_TEMPLATE_ID)
 				.label("Many Models")
-                .imageURL("/images/Models-Template.svg")
+                .imageURL("/images/Models-Template.png")
                 .natures(List.of())
 				.build());
 	}

@@ -12,11 +12,9 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.sample;
 
-import org.eclipse.sirius.components.compatibility.emf.properties.PropertiesDefaultDescriptionProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 
 /**
  * Main class of the server, used as the entry point which will start the whole
