@@ -10,7 +10,9 @@ import java.util.UUID;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.sirius.components.core.RepresentationMetadata;
 import org.eclipse.sirius.components.core.api.IEditingContext;
@@ -33,6 +35,7 @@ import org.springframework.context.annotation.Configuration;
 import com.google.common.base.Stopwatch;
 
 import graphql.com.google.common.collect.Lists;
+import graphql.com.google.common.collect.Maps;
 
 @Configuration
 public class ManyModelsProjectTemplatesInitializer implements IProjectTemplateInitializer {
@@ -64,7 +67,8 @@ public class ManyModelsProjectTemplatesInitializer implements IProjectTemplateIn
 		modelsToCreate.add(URI.createURI("classpath:/NobelPrize.bpmn"));
 		modelsToCreate.add(URI.createURI("classpath:/Big_Guy.flow"));
 		modelsToCreate.add(URI.createURI("classpath:/linux-kernel.uml"));
-
+		modelsToCreate.add(URI.createURI("classpath:/library.ecore"));
+		modelsToCreate.add(URI.createURI("classpath:/reverse1.ecorebin"));
 
 		if (optionalEditingDomain.isPresent() && editingContextUUID.isPresent()) {
 			Optional<ProjectEntity> prj = this.projectRepository.findById(editingContextUUID.get());
@@ -108,9 +112,17 @@ public class ManyModelsProjectTemplatesInitializer implements IProjectTemplateIn
 	}
 
 	private Resource loadFromXMI(URI uri) throws IOException {
-		XMIResourceImpl bR = new XMIResourceImpl(uri);
-		bR.load(new EMFResourceUtils().getXMILoadOptions());
-		return bR;
+		if ("ecorebin".equals(uri.fileExtension())) {
+			XMLResource bR = new XMLResourceImpl(uri);
+			Map<String, Object> options = Maps.newLinkedHashMap();
+			options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+			bR.load(options);
+			return bR;
+		} else {
+			XMIResourceImpl bR = new XMIResourceImpl(uri);
+			bR.load(new EMFResourceUtils().getXMILoadOptions());
+			return bR;
+		}
 	}
 
 }
