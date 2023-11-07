@@ -63,6 +63,8 @@ public class ManyModelsProjectTemplatesInitializer implements IProjectTemplateIn
 		List<URI> modelsToCreate = Lists.newArrayList();
 		modelsToCreate.add(URI.createURI("classpath:/NobelPrize.bpmn"));
 		modelsToCreate.add(URI.createURI("classpath:/Big_Guy.flow"));
+		modelsToCreate.add(URI.createURI("classpath:/linux-kernel.uml"));
+
 
 		if (optionalEditingDomain.isPresent() && editingContextUUID.isPresent()) {
 			Optional<ProjectEntity> prj = this.projectRepository.findById(editingContextUUID.get());

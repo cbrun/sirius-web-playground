@@ -31,6 +31,7 @@
 		<bpmn.version>4.0.3-SNAPSHOT</bpmn.version>
 		<eef.version>2.1.5-SNAPSHOT</eef.version>
 		<sirius.components.version>2023.10.4</sirius.components.version>
+		<uml2.version>5.6.0-SNAPSHOT</uml2.version>
 	</properties>
 
 
@@ -160,6 +161,46 @@
 			<artifactId>org.obeonetwork.dsl.bpmn2.design</artifactId>
 			<version>${bpmn.version}</version>
 		</dependency>
+
+		<!-- UML2 -->
+
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.uml</artifactId>
+			<version>${uml2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.common</artifactId>
+			<version>2.5.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.types</artifactId>
+			<version>2.5.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.uml.profile.standard</artifactId>
+			<version>1.5.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.uml.edit</artifactId>
+			<version>5.5.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.common.edit</artifactId>
+			<version>2.5.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.uml2.plugins</groupId>
+			<artifactId>org.eclipse.uml2.uml.resources</artifactId>
+			<version>5.5.0-SNAPSHOT</version>
+		</dependency>
+		<!-- -->
+
 		<dependency>
 			<groupId>org.eclipse.eef</groupId>
 			<artifactId>org.eclipse.eef.core</artifactId>
