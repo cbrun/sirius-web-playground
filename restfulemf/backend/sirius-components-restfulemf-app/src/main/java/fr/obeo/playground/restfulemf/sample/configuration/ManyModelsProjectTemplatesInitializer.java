@@ -50,7 +50,8 @@ public class ManyModelsProjectTemplatesInitializer implements IProjectTemplateIn
 
 	@Override
 	public boolean canHandle(String templateId) {
-		return List.of(ManyModelsProjectTemplatesProvider.MANYMODELS_TEMPLATE_ID).contains(templateId);
+		return List.of(ManyModelsProjectTemplatesProvider.MANYMODELS_TEMPLATE_ID,
+				ManyModelsProjectTemplatesProvider.ONEMILLION_TEMPLATE_ID).contains(templateId);
 	}
 
 	@Override
@@ -64,12 +65,34 @@ public class ManyModelsProjectTemplatesInitializer implements IProjectTemplateIn
         // @formatter:on
 		Optional<UUID> editingContextUUID = new IDParser().parse(editingContext.getId());
 		List<URI> modelsToCreate = Lists.newArrayList();
-		modelsToCreate.add(URI.createURI("classpath:/NobelPrize.bpmn"));
-		modelsToCreate.add(URI.createURI("classpath:/Big_Guy.flow"));
-		modelsToCreate.add(URI.createURI("classpath:/linux-kernel.uml"));
-		modelsToCreate.add(URI.createURI("classpath:/library.ecore"));
-		modelsToCreate.add(URI.createURI("classpath:/reverse1.ecorebin"));
-
+		if (templateId.equals(ManyModelsProjectTemplatesProvider.MANYMODELS_TEMPLATE_ID)) {
+			modelsToCreate.add(URI.createURI("classpath:/NobelPrize.bpmn"));
+			modelsToCreate.add(URI.createURI("classpath:/Big_Guy.flow"));
+			modelsToCreate.add(URI.createURI("classpath:/linux-kernel.uml"));
+			modelsToCreate.add(URI.createURI("classpath:/library.ecore"));
+			modelsToCreate.add(URI.createURI("classpath:/reverse1.ecorebin"));
+		} else if (templateId.equals(ManyModelsProjectTemplatesProvider.ONEMILLION_TEMPLATE_ID)) {
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse1.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse2.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse3.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse4.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse5.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse6.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse7.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse8.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse9.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse10.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse11.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse12.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse13.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse14.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse15.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse16.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse17.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse18.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse19.ecorebin"));
+			modelsToCreate.add(URI.createURI("classpath:/1Modeling/reverse20.ecorebin"));
+		}
 		if (optionalEditingDomain.isPresent() && editingContextUUID.isPresent()) {
 			Optional<ProjectEntity> prj = this.projectRepository.findById(editingContextUUID.get());
 			if (prj.isPresent()) {

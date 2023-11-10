@@ -26,14 +26,15 @@ public class ManyModelsProjectTemplatesProvider implements IProjectTemplateProvi
 
 	public static final String MANYMODELS_TEMPLATE_ID = "manymodels-template";
 
+	public static final String ONEMILLION_TEMPLATE_ID = "onemillion-template";
+
 	@Override
 	public List<ProjectTemplate> getProjectTemplates() {
-		return List.of(ProjectTemplate
-				.newProjectTemplate(MANYMODELS_TEMPLATE_ID)
-				.label("Many Models")
-                .imageURL("/images/Models-Template.png")
-                .natures(List.of())
-				.build());
+		return List.of(
+				ProjectTemplate.newProjectTemplate(MANYMODELS_TEMPLATE_ID).label("Many Models")
+						.imageURL("/images/Models-Template.png").natures(List.of()).build(),
+				ProjectTemplate.newProjectTemplate(ONEMILLION_TEMPLATE_ID).label("1M-Modeling")
+						.imageURL("/images/1MModeling-Template.png").natures(List.of()).build());
 	}
 
 }
