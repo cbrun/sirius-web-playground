@@ -1,4 +1,5 @@
 package fr.obeo.playground.restfulemf;
+
 /*******************************************************************************
  * Copyright (c) 2019, 2023 Obeo.
  * This program and the accompanying materials
@@ -12,7 +13,6 @@ package fr.obeo.playground.restfulemf;
  *     Obeo - initial API and implementation
  *******************************************************************************/
 
-
 import java.util.UUID;
 
 import org.eclipse.emf.ecore.resource.Resource;
@@ -21,5 +21,5 @@ import org.eclipse.sirius.components.core.api.IInput;
 /**
  * @author Cedric Brun <cedric.brun@obeo.fr>
  */
-public record ReplaceResourceContentInput(UUID id, String editingContextId, Resource newResourceContent) implements IInput {
+public record ReplaceResourceContentInput(UUID id, Resource newResourceContent) implements IInput {
 }

@@ -30,8 +30,8 @@ import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IInput;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.core.api.SuccessPayload;
-import org.eclipse.sirius.components.emf.services.EditingContext;
 import org.eclipse.sirius.emfjson.resource.JsonResourceImpl;
+import org.eclipse.sirius.web.services.editingcontext.EditingContext;
 import org.eclipse.sirius.web.services.messages.IServicesMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,6 +117,8 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
 				}
 				payload = new SuccessPayload(input.id());
 				changeDescription = new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, editingContext.getId(), input);
+			} else {
+				logger.info("could not find an editing domain");
 			}
 		}
 

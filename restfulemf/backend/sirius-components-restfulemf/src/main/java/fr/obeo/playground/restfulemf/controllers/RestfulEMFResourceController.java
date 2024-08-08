@@ -55,6 +55,7 @@ import com.google.common.collect.Lists;
 
 import fr.obeo.playground.restfulemf.ReplaceResourceContentInput;
 import fr.obeo.playground.restfulemf.SheetDataTable;
+import graphql.com.google.common.collect.Maps;
 import reactor.core.publisher.Mono;
 
 /**
@@ -165,20 +166,36 @@ public class RestfulEMFResourceController {
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 	}
 
+	@GetMapping("/projects/{projectId:.*}/documents")
+	@ResponseBody
+	Map<String, String> getDocuments(@PathVariable String projectId) {
+		Optional<Project> prj = Optional.empty();
+		try {
+			prj = this.projectService.getProject(UUID.fromString(projectId));
+		} catch (IllegalArgumentException e) {
+			this.logger.error("Error finding project " + projectId + ". ");
+		}
+		if (prj.isPresent()) {
+			Map<String, String> results = Maps.newLinkedHashMap();
+			List<Document> projectDocs = this.documentService.getDocuments(prj.get().getId().toString());
+			for (Document document : projectDocs) {
+				results.put(document.getId().toString(), document.getName());
+			}
+			return results;
+		}
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+	}
+
 	private Optional<Document> findDocumentBasedOnIDorNames(String projectId, String documentName) {
 		Optional<Document> found = Optional.empty();
 		Optional<Project> prj = Optional.empty();
 		try {
 			prj = this.projectService.getProject(UUID.fromString(projectId));
 		} catch (IllegalArgumentException e) {
-			// the parameter is not an UUID, it most likely is a project name.
-			Iterator<Project> it = this.projectService.getProjects().iterator();
-			while (it.hasNext() && prj.isEmpty()) {
-				Project p = it.next();
-				if (projectId.equals(p.getName())) {
-					prj = Optional.of(p);
-				}
-			}
+			this.logger.error("Error finding project " + projectId + ". ");
+//			// the parameter is not an UUID, it most likely is a project name.. we might want to implement that.
+
 		}
 		if (prj.isPresent()) {
 			List<Document> projectDocs = this.documentService.getDocuments(prj.get().getId().toString());
@@ -186,6 +203,11 @@ public class RestfulEMFResourceController {
 				if (document.getName().equals(documentName)) {
 					found = Optional.of(document);
 				}
+			}
+			// FIXME this logic needs additional treatment to provide more flexibility ,
+			// here we are just falling back to the first document.
+			if (found.isEmpty() && projectDocs.size() > 0) {
+				found = Optional.of(projectDocs.get(0));
 			}
 		}
 		return found;
@@ -374,8 +396,7 @@ public class RestfulEMFResourceController {
 				}
 				xmiRes.load(inputStream, options);
 
-				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(),
-						doc.getProject().getId().toString(), xmiRes);
+				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), xmiRes);
 
 				Mono<IPayload> result = this.editingContextEventProcessorRegistry
 						.dispatchEvent(doc.getProject().getId().toString(), input);
@@ -407,8 +428,7 @@ public class RestfulEMFResourceController {
 				Map<String, Object> options = new HashMap<>();
 				options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
 				binR.load(inputStream, options);
-				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(),
-						doc.getProject().getId().toString(), binR);
+				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), binR);
 				Mono<IPayload> result = this.editingContextEventProcessorRegistry
 						.dispatchEvent(doc.getProject().getId().toString(), input);
 				this.logger.info("pushed document " + result);
