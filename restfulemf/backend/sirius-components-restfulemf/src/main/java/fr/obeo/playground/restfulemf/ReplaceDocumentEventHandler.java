@@ -31,8 +31,8 @@ import org.eclipse.sirius.components.core.api.IInput;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.core.api.SuccessPayload;
 import org.eclipse.sirius.emfjson.resource.JsonResourceImpl;
-import org.eclipse.sirius.web.services.editingcontext.EditingContext;
-import org.eclipse.sirius.web.services.messages.IServicesMessageService;
+import org.eclipse.sirius.web.application.editingcontext.EditingContext;
+import org.eclipse.sirius.web.domain.services.api.IMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,9 +53,9 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
 
 	private final Logger logger = LoggerFactory.getLogger(ReplaceDocumentEventHandler.class);
 
-	private final IServicesMessageService messageService;
+	private final IMessageService messageService;
 
-	public ReplaceDocumentEventHandler(IServicesMessageService messageService, MeterRegistry meterRegistry) {
+	public ReplaceDocumentEventHandler(IMessageService messageService, MeterRegistry meterRegistry) {
 		this.messageService = Objects.requireNonNull(messageService);
 
 	}

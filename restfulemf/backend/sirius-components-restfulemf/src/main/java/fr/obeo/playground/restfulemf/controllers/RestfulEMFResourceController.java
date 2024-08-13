@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -17,8 +18,8 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.util.EcoreUtil.Copier;
 import org.eclipse.emf.ecore.xmi.XMIResource;
@@ -26,19 +27,19 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.sirius.components.collaborative.api.IEditingContextEventProcessorRegistry;
+import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.EObjectIDManager;
+import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
+import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.components.emf.utils.EMFResourceUtils;
-import org.eclipse.sirius.emfjson.resource.JsonResource;
-import org.eclipse.sirius.emfjson.resource.JsonResourceImpl;
-import org.eclipse.sirius.web.services.api.document.Document;
-import org.eclipse.sirius.web.services.api.document.IDocumentService;
-import org.eclipse.sirius.web.services.api.projects.IProjectService;
-import org.eclipse.sirius.web.services.api.projects.Project;
-import org.eclipse.sirius.web.services.editingcontext.api.IEditingDomainFactoryService;
+import org.eclipse.sirius.web.domain.boundedcontexts.project.Project;
+import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.Document;
+import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.services.api.ISemanticDataSearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,10 +53,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import fr.obeo.playground.restfulemf.ReplaceResourceContentInput;
 import fr.obeo.playground.restfulemf.SheetDataTable;
-import graphql.com.google.common.collect.Maps;
+import graphql.com.google.common.collect.Sets;
 import reactor.core.publisher.Mono;
 
 /**
@@ -65,13 +67,10 @@ import reactor.core.publisher.Mono;
 public class RestfulEMFResourceController {
 
 	@Autowired
-	private IDocumentService documentService;
+	private final IEditingContextSearchService editingContextSearchService = null;
 
 	@Autowired
-	private IProjectService projectService;
-
-	@Autowired
-	private IEditingDomainFactoryService editingDomainFactory;
+	private ISemanticDataSearchService semanticDataSearchService;
 
 	@Autowired
 	private IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry;
@@ -112,56 +111,36 @@ public class RestfulEMFResourceController {
 	@ResponseBody
 	byte[] getBinaryResource(@PathVariable String projectId, @PathVariable String documentName) {
 		this.logger.info("GET"); //$NON-NLS-1$
-		Optional<Document> found = findDocumentBasedOnIDorNames(projectId, documentName);
-		if (found.isPresent()) {
-			Document doc = found.get();
-			ResourceSet loadingResourceSet = this.prepareResourceSet(doc);
-
-			URI uri = createURIForDocument(doc);
-			Map<String, Object> options = new HashMap<>();
+		Optional<Resource> res = getResource(projectId, documentName);
+		if (res.isPresent()) {
+			Resource resource = res.get();
 			EObjectIDManager idManager = new EObjectIDManager();
-			options.put(JsonResource.OPTION_ID_MANAGER, idManager);
-			Resource resource = new JsonResourceImpl(uri, options);
-			loadingResourceSet.getResources().add(resource);
 
-			Optional<byte[]> optionalBytes = this.documentService.getBytes(doc, IDocumentService.RESOURCE_KIND_JSON);
-			if (optionalBytes.isPresent()) {
-				try (var inputStream = new ByteArrayInputStream(optionalBytes.get())) {
-					resource.load(inputStream, options);
-					loadingResourceSet.getResources().add(resource);
-				} catch (IOException exception) {
-					this.logger.warn(exception.getMessage(), exception);
-				}
+			Stopwatch binSave = Stopwatch.createStarted();
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				XMLResource binR = new XMLResourceImpl(resource.getURI());
 
-				Stopwatch binSave = Stopwatch.createStarted();
-				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-					XMLResource binR = new XMLResourceImpl(uri);
-
-					Map<String, Object> outOps = new HashMap<>();
-					outOps.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-					binR.getContents().addAll(resource.getContents());
-					Iterator<EObject> it = binR.getAllContents();
-					while (it.hasNext()) {
-						EObject cur = it.next();
-						Optional<String> id = idManager.findId(cur);
-						if (id.isPresent()) {
-							binR.setID(cur, id.get());
-						}
+				Map<String, Object> outOps = new HashMap<>();
+				outOps.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+				binR.getContents().addAll(resource.getContents());
+				Iterator<EObject> it = binR.getAllContents();
+				while (it.hasNext()) {
+					EObject cur = it.next();
+					Optional<String> id = idManager.findId(cur);
+					if (id.isPresent()) {
+						binR.setID(cur, id.get());
 					}
-					binR.save(outputStream, outOps);
-					byte[] result = outputStream.toByteArray();
-					this.logger.info("GET, content: " + result.length + " bytes."); // $NON-NL
-					return result;
-				} catch (IOException e) {
-					this.logger.error("Error saving document " + projectId + "/" + documentName + " to  binary stream.",
-							e);
-				} finally {
-					binSave.stop();
 				}
-				this.logger.info("binary save : " + binSave.elapsed(TimeUnit.MILLISECONDS) + " ms."); //$NON-NLS-1$ //$NON-NLS-2$
-			} else {
-				// 404
+				binR.save(outputStream, outOps);
+				byte[] result = outputStream.toByteArray();
+				this.logger.info("GET, content: " + result.length + " bytes."); // $NON-NL
+				return result;
+			} catch (IOException e) {
+				this.logger.error("Error saving document " + projectId + "/" + documentName + " to  binary stream.", e);
+			} finally {
+				binSave.stop();
 			}
+			this.logger.info("binary save : " + binSave.elapsed(TimeUnit.MILLISECONDS) + " ms."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 	}
@@ -169,36 +148,31 @@ public class RestfulEMFResourceController {
 	@GetMapping("/projects/{projectId:.*}/documents")
 	@ResponseBody
 	Map<String, String> getDocuments(@PathVariable String projectId) {
-		Optional<Project> prj = Optional.empty();
-		try {
-			prj = this.projectService.getProject(UUID.fromString(projectId));
-		} catch (IllegalArgumentException e) {
-			this.logger.error("Error finding project " + projectId + ". ");
-		}
-		if (prj.isPresent()) {
+
+		AggregateReference<Project, UUID> projectKey = AggregateReference.to(UUID.fromString(projectId));
+
+		var optionalSemanticData = this.semanticDataSearchService.findByProject(projectKey);
+
+		if (optionalSemanticData.isPresent()) {
 			Map<String, String> results = Maps.newLinkedHashMap();
-			List<Document> projectDocs = this.documentService.getDocuments(prj.get().getId().toString());
+			Set<Document> projectDocs = optionalSemanticData.get().getDocuments();
 			for (Document document : projectDocs) {
 				results.put(document.getId().toString(), document.getName());
 			}
 			return results;
 		}
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
 	}
 
 	private Optional<Document> findDocumentBasedOnIDorNames(String projectId, String documentName) {
 		Optional<Document> found = Optional.empty();
-		Optional<Project> prj = Optional.empty();
-		try {
-			prj = this.projectService.getProject(UUID.fromString(projectId));
-		} catch (IllegalArgumentException e) {
-			this.logger.error("Error finding project " + projectId + ". ");
-//			// the parameter is not an UUID, it most likely is a project name.. we might want to implement that.
+		AggregateReference<Project, UUID> projectKey = AggregateReference.to(UUID.fromString(projectId));
 
-		}
-		if (prj.isPresent()) {
-			List<Document> projectDocs = this.documentService.getDocuments(prj.get().getId().toString());
+		var optionalSemanticData = this.semanticDataSearchService.findByProject(projectKey);
+
+		if (optionalSemanticData.isPresent()) {
+
+			Set<Document> projectDocs = optionalSemanticData.get().getDocuments();
 			for (Document document : projectDocs) {
 				if (document.getName().equals(documentName)) {
 					found = Optional.of(document);
@@ -207,8 +181,10 @@ public class RestfulEMFResourceController {
 			// FIXME this logic needs additional treatment to provide more flexibility ,
 			// here we are just falling back to the first document.
 			if (found.isEmpty() && projectDocs.size() > 0) {
-				found = Optional.of(projectDocs.get(0));
+				found = Optional.of(projectDocs.iterator().next());
 			}
+		} else {
+			this.logger.error("Error finding project " + projectId + ". ");
 		}
 		return found;
 	}
@@ -231,74 +207,85 @@ public class RestfulEMFResourceController {
 	String getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
 			@RequestParam(defaultValue = "\t", name = "sep") String separator) {
 		this.logger.info("GET CSV"); //$NON-NLS-1$
-		Optional<Document> found = findDocumentBasedOnIDorNames(projectId, documentName);
-		if (found.isPresent()) {
-			Document doc = found.get();
-			ResourceSet loadingResourceSet = this.prepareResourceSet(doc);
-			URI uri = createURIForDocument(doc);
-			Map<String, Object> options = new HashMap<>();
+		Optional<Resource> res = getResource(projectId, documentName);
+		if (res.isPresent()) {
+			Resource resource = res.get();
 			EObjectIDManager idManager = new EObjectIDManager();
-			options.put(JsonResource.OPTION_ID_MANAGER, idManager);
-			Resource resource = new JsonResourceImpl(uri, options);
-			loadingResourceSet.getResources().add(resource);
 			SheetDataTable table = new SheetDataTable();
 
-			Optional<byte[]> optionalBytes = this.documentService.getBytes(doc, IDocumentService.RESOURCE_KIND_JSON);
-			if (optionalBytes.isPresent()) {
-				try (var inputStream = new ByteArrayInputStream(optionalBytes.get())) {
-					resource.load(inputStream, options);
-					loadingResourceSet.getResources().add(resource);
-				} catch (IOException exception) {
-					this.logger.warn(exception.getMessage(), exception);
-				}
-
-				int nbObj = 0;
-				Iterator<EObject> it = resource.getAllContents();
-				while (it.hasNext()) {
-					Notifier notifier = it.next();
-					if (notifier instanceof EObject) {
-						EObject eObj = (EObject) notifier;
-						Optional<String> id = idManager.findId(eObj);
-						if (id.isPresent()) {
-							String eObjUUID = id.get().toString();
-							table.updateValue(eObjUUID, "eClass", eObj.eClass().getName()); //$NON-NLS-1$
-							nbObj++;
-							for (EAttribute eatt : eObj.eClass().getEAllAttributes()) {
-								if (!eatt.isMany()) {
-									Object val = eObj.eGet(eatt);
-									if (val != null) {
-										String strValue = ""; //$NON-NLS-1$
-										if (val instanceof String) {
-											strValue = "\"" + val + "\""; //$NON-NLS-1$//$NON-NLS-2$
-										} else {
-											strValue = eatt.getEType().getEPackage().getEFactoryInstance()
-													.convertToString((EDataType) eatt.getEType(), val);
-										}
-										table.updateValue(eObjUUID, eatt.getName(), strValue);
-									}
-								} else {
-									// TODO handle here the case of multi-valued attributes.
+			int nbObj = 0;
+			Iterator<EObject> it = resource.getAllContents();
+			Set<EObject> toIgnore = Sets.newLinkedHashSet();
+			while (it.hasNext()) {
+				Notifier notifier = it.next();
+				if (notifier instanceof EObject && !toIgnore.contains(notifier)) {
+					EObject eObj = (EObject) notifier;
+					Optional<String> id = idManager.findId(eObj);
+					if (id.isPresent()) {
+						String lineUUID = id.get().toString();
+						table.updateValue(lineUUID, "eClass", eObj.eClass().getName()); //$NON-NLS-1$
+						nbObj = putAttributesInTable(table, nbObj, eObj, lineUUID);
+						// for each containment with upper bound 1, we add contained element attributes
+						// on the same line making it easier to process.
+						for (EReference childRef : eObj.eClass().getEAllContainments()) {
+							if (childRef.getUpperBound() == 1) {
+								EObject child = (EObject) eObj.eGet(childRef);
+								if (child != null) {
+									toIgnore.add(child);
+									table.updateValue(lineUUID, childRef.getName(), child.eClass().getName()); // $NON-NLS-1$
+									nbObj = putAttributesInTable(table, nbObj, child, lineUUID);
 								}
 							}
+
 						}
+
 					}
 				}
-				logger.info("Generating CSV, number of model elements: " + nbObj);
-
-				table.fillEmptyCells();
-
-				StringBuffer buf = new StringBuffer();
-				for (List<Object> line : table.getValues()) {
-					buf.append('\n');
-					buf.append(Joiner.on(separator).join(line));
-				}
-				buf.append('\n');
-				return buf.toString();
 			}
+			logger.info("Generating CSV, number of model elements: " + nbObj);
+
+			table.fillEmptyCells();
+
+			StringBuffer buf = new StringBuffer();
+			for (List<Object> line : table.getValues()) {
+				buf.append('\n');
+				buf.append(Joiner.on(separator).join(line));
+			}
+			buf.append('\n');
+			return buf.toString();
 		} else {
 			// 404
 		}
 		return "";
+	}
+
+	/**
+	 * @param table
+	 * @param nbObj
+	 * @param eObj
+	 * @param eObjUUID
+	 * @return
+	 */
+	private int putAttributesInTable(SheetDataTable table, int nbObj, EObject eObj, String eObjUUID) {
+		nbObj++;
+		for (EAttribute eatt : eObj.eClass().getEAllAttributes()) {
+			if (!eatt.isMany()) {
+				Object val = eObj.eGet(eatt);
+				if (val != null) {
+					String strValue = ""; //$NON-NLS-1$
+					if (val instanceof String) {
+						strValue = "\"" + val + "\""; //$NON-NLS-1$//$NON-NLS-2$
+					} else {
+						strValue = eatt.getEType().getEPackage().getEFactoryInstance()
+								.convertToString((EDataType) eatt.getEType(), val);
+					}
+					table.updateValue(eObjUUID, eatt.getName(), strValue);
+				}
+			} else {
+				// TODO handle here the case of multi-valued attributes.
+			}
+		}
+		return nbObj;
 	}
 
 	@PutMapping("/projects/{projectId:.*}/{documentName:.*}/csv")
@@ -316,53 +303,39 @@ public class RestfulEMFResourceController {
 	}
 
 	private byte[] getXMI(String projectId, String documentName, boolean zipped) {
-		Optional<Document> found = findDocumentBasedOnIDorNames(projectId, documentName);
-		if (found.isPresent()) {
-			Document doc = found.get();
-			ResourceSet loadingResourceSet = this.prepareResourceSet(doc);
-			URI uri = createURIForDocument(doc);
-			Map<String, Object> options = new HashMap<>();
+
+		Optional<Resource> res = getResource(projectId, documentName);
+		if (res.isPresent()) {
+			Resource resource = res.get();
 			EObjectIDManager idManager = new EObjectIDManager();
-			options.put(JsonResource.OPTION_ID_MANAGER, idManager);
-			Resource resource = new JsonResourceImpl(uri, options);
-			loadingResourceSet.getResources().add(resource);
 
-			Optional<byte[]> optionalBytes = this.documentService.getBytes(doc, IDocumentService.RESOURCE_KIND_JSON);
-			if (optionalBytes.isPresent()) {
-				try (var inputStream = new ByteArrayInputStream(optionalBytes.get())) {
-					resource.load(inputStream, options);
-					loadingResourceSet.getResources().add(resource);
-				} catch (IOException exception) {
-					this.logger.warn(exception.getMessage(), exception);
-				}
-
-				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-					XMIResource xmiR = new XMIResourceImpl(uri);
-					xmiR.getContents().addAll(resource.getContents());
-					Iterator<EObject> it = xmiR.getAllContents();
-					while (it.hasNext()) {
-						EObject cur = it.next();
-						Optional<String> id = idManager.findId(cur);
-						if (id.isPresent()) {
-							xmiR.setID(cur, id.get());
-						}
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				XMIResource xmiR = new XMIResourceImpl(resource.getURI());
+				xmiR.getContents().addAll(resource.getContents());
+				Iterator<EObject> it = xmiR.getAllContents();
+				while (it.hasNext()) {
+					EObject cur = it.next();
+					Optional<String> id = idManager.findId(cur);
+					if (id.isPresent()) {
+						xmiR.setID(cur, id.get());
 					}
-					Map<String, Object> optionsXMI = new HashMap<>();
-					optionsXMI.putAll(new EMFResourceUtils().getXMILoadOptions());
-					if (zipped) {
-						optionsXMI.put(Resource.OPTION_ZIP, Boolean.TRUE);
-					}
-					xmiR.save(outputStream, optionsXMI);
-					byte[] result = outputStream.toByteArray();
-					this.logger.info("GET, content: " + result.length + " bytes."); // $NON-NL
-					return result;
-				} catch (IOException e) {
-					this.logger.error("Error  " + projectId + "/" + documentName + " to  binary stream.", e);
-					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 				}
+				Map<String, Object> optionsXMI = new HashMap<>();
+				optionsXMI.putAll(new EMFResourceUtils().getXMILoadOptions());
+				if (zipped) {
+					optionsXMI.put(Resource.OPTION_ZIP, Boolean.TRUE);
+				}
+				xmiR.save(outputStream, optionsXMI);
+				byte[] result = outputStream.toByteArray();
+				this.logger.info("GET, content: " + result.length + " bytes."); // $NON-NL
+				return result;
+			} catch (IOException e) {
+				this.logger.error("Error  " + projectId + "/" + documentName + " to  binary stream.", e);
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+		} else {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 	}
 
 	@PutMapping("/projects/{projectId:.*}/{documentName:.*}/xmi")
@@ -398,8 +371,7 @@ public class RestfulEMFResourceController {
 
 				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), xmiRes);
 
-				Mono<IPayload> result = this.editingContextEventProcessorRegistry
-						.dispatchEvent(doc.getProject().getId().toString(), input);
+				Mono<IPayload> result = this.editingContextEventProcessorRegistry.dispatchEvent(projectId, input);
 				this.logger.info("pushed document " + result);
 
 			} catch (IOException e) {
@@ -429,8 +401,7 @@ public class RestfulEMFResourceController {
 				options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
 				binR.load(inputStream, options);
 				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), binR);
-				Mono<IPayload> result = this.editingContextEventProcessorRegistry
-						.dispatchEvent(doc.getProject().getId().toString(), input);
+				Mono<IPayload> result = this.editingContextEventProcessorRegistry.dispatchEvent(projectIdOrName, input);
 				this.logger.info("pushed document " + result);
 
 			} catch (IOException e) {
@@ -442,8 +413,20 @@ public class RestfulEMFResourceController {
 		}
 	}
 
-	private ResourceSet prepareResourceSet(Document doc) {
-		return editingDomainFactory.createEditingDomain(doc.getProject().getId().toString()).getResourceSet();
+	private Optional<org.eclipse.emf.ecore.resource.Resource> getResource(String editingContextId, String documentId) {
+		Optional<Document> found = findDocumentBasedOnIDorNames(editingContextId, documentId);
+		if (found.isPresent()) {
+			return this.editingContextSearchService.findById(editingContextId)
+					.filter(IEMFEditingContext.class::isInstance).map(IEMFEditingContext.class::cast)
+					.flatMap(editingContext -> {
+						var uri = new JSONResourceFactory().createResourceURI(found.get().getId().toString());
+						return editingContext.getDomain().getResourceSet().getResources().stream()
+								.filter(resource -> resource.getURI().equals(uri)).findFirst();
+					});
+		} else {
+			return Optional.empty();
+		}
+
 	}
 
 }

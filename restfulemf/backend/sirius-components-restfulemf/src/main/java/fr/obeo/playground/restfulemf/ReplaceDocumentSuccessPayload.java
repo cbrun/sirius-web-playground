@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IPayload;
-import org.eclipse.sirius.web.services.api.document.Document;
+import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.Document;
 
 /**
  * @author Cedric Brun <cedric.brun@obeo.fr>
