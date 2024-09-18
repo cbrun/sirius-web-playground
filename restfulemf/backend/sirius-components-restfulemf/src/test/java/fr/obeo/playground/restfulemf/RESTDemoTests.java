@@ -35,14 +35,17 @@ import org.junit.jupiter.api.Test;
  * @author cedric
  */
 public class RESTDemoTests {
+	
+	
+	
 
-	@Test
-	public void emfFrameworkSetup() throws Exception {
-		Map<String, Object> options = new HashMap<>();
-		options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-		Resource model = new XMLResourceImpl(URI.createURI("http://localhost:8080/projects/Travel Agency/MyModel.uml"));
-		model.load(options);
-	}
+//	@Test
+//	public void emfFrameworkSetup() throws Exception {
+//		Map<String, Object> options = new HashMap<>();
+//		options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+//		Resource model = new XMLResourceImpl(URI.createURI("http://localhost:8080/projects/Travel Agency/MyModel.uml"));
+//		model.load(options);
+//	}
 
 	/**
 	 * Demo code showing how to access an UML model hosted on a Papyrus Web
@@ -66,7 +69,7 @@ public class RESTDemoTests {
 		 * retrieving and registering the EPackages which are used.
 		 */
 		ResourceSet set = new ResourceSetImpl();
-		String projectNameOrID = "ea808cf6-4aec-4e4f-a208-ff5931677c53";
+		String projectNameOrID = "cc10b085-8ace-4f32-9a3b-5db49b417855";
 //		String projectNameOrID = "TravelAgency";
 
 		String baseURL = "http://localhost:8080/projects/";
@@ -80,7 +83,7 @@ public class RESTDemoTests {
 			}
 			System.out.println("Registered : " + pak.getNsURI());
 		}
-		String url = baseURL + projectNameOrID + "/TravalAgency.uml/bin";
+		String url = baseURL + projectNameOrID + "/linux-kernel.uml/bin";
 		Resource model = new XMLResourceImpl(URI.createURI(url));
 		set.getResources().add(model);
 		model.load(options);
@@ -90,7 +93,7 @@ public class RESTDemoTests {
 		Iterator<EObject> it = model.getAllContents();
 		while (it.hasNext()) {
 			EObject e = it.next();
-			if (e.eClass().getName().equals("Property") && e.eClass().getEPackage().getName().equals("uml")) {
+			if (e.eClass().getName().equals("Component") && e.eClass().getEPackage().getName().equals("uml")) {
 				System.out.println(e);
 				EStructuralFeature nameFeature = e.eClass().getEStructuralFeature("name");
 				String nameValue = (String) e.eGet(nameFeature);

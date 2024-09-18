@@ -27,7 +27,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<sirius.components.version>2024.7.9</sirius.components.version>
+		<sirius.components.version>2024.7.10</sirius.components.version>
 	</properties>
 
 	<repositories>
