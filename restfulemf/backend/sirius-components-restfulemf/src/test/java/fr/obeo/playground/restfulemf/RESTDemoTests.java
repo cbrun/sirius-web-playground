@@ -14,6 +14,7 @@
 package fr.obeo.playground.restfulemf;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,15 +30,14 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
+import org.eclipse.syson.sysml.RequirementUsage;
+import org.eclipse.syson.sysml.SysmlPackage;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author cedric
  */
 public class RESTDemoTests {
-	
-	
-	
 
 //	@Test
 //	public void emfFrameworkSetup() throws Exception {
@@ -55,7 +55,7 @@ public class RESTDemoTests {
 	 * 
 	 * @throws Exception
 	 */
-	@Test
+//	@Test
 	public void testReflectiveWithUMLModel() throws Exception {
 		/*
 		 * XML Resource with binary option is the best choice as it also serializes
@@ -72,7 +72,7 @@ public class RESTDemoTests {
 		String projectNameOrID = "cc10b085-8ace-4f32-9a3b-5db49b417855";
 //		String projectNameOrID = "TravelAgency";
 
-		String baseURL = "http://localhost:8080/projects/";
+		String baseURL = "http://localhost:8080/api/rest/projects/";
 		Resource usedEPackages = new XMLResourceImpl(URI.createURI(baseURL + projectNameOrID + "/epackages/bin"));
 		set.getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
 		usedEPackages.load(options);
@@ -100,6 +100,44 @@ public class RESTDemoTests {
 //				e.eSet(nameFeature, nameValue.replace("Renamed", "")); // remove "Renamed"
 				e.eSet(nameFeature, nameValue + "Renamed"); // append "Renamed"
 
+			}
+		}
+		model.save(options);
+	}
+
+	@Test
+	public void testJavaPIWithSysMLModel() throws Exception {
+		/*
+		 * XML Resource with binary option is the best choice as it also serializes
+		 * extrinsic IDs and use better defaults than BinaryResourceImpl.
+		 */
+		Map<String, Object> options = new HashMap<>();
+		options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+
+		/*
+		 * configure a ResourceSet to load the models from the web instance by
+		 * retrieving and registering the EPackages which are used.
+		 */
+		ResourceSet set = new ResourceSetImpl();
+		String projectNameOrID = "527255e7-a0fa-4367-bcfa-e2e08fd77fc2";
+
+		String baseURL = "http://localhost:8080/api/rest/projects/";
+		set.getPackageRegistry().put(SysmlPackage.eNS_URI, SysmlPackage.eINSTANCE);
+		String url = baseURL + projectNameOrID + "/ISS.sysml/bin";
+		Resource model = new XMLResourceImpl(URI.createURI(url));
+		set.getResources().add(model);
+		model.load(options);
+		/*
+		 * Let's work on the model reflectively.
+		 */
+		Iterator<RequirementUsage> it = Iterators.filter(model.getAllContents(), RequirementUsage.class);
+		while (it.hasNext()) {
+			RequirementUsage e = it.next();
+			System.out.println(e);
+			if (e.getDeclaredName().contains("Renamed")) {
+				e.setDeclaredName(e.getDeclaredName().replace("Renamed", ""));
+			} else {
+				e.setDeclaredName(e.getDeclaredName() + "Renamed");
 			}
 		}
 		model.save(options);

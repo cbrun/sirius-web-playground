@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.sirius.components.collaborative.api.IEditingContextEventProcessorRegistry;
+import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.EObjectIDManager;
@@ -34,6 +35,8 @@ import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.components.emf.utils.EMFResourceUtils;
 import org.eclipse.sirius.web.domain.boundedcontexts.project.Project;
+import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.ProjectSemanticData;
+import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.Document;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.services.api.ISemanticDataSearchService;
 import org.slf4j.Logger;
@@ -73,6 +76,9 @@ public class RestfulEMFResourceController {
 	private ISemanticDataSearchService semanticDataSearchService;
 
 	@Autowired
+	private IProjectSemanticDataSearchService projectSemanticDataSearch;
+
+	@Autowired
 	private IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry;
 
 	@Autowired
@@ -80,7 +86,7 @@ public class RestfulEMFResourceController {
 
 	private final Logger logger = LoggerFactory.getLogger(RestfulEMFResourceController.class);
 
-	@GetMapping("/projects/{projectId:.*}/epackages/bin")
+	@GetMapping("/api/rest/projects/{projectId:.*}/epackages/bin")
 	@ResponseBody
 	byte[] getEPackages(@PathVariable String projectId) {
 		URI uri = URI.createURI("sirius:///" + projectId + "/epackages");
@@ -107,7 +113,7 @@ public class RestfulEMFResourceController {
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 	}
 
-	@GetMapping("/projects/{projectId:.*}/{documentName:.*}/bin")
+	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/bin")
 	@ResponseBody
 	byte[] getBinaryResource(@PathVariable String projectId, @PathVariable String documentName) {
 		this.logger.info("GET"); //$NON-NLS-1$
@@ -145,13 +151,13 @@ public class RestfulEMFResourceController {
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 	}
 
-	@GetMapping("/projects/{projectId:.*}/documents")
+	@GetMapping("/api/rest/projects/{projectId:.*}/documents")
 	@ResponseBody
 	Map<String, String> getDocuments(@PathVariable String projectId) {
 
 		AggregateReference<Project, UUID> projectKey = AggregateReference.to(UUID.fromString(projectId));
 
-		var optionalSemanticData = this.semanticDataSearchService.findByProject(projectKey);
+		var optionalSemanticData = this.semanticDataSearchService.findById(projectKey.getId());
 
 		if (optionalSemanticData.isPresent()) {
 			Map<String, String> results = Maps.newLinkedHashMap();
@@ -164,27 +170,29 @@ public class RestfulEMFResourceController {
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 	}
 
-	private Optional<Document> findDocumentBasedOnIDorNames(String projectId, String documentName) {
+	private Optional<Document> findDocumentBasedOnIDorNames(String editingContextId, String documentName) {
 		Optional<Document> found = Optional.empty();
-		AggregateReference<Project, UUID> projectKey = AggregateReference.to(UUID.fromString(projectId));
+		Optional<ProjectSemanticData> data = projectSemanticDataSearch
+				.findByProjectId(AggregateReference.to(editingContextId));
 
-		var optionalSemanticData = this.semanticDataSearchService.findByProject(projectKey);
+		if (data.isPresent()) {
+			var optionalSemanticData = this.semanticDataSearchService.findById(data.get().getSemanticData().getId());
+			if (optionalSemanticData.isPresent()) {
 
-		if (optionalSemanticData.isPresent()) {
-
-			Set<Document> projectDocs = optionalSemanticData.get().getDocuments();
-			for (Document document : projectDocs) {
-				if (document.getName().equals(documentName)) {
-					found = Optional.of(document);
+				Set<Document> projectDocs = optionalSemanticData.get().getDocuments();
+				for (Document document : projectDocs) {
+					if (document.getName().equals(documentName) || document.getId().toString().equals(documentName)) {
+						found = Optional.of(document);
+					}
+				}
+				// FIXME this logic needs additional treatment to provide more flexibility ,
+				// here we are just falling back to the first document.
+				if (found.isEmpty() && projectDocs.size() > 0) {
+					found = Optional.of(projectDocs.iterator().next());
 				}
 			}
-			// FIXME this logic needs additional treatment to provide more flexibility ,
-			// here we are just falling back to the first document.
-			if (found.isEmpty() && projectDocs.size() > 0) {
-				found = Optional.of(projectDocs.iterator().next());
-			}
 		} else {
-			this.logger.error("Error finding project " + projectId + ". ");
+			this.logger.error("Error finding project " + data.get().getId() + ". ");
 		}
 		return found;
 	}
@@ -194,7 +202,7 @@ public class RestfulEMFResourceController {
 		return uri;
 	}
 
-	@GetMapping("/projects/{projectId:.*}/{documentName:.*}/xmi")
+	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/xmi")
 	@ResponseBody
 	byte[] getXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
 		this.logger.info("GET XMI"); //$NON-NLS-1$
@@ -202,7 +210,7 @@ public class RestfulEMFResourceController {
 		return result;
 	}
 
-	@GetMapping("/projects/{projectId:.*}/{documentName:.*}/csv")
+	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/csv")
 	@ResponseBody
 	String getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
 			@RequestParam(defaultValue = "\t", name = "sep") String separator) {
@@ -288,14 +296,14 @@ public class RestfulEMFResourceController {
 		return nbObj;
 	}
 
-	@PutMapping("/projects/{projectId:.*}/{documentName:.*}/csv")
+	@PutMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/csv")
 	@ResponseBody
 	void putCSVResource(@RequestBody String content, @PathVariable String projectId,
 			@PathVariable String documentName) {
 		this.logger.info("PUT CSV, content: " + content.length() + " size."); //$NON-NLS-1$
 	}
 
-	@GetMapping("/projects/{projectId:.*}/{documentName:.*}/xmi.zip")
+	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/xmi.zip")
 	@ResponseBody
 	byte[] getZippedXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
 		byte[] result = this.getXMI(projectId, documentName, true);
@@ -338,7 +346,7 @@ public class RestfulEMFResourceController {
 		}
 	}
 
-	@PutMapping("/projects/{projectId:.*}/{documentName:.*}/xmi")
+	@PutMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/xmi")
 	@ResponseBody
 	void putXMIResource(@RequestBody byte[] content, @PathVariable String projectId,
 			@PathVariable String documentName) {
@@ -346,7 +354,7 @@ public class RestfulEMFResourceController {
 		this.putXMI(content, projectId, documentName, false);
 	}
 
-	@PutMapping("/projects/{projectIdOrName:.*}/{documentName:.*}/xmi.zip")
+	@PutMapping("/api/rest/projects/{projectIdOrName:.*}/{documentName:.*}/xmi.zip")
 	@ResponseBody
 	void putXMIResourceZipped(@RequestBody byte[] content, @PathVariable String projectIdOrName,
 			@PathVariable String documentName) {
@@ -383,7 +391,7 @@ public class RestfulEMFResourceController {
 		}
 	}
 
-	@PutMapping("/projects/{projectIdOrName:.*}/{documentName:.*}/bin")
+	@PutMapping("/api/rest/projects/{projectIdOrName:.*}/{documentName:.*}/bin")
 	@ResponseBody
 	void putBinaryResource(@RequestBody byte[] content, @PathVariable String projectIdOrName,
 			@PathVariable String documentName) {
@@ -391,7 +399,12 @@ public class RestfulEMFResourceController {
 
 		Stopwatch binLoad = Stopwatch.createStarted();
 		Optional<Document> found = findDocumentBasedOnIDorNames(projectIdOrName, documentName);
-		if (found.isPresent()) {
+		Optional<ProjectSemanticData> data = projectSemanticDataSearch
+				.findByProjectId(AggregateReference.to(projectIdOrName));
+
+		if (found.isPresent() && data.isPresent()) {
+			Optional<IEditingContext> editingCtx = this.editingContextSearchService
+					.findById(data.get().getSemanticData().getId().toString());
 			Document doc = found.get();
 			URI uri = createURIForDocument(doc);
 
@@ -401,7 +414,8 @@ public class RestfulEMFResourceController {
 				options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
 				binR.load(inputStream, options);
 				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), binR);
-				Mono<IPayload> result = this.editingContextEventProcessorRegistry.dispatchEvent(projectIdOrName, input);
+				Mono<IPayload> result = this.editingContextEventProcessorRegistry
+						.dispatchEvent(editingCtx.get().getId(), input);
 				this.logger.info("pushed document " + result);
 
 			} catch (IOException e) {
@@ -413,10 +427,13 @@ public class RestfulEMFResourceController {
 		}
 	}
 
-	private Optional<org.eclipse.emf.ecore.resource.Resource> getResource(String editingContextId, String documentId) {
-		Optional<Document> found = findDocumentBasedOnIDorNames(editingContextId, documentId);
-		if (found.isPresent()) {
-			return this.editingContextSearchService.findById(editingContextId)
+	private Optional<org.eclipse.emf.ecore.resource.Resource> getResource(String projectID, String documentId) {
+		Optional<Document> found = findDocumentBasedOnIDorNames(projectID, documentId);
+		Optional<ProjectSemanticData> data = projectSemanticDataSearch
+				.findByProjectId(AggregateReference.to(projectID));
+		if (found.isPresent() && data.isPresent()) {
+
+			return this.editingContextSearchService.findById(data.get().getSemanticData().getId().toString())
 					.filter(IEMFEditingContext.class::isInstance).map(IEMFEditingContext.class::cast)
 					.flatMap(editingContext -> {
 						var uri = new JSONResourceFactory().createResourceURI(found.get().getId().toString());
