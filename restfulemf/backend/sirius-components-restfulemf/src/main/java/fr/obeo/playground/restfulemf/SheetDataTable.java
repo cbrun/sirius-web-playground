@@ -1,104 +1,67 @@
+/*******************************************************************************
+ * Copyright (c) 2019, 2026 Obeo.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     Obeo - initial API and implementation
+ *******************************************************************************/
 package fr.obeo.playground.restfulemf;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Class holding values and providing table-like accessors. Consider the first
- * line is a header line and the first column is a key identifying a value line.
- * 
- * @author Cedric Brun <cedric.brun@obeo.fr>
+ * Stores model values in a rectangular table whose first row is the header.
  */
 public class SheetDataTable {
 
-	private static final String EMPTY_VALUE = ""; //$NON-NLS-1$
+    private static final String EMPTY_VALUE = "";
 
-	private List<List<Object>> values = Lists.newArrayList();
+    private final List<List<String>> values = new ArrayList<>();
 
-	private Map<String, List<Object>> rows = Maps.newLinkedHashMap();
+    private final Map<String, List<String>> rows = new LinkedHashMap<>();
 
-	public SheetDataTable() {
-		List<Object> headersLine = Lists.newArrayList("id"); //$NON-NLS-1$
-		// we consider the first column name is set by default and is called "id".
-		this.values.add(headersLine);
-	}
+    public SheetDataTable() {
+        this.values.add(new ArrayList<>(List.of("id")));
+    }
 
-	/**
-	 * Updates a table value.
-	 * 
-	 * @param key        : the row identification
-	 * @param columnName : the column name to update
-	 * @param value      : the value to set for the row and given column.
-	 */
-	public void updateValue(String key, String columnName, String value) {
-		int columnIndex = -1;
-		boolean foundColumn = false;
-		if (this.values.size() > 0) {
-			for (Object cols : this.values.get(0)) {
-				columnIndex++;
-				if (cols != null && columnName.equals(cols.toString())) {
-					foundColumn = true;
-					break;
-				}
-			}
-			if (!foundColumn) {
-				columnIndex = this.values.get(0).size();
-				this.values.get(0).add(columnName);
-			} else {
-				if (columnIndex == this.values.get(0).size()) {
-					this.values.get(0).add(columnName);
-				} else {
-					this.values.get(0).set(columnIndex, columnName);
-				}
-			}
-		} else {
-			List<Object> newHeader = new ArrayList<>();
-			newHeader.add(EMPTY_VALUE);
-			newHeader.add(columnName);
-			columnIndex = 1;
-			this.values.add(newHeader);
-		}
-		List<Object> row = this.rows.get(key);
-		if (row != null) {
-			for (int i = row.size(); i < columnIndex + 1; i++) {
-				row.add(EMPTY_VALUE);
-			}
-			row.set(columnIndex, value);
-		} else {
-			List<Object> newRow = Lists.newArrayList();
-			this.rows.put(key, newRow);
-			newRow.add(key);
-			for (int i = newRow.size(); i < columnIndex + 1; i++) {
-				newRow.add(EMPTY_VALUE);
-			}
-			newRow.set(columnIndex, value);
-			this.values.add(newRow);
-		}
+    public void updateValue(String key, String columnName, String value) {
+        List<String> headers = this.values.get(0);
+        int columnIndex = headers.indexOf(columnName);
+        if (columnIndex == -1) {
+            columnIndex = headers.size();
+            headers.add(columnName);
+        }
 
-	}
+        List<String> row = this.rows.computeIfAbsent(key, rowKey -> {
+            var newRow = new ArrayList<String>();
+            newRow.add(rowKey);
+            this.values.add(newRow);
+            return newRow;
+        });
+        while (row.size() <= columnIndex) {
+            row.add(EMPTY_VALUE);
+        }
+        row.set(columnIndex, value);
+    }
 
-	/**
-	 * Return the data content as a list of rows, each row being a list of values.
-	 */
-	public List<List<Object>> getValues() {
-		return this.values;
-	}
+    public List<List<String>> getValues() {
+        return this.values;
+    }
 
-	/**
-	 * Process the table to explicitly fill non valued cell with the EMPTY_VALUE
-	 * constant.
-	 */
-	public void fillEmptyCells() {
-		int nbColumns = this.values.get(0).size();
-		for (int i = 1; i < this.values.size(); i++) {
-			List<Object> row = this.values.get(i);
-			while (row.size() < nbColumns) {
-				row.add(EMPTY_VALUE);
-			}
-		}
-	}
+    public void fillEmptyCells() {
+        int columnCount = this.values.get(0).size();
+        this.values.stream().skip(1).forEach(row -> {
+            while (row.size() < columnCount) {
+                row.add(EMPTY_VALUE);
+            }
+        });
+    }
 }

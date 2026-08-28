@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2026 Obeo.
+ This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/legal/epl-2.0/
+
+ SPDX-License-Identifier: EPL-2.0
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+        <relativePath />
+    </parent>
+
+    <groupId>fr.obeo.playground</groupId>
+    <artifactId>sirius-components-restful-parent</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>sirius-components-restfulemf</module>
+        <module>sirius-components-restfulemf-app</module>
+    </modules>
+
+    <properties>
+        <bpmn.version>4.0.3-SNAPSHOT</bpmn.version>
+        <java.version>21</java.version>
+        <sirius.web.version>2026.7.3</sirius.web.version>
+        <uml2.version>5.6.0-SNAPSHOT</uml2.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>github-sirius-web</id>
+            <url>https://maven.pkg.github.com/eclipse-sirius/sirius-web</url>
+        </repository>
+        <repository>
+            <id>github-flow</id>
+            <url>https://maven.pkg.github.com/ObeoNetwork/BPMN-Designer</url>
+        </repository>
+        <repository>
+            <id>github-papyrus-sirius-uml2</id>
+            <url>https://maven.pkg.github.com/PapyrusSirius/uml2</url>
+        </repository>
+        <repository>
+            <id>eclipse-eef-snapshots</id>
+            <url>https://repo.eclipse.org/content/repositories/eef-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+</project>

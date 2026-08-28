@@ -1,18 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2019, 2026 Obeo.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     Obeo - initial API and implementation
+ *******************************************************************************/
 package fr.obeo.playground.restfulemf.controllers;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EDataType;
@@ -21,429 +32,289 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.util.EcoreUtil.Copier;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.sirius.components.collaborative.api.IEditingContextEventProcessorRegistry;
-import org.eclipse.sirius.components.core.api.IEditingContext;
+import org.eclipse.sirius.components.core.api.ErrorPayload;
 import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.EObjectIDManager;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.components.emf.utils.EMFResourceUtils;
-import org.eclipse.sirius.web.domain.boundedcontexts.project.Project;
-import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.ProjectSemanticData;
-import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
+import org.eclipse.sirius.web.application.project.services.api.IProjectEditingContextService;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.Document;
+import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.SemanticData;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.services.api.ISemanticDataSearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import fr.obeo.playground.restfulemf.ReplaceResourceContentInput;
 import fr.obeo.playground.restfulemf.SheetDataTable;
-import graphql.com.google.common.collect.Sets;
-import reactor.core.publisher.Mono;
 
 /**
- * @author Cedric Brun <cedric.brun@obeo.fr>
+ * Exposes Sirius Web EMF documents through simple REST representations.
  */
 @RestController
 public class RestfulEMFResourceController {
 
-	@Autowired
-	private final IEditingContextSearchService editingContextSearchService = null;
+    private static final Duration EVENT_TIMEOUT = Duration.ofSeconds(10);
 
-	@Autowired
-	private ISemanticDataSearchService semanticDataSearchService;
+    private final IEditingContextSearchService editingContextSearchService;
 
-	@Autowired
-	private IProjectSemanticDataSearchService projectSemanticDataSearch;
+    private final ISemanticDataSearchService semanticDataSearchService;
 
-	@Autowired
-	private IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry;
+    private final IProjectEditingContextService projectEditingContextService;
 
-	@Autowired
-	private List<EPackage> registeredPackages = Lists.newArrayList();
+    private final IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry;
 
-	private final Logger logger = LoggerFactory.getLogger(RestfulEMFResourceController.class);
+    private final List<EPackage> registeredPackages;
 
-	@GetMapping("/api/rest/projects/{projectId:.*}/epackages/bin")
-	@ResponseBody
-	byte[] getEPackages(@PathVariable String projectId) {
-		URI uri = URI.createURI("sirius:///" + projectId + "/epackages");
+    private final Logger logger = LoggerFactory.getLogger(RestfulEMFResourceController.class);
 
-		Resource res = new XMLResourceImpl(uri);
-		Map<String, Object> options = new HashMap<>();
-		options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-		/*
-		 * we are using the same copier to make sure the references are retained accross
-		 * EPackages.
-		 */
-		Copier copier = new EcoreUtil.Copier();
-		for (EPackage ePackage : registeredPackages) {
-			res.getContents().add(copier.copy(ePackage));
-		}
-		copier.copyReferences();
+    public RestfulEMFResourceController(IEditingContextSearchService editingContextSearchService, ISemanticDataSearchService semanticDataSearchService,
+            IProjectEditingContextService projectEditingContextService, IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry,
+            List<EPackage> registeredPackages) {
+        this.editingContextSearchService = Objects.requireNonNull(editingContextSearchService);
+        this.semanticDataSearchService = Objects.requireNonNull(semanticDataSearchService);
+        this.projectEditingContextService = Objects.requireNonNull(projectEditingContextService);
+        this.editingContextEventProcessorRegistry = Objects.requireNonNull(editingContextEventProcessorRegistry);
+        this.registeredPackages = List.copyOf(Objects.requireNonNull(registeredPackages));
+    }
 
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			res.save(outputStream, options);
-			return outputStream.toByteArray();
-		} catch (IOException e) {
-			this.logger.error("Error  " + projectId + "/epackages to binary stream.", e);
-		}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-	}
+    @GetMapping("/api/rest/projects/{projectId}/epackages/bin")
+    public byte[] getEPackages(@PathVariable String projectId) {
+        this.getEditingContextId(projectId);
+        XMLResource targetResource = new XMLResourceImpl(URI.createURI("sirius:///" + projectId + "/epackages"));
+        var copier = new EcoreUtil.Copier();
+        this.registeredPackages.forEach(ePackage -> targetResource.getContents().add(copier.copy(ePackage)));
+        copier.copyReferences();
 
-	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/bin")
-	@ResponseBody
-	byte[] getBinaryResource(@PathVariable String projectId, @PathVariable String documentName) {
-		this.logger.info("GET"); //$NON-NLS-1$
-		Optional<Resource> res = getResource(projectId, documentName);
-		if (res.isPresent()) {
-			Resource resource = res.get();
-			EObjectIDManager idManager = new EObjectIDManager();
+        return this.save(targetResource, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE), projectId, null);
+    }
 
-			Stopwatch binSave = Stopwatch.createStarted();
-			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				XMLResource binR = new XMLResourceImpl(resource.getURI());
+    @GetMapping("/api/rest/projects/{projectId}/documents")
+    public Map<String, String> getDocuments(@PathVariable String projectId) {
+        Map<String, String> documents = new LinkedHashMap<>();
+        this.getSemanticData(projectId).getDocuments().forEach(document -> documents.put(document.getId().toString(), document.getName()));
+        return documents;
+    }
 
-				Map<String, Object> outOps = new HashMap<>();
-				outOps.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-				binR.getContents().addAll(resource.getContents());
-				Iterator<EObject> it = binR.getAllContents();
-				while (it.hasNext()) {
-					EObject cur = it.next();
-					Optional<String> id = idManager.findId(cur);
-					if (id.isPresent()) {
-						binR.setID(cur, id.get());
-					}
-				}
-				binR.save(outputStream, outOps);
-				byte[] result = outputStream.toByteArray();
-				this.logger.info("GET, content: " + result.length + " bytes."); // $NON-NL
-				return result;
-			} catch (IOException e) {
-				this.logger.error("Error saving document " + projectId + "/" + documentName + " to  binary stream.", e);
-			} finally {
-				binSave.stop();
-			}
-			this.logger.info("binary save : " + binSave.elapsed(TimeUnit.MILLISECONDS) + " ms."); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-	}
+    @GetMapping("/api/rest/projects/{projectId}/{documentName}/bin")
+    public byte[] getBinaryResource(@PathVariable String projectId, @PathVariable String documentName) {
+        Resource resource = this.getResource(projectId, documentName);
+        XMLResource targetResource = new XMLResourceImpl(resource.getURI());
+        this.copyContents(resource, targetResource);
+        return this.save(targetResource, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE), projectId, this.findDocument(projectId, documentName).getId());
+    }
 
-	@GetMapping("/api/rest/projects/{projectId:.*}/documents")
-	@ResponseBody
-	Map<String, String> getDocuments(@PathVariable String projectId) {
+    @GetMapping("/api/rest/projects/{projectId}/{documentName}/xmi")
+    public byte[] getXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
+        return this.getXMI(projectId, documentName, false);
+    }
 
-		AggregateReference<Project, UUID> projectKey = AggregateReference.to(UUID.fromString(projectId));
+    @GetMapping("/api/rest/projects/{projectId}/{documentName}/xmi.zip")
+    public byte[] getZippedXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
+        return this.getXMI(projectId, documentName, true);
+    }
 
-		var optionalSemanticData = this.semanticDataSearchService.findById(projectKey.getId());
+    @GetMapping("/api/rest/projects/{projectId}/{documentName}/csv")
+    public String getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
+            @RequestParam(defaultValue = "\t", name = "sep") String separator) {
+        Resource resource = this.getResource(projectId, documentName);
+        var table = new SheetDataTable();
+        var idManager = new EObjectIDManager();
+        Set<EObject> ignoredObjects = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
-		if (optionalSemanticData.isPresent()) {
-			Map<String, String> results = Maps.newLinkedHashMap();
-			Set<Document> projectDocs = optionalSemanticData.get().getDocuments();
-			for (Document document : projectDocs) {
-				results.put(document.getId().toString(), document.getName());
-			}
-			return results;
-		}
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-	}
+        resource.getAllContents().forEachRemaining(object -> {
+            if (!ignoredObjects.contains(object)) {
+                idManager.findId(object).ifPresent(id -> {
+                    table.updateValue(id, "eClass", object.eClass().getName());
+                    this.putAttributesInTable(table, object, id);
+                    for (EReference containment : object.eClass().getEAllContainments()) {
+                        if (containment.getUpperBound() == 1 && object.eGet(containment) instanceof EObject child) {
+                            ignoredObjects.add(child);
+                            table.updateValue(id, containment.getName(), child.eClass().getName());
+                            this.putAttributesInTable(table, child, id);
+                        }
+                    }
+                });
+            }
+        });
 
-	private Optional<Document> findDocumentBasedOnIDorNames(String editingContextId, String documentName) {
-		Optional<Document> found = Optional.empty();
-		Optional<ProjectSemanticData> data = projectSemanticDataSearch
-				.findByProjectId(AggregateReference.to(editingContextId));
+        table.fillEmptyCells();
+        return table.getValues().stream()
+                .map(line -> String.join(separator, line))
+                .collect(java.util.stream.Collectors.joining("\n", "", "\n"));
+    }
 
-		if (data.isPresent()) {
-			var optionalSemanticData = this.semanticDataSearchService.findById(data.get().getSemanticData().getId());
-			if (optionalSemanticData.isPresent()) {
+    @PutMapping("/api/rest/projects/{projectId}/{documentName}/xmi")
+    public void putXMIResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName) {
+        this.putXMI(content, projectId, documentName, false);
+    }
 
-				Set<Document> projectDocs = optionalSemanticData.get().getDocuments();
-				for (Document document : projectDocs) {
-					if (document.getName().equals(documentName) || document.getId().toString().equals(documentName)) {
-						found = Optional.of(document);
-					}
-				}
-				// FIXME this logic needs additional treatment to provide more flexibility ,
-				// here we are just falling back to the first document.
-				if (found.isEmpty() && projectDocs.size() > 0) {
-					found = Optional.of(projectDocs.iterator().next());
-				}
-			}
-		} else {
-			this.logger.error("Error finding project " + data.get().getId() + ". ");
-		}
-		return found;
-	}
+    @PutMapping("/api/rest/projects/{projectId}/{documentName}/xmi.zip")
+    public void putZippedXMIResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName) {
+        this.putXMI(content, projectId, documentName, true);
+    }
 
-	private URI createURIForDocument(Document doc) {
-		URI uri = URI.createURI("sirius:///" + doc.getId());
-		return uri;
-	}
+    @PutMapping("/api/rest/projects/{projectId}/{documentName}/bin")
+    public void putBinaryResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName) {
+        Document document = this.getWritableDocument(projectId, documentName);
+        XMLResource resource = new XMLResourceImpl(this.createURIForDocument(document));
+        Map<String, Object> options = new HashMap<>();
+        options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+        this.loadAndReplace(content, projectId, document, resource, options);
+    }
 
-	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/xmi")
-	@ResponseBody
-	byte[] getXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
-		this.logger.info("GET XMI"); //$NON-NLS-1$
-		byte[] result = this.getXMI(projectId, documentName, false);
-		return result;
-	}
+    private byte[] getXMI(String projectId, String documentName, boolean zipped) {
+        Resource resource = this.getResource(projectId, documentName);
+        XMIResource targetResource = new XMIResourceImpl(resource.getURI());
+        this.copyContents(resource, targetResource);
+        Map<String, Object> options = new HashMap<>(new EMFResourceUtils().getXMILoadOptions());
+        if (zipped) {
+            options.put(Resource.OPTION_ZIP, Boolean.TRUE);
+        }
+        return this.save(targetResource, options, projectId, this.findDocument(projectId, documentName).getId());
+    }
 
-	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/csv")
-	@ResponseBody
-	String getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
-			@RequestParam(defaultValue = "\t", name = "sep") String separator) {
-		this.logger.info("GET CSV"); //$NON-NLS-1$
-		Optional<Resource> res = getResource(projectId, documentName);
-		if (res.isPresent()) {
-			Resource resource = res.get();
-			EObjectIDManager idManager = new EObjectIDManager();
-			SheetDataTable table = new SheetDataTable();
+    private void putXMI(byte[] content, String projectId, String documentName, boolean zipped) {
+        Document document = this.getWritableDocument(projectId, documentName);
+        XMIResource resource = new XMIResourceImpl(this.createURIForDocument(document));
+        Map<String, Object> options = new HashMap<>(new EMFResourceUtils().getXMILoadOptions());
+        if (zipped) {
+            options.put(Resource.OPTION_ZIP, Boolean.TRUE);
+        }
+        this.loadAndReplace(content, projectId, document, resource, options);
+    }
 
-			int nbObj = 0;
-			Iterator<EObject> it = resource.getAllContents();
-			Set<EObject> toIgnore = Sets.newLinkedHashSet();
-			while (it.hasNext()) {
-				Notifier notifier = it.next();
-				if (notifier instanceof EObject && !toIgnore.contains(notifier)) {
-					EObject eObj = (EObject) notifier;
-					Optional<String> id = idManager.findId(eObj);
-					if (id.isPresent()) {
-						String lineUUID = id.get().toString();
-						table.updateValue(lineUUID, "eClass", eObj.eClass().getName()); //$NON-NLS-1$
-						nbObj = putAttributesInTable(table, nbObj, eObj, lineUUID);
-						// for each containment with upper bound 1, we add contained element attributes
-						// on the same line making it easier to process.
-						for (EReference childRef : eObj.eClass().getEAllContainments()) {
-							if (childRef.getUpperBound() == 1) {
-								EObject child = (EObject) eObj.eGet(childRef);
-								if (child != null) {
-									toIgnore.add(child);
-									table.updateValue(lineUUID, childRef.getName(), child.eClass().getName()); // $NON-NLS-1$
-									nbObj = putAttributesInTable(table, nbObj, child, lineUUID);
-								}
-							}
+    private void loadAndReplace(byte[] content, String projectId, Document document, Resource resource, Map<String, Object> options) {
+        try (var inputStream = new ByteArrayInputStream(content)) {
+            resource.load(inputStream, options);
+        } catch (IOException | RuntimeException exception) {
+            this.logger.atWarn()
+                    .setMessage("Document content could not be loaded")
+                    .addKeyValue("projectId", projectId)
+                    .addKeyValue("documentId", document.getId())
+                    .setCause(exception)
+                    .log();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid EMF document", exception);
+        }
 
-						}
+        String editingContextId = this.getEditingContextId(projectId);
+        var input = new ReplaceResourceContentInput(UUID.randomUUID(), resource);
+        try {
+            IPayload payload = this.editingContextEventProcessorRegistry.dispatchEvent(editingContextId, input).block(EVENT_TIMEOUT);
+            if (payload == null || payload instanceof ErrorPayload) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The EMF document could not be replaced");
+            }
+        } catch (ResponseStatusException exception) {
+            throw exception;
+        } catch (RuntimeException exception) {
+            this.logger.atWarn()
+                    .setMessage("Document replacement failed")
+                    .addKeyValue("projectId", projectId)
+                    .addKeyValue("editingContextId", editingContextId)
+                    .addKeyValue("documentId", document.getId())
+                    .setCause(exception)
+                    .log();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The EMF document could not be replaced", exception);
+        }
+    }
 
-					}
-				}
-			}
-			logger.info("Generating CSV, number of model elements: " + nbObj);
+    private void putAttributesInTable(SheetDataTable table, EObject object, String objectId) {
+        for (EAttribute attribute : object.eClass().getEAllAttributes()) {
+            Object value = object.eGet(attribute);
+            if (!attribute.isMany() && value != null) {
+                String serializedValue = attribute.getEType().getEPackage().getEFactoryInstance().convertToString((EDataType) attribute.getEType(), value);
+                if (value instanceof String) {
+                    serializedValue = "\"" + serializedValue.replace("\"", "\"\"") + "\"";
+                }
+                table.updateValue(objectId, attribute.getName(), serializedValue);
+            }
+        }
+    }
 
-			table.fillEmptyCells();
+    private byte[] save(Resource resource, Map<String, Object> options, String projectId, UUID documentId) {
+        try (var outputStream = new ByteArrayOutputStream()) {
+            resource.save(outputStream, options);
+            return outputStream.toByteArray();
+        } catch (IOException exception) {
+            var loggingEvent = this.logger.atWarn()
+                    .setMessage("EMF resource serialization failed")
+                    .addKeyValue("projectId", projectId)
+                    .setCause(exception);
+            if (documentId != null) {
+                loggingEvent.addKeyValue("documentId", documentId);
+            }
+            loggingEvent.log();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The EMF resource could not be serialized", exception);
+        }
+    }
 
-			StringBuffer buf = new StringBuffer();
-			for (List<Object> line : table.getValues()) {
-				buf.append('\n');
-				buf.append(Joiner.on(separator).join(line));
-			}
-			buf.append('\n');
-			return buf.toString();
-		} else {
-			// 404
-		}
-		return "";
-	}
+    private void copyContents(Resource sourceResource, XMLResource targetResource) {
+        var copier = new EcoreUtil.Copier();
+        targetResource.getContents().addAll(copier.copyAll(sourceResource.getContents()));
+        copier.copyReferences();
+        var idManager = new EObjectIDManager();
+        copier.forEach((sourceObject, copiedObject) -> idManager.findId(sourceObject).ifPresent(id -> targetResource.setID(copiedObject, id)));
+    }
 
-	/**
-	 * @param table
-	 * @param nbObj
-	 * @param eObj
-	 * @param eObjUUID
-	 * @return
-	 */
-	private int putAttributesInTable(SheetDataTable table, int nbObj, EObject eObj, String eObjUUID) {
-		nbObj++;
-		for (EAttribute eatt : eObj.eClass().getEAllAttributes()) {
-			if (!eatt.isMany()) {
-				Object val = eObj.eGet(eatt);
-				if (val != null) {
-					String strValue = ""; //$NON-NLS-1$
-					if (val instanceof String) {
-						strValue = "\"" + val + "\""; //$NON-NLS-1$//$NON-NLS-2$
-					} else {
-						strValue = eatt.getEType().getEPackage().getEFactoryInstance()
-								.convertToString((EDataType) eatt.getEType(), val);
-					}
-					table.updateValue(eObjUUID, eatt.getName(), strValue);
-				}
-			} else {
-				// TODO handle here the case of multi-valued attributes.
-			}
-		}
-		return nbObj;
-	}
+    private Document getWritableDocument(String projectId, String documentName) {
+        Document document = this.findDocument(projectId, documentName);
+        if (document.isReadOnly()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The document is read-only");
+        }
+        this.getResource(projectId, documentName);
+        return document;
+    }
 
-	@PutMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/csv")
-	@ResponseBody
-	void putCSVResource(@RequestBody String content, @PathVariable String projectId,
-			@PathVariable String documentName) {
-		this.logger.info("PUT CSV, content: " + content.length() + " size."); //$NON-NLS-1$
-	}
+    private Document findDocument(String projectId, String documentName) {
+        return this.getSemanticData(projectId).getDocuments().stream()
+                .filter(document -> document.getName().equals(documentName) || document.getId().toString().equals(documentName))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+    }
 
-	@GetMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/xmi.zip")
-	@ResponseBody
-	byte[] getZippedXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
-		byte[] result = this.getXMI(projectId, documentName, true);
-		return result;
-	}
+    private SemanticData getSemanticData(String projectId) {
+        String editingContextId = this.getEditingContextId(projectId);
+        try {
+            return this.semanticDataSearchService.findById(UUID.fromString(editingContextId))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project semantic data not found"));
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project semantic data not found", exception);
+        }
+    }
 
-	private byte[] getXMI(String projectId, String documentName, boolean zipped) {
+    private Resource getResource(String projectId, String documentName) {
+        Document document = this.findDocument(projectId, documentName);
+        String editingContextId = this.getEditingContextId(projectId);
+        URI documentURI = new JSONResourceFactory().createResourceURI(document.getId().toString());
+        return this.editingContextSearchService.findById(editingContextId)
+                .filter(IEMFEditingContext.class::isInstance)
+                .map(IEMFEditingContext.class::cast)
+                .flatMap(editingContext -> editingContext.getDomain().getResourceSet().getResources().stream()
+                        .filter(resource -> resource.getURI().equals(documentURI))
+                        .findFirst())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document resource not found"));
+    }
 
-		Optional<Resource> res = getResource(projectId, documentName);
-		if (res.isPresent()) {
-			Resource resource = res.get();
-			EObjectIDManager idManager = new EObjectIDManager();
+    private String getEditingContextId(String projectId) {
+        return this.projectEditingContextService.getEditingContextId(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+    }
 
-			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				XMIResource xmiR = new XMIResourceImpl(resource.getURI());
-				xmiR.getContents().addAll(resource.getContents());
-				Iterator<EObject> it = xmiR.getAllContents();
-				while (it.hasNext()) {
-					EObject cur = it.next();
-					Optional<String> id = idManager.findId(cur);
-					if (id.isPresent()) {
-						xmiR.setID(cur, id.get());
-					}
-				}
-				Map<String, Object> optionsXMI = new HashMap<>();
-				optionsXMI.putAll(new EMFResourceUtils().getXMILoadOptions());
-				if (zipped) {
-					optionsXMI.put(Resource.OPTION_ZIP, Boolean.TRUE);
-				}
-				xmiR.save(outputStream, optionsXMI);
-				byte[] result = outputStream.toByteArray();
-				this.logger.info("GET, content: " + result.length + " bytes."); // $NON-NL
-				return result;
-			} catch (IOException e) {
-				this.logger.error("Error  " + projectId + "/" + documentName + " to  binary stream.", e);
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		} else {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@PutMapping("/api/rest/projects/{projectId:.*}/{documentName:.*}/xmi")
-	@ResponseBody
-	void putXMIResource(@RequestBody byte[] content, @PathVariable String projectId,
-			@PathVariable String documentName) {
-		this.logger.info("PUT, content: " + content.length + " bytes."); //$NON-NLS-1$
-		this.putXMI(content, projectId, documentName, false);
-	}
-
-	@PutMapping("/api/rest/projects/{projectIdOrName:.*}/{documentName:.*}/xmi.zip")
-	@ResponseBody
-	void putXMIResourceZipped(@RequestBody byte[] content, @PathVariable String projectIdOrName,
-			@PathVariable String documentName) {
-		this.logger.info("PUT, content: " + content.length + " bytes."); //$NON-NLS-1$
-		this.putXMI(content, projectIdOrName, documentName, true);
-	}
-
-	private void putXMI(byte[] content, String projectId, String documentName, boolean zipped) {
-		Stopwatch binLoad = Stopwatch.createStarted();
-		Optional<Document> found = findDocumentBasedOnIDorNames(projectId, documentName);
-		if (found.isPresent()) {
-			Document doc = found.get();
-			URI uri = createURIForDocument(doc);
-
-			XMIResource xmiRes = new XMIResourceImpl(uri);
-			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(content)) {
-				Map<String, Object> options = new HashMap<>();
-				if (zipped == true) {
-					options.put(Resource.OPTION_ZIP, Boolean.TRUE);
-				}
-				xmiRes.load(inputStream, options);
-
-				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), xmiRes);
-
-				Mono<IPayload> result = this.editingContextEventProcessorRegistry.dispatchEvent(projectId, input);
-				this.logger.info("pushed document " + result);
-
-			} catch (IOException e) {
-				this.logger.error("Error saving document " + projectId + "/" + documentName + " to db.", e);
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-			} finally {
-				binLoad.stop();
-			}
-		}
-	}
-
-	@PutMapping("/api/rest/projects/{projectIdOrName:.*}/{documentName:.*}/bin")
-	@ResponseBody
-	void putBinaryResource(@RequestBody byte[] content, @PathVariable String projectIdOrName,
-			@PathVariable String documentName) {
-		this.logger.info("PUT, content: " + content.length + " bytes."); //$NON-NLS-1$
-
-		Stopwatch binLoad = Stopwatch.createStarted();
-		Optional<Document> found = findDocumentBasedOnIDorNames(projectIdOrName, documentName);
-		Optional<ProjectSemanticData> data = projectSemanticDataSearch
-				.findByProjectId(AggregateReference.to(projectIdOrName));
-
-		if (found.isPresent() && data.isPresent()) {
-			Optional<IEditingContext> editingCtx = this.editingContextSearchService
-					.findById(data.get().getSemanticData().getId().toString());
-			Document doc = found.get();
-			URI uri = createURIForDocument(doc);
-
-			XMLResource binR = new XMLResourceImpl(uri);
-			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(content)) {
-				Map<String, Object> options = new HashMap<>();
-				options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-				binR.load(inputStream, options);
-				ReplaceResourceContentInput input = new ReplaceResourceContentInput(UUID.randomUUID(), binR);
-				Mono<IPayload> result = this.editingContextEventProcessorRegistry
-						.dispatchEvent(editingCtx.get().getId(), input);
-				this.logger.info("pushed document " + result);
-
-			} catch (IOException e) {
-				this.logger.error("Error saving document " + projectIdOrName + "/" + documentName + " to db.", e);
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-			} finally {
-				binLoad.stop();
-			}
-		}
-	}
-
-	private Optional<org.eclipse.emf.ecore.resource.Resource> getResource(String projectID, String documentId) {
-		Optional<Document> found = findDocumentBasedOnIDorNames(projectID, documentId);
-		Optional<ProjectSemanticData> data = projectSemanticDataSearch
-				.findByProjectId(AggregateReference.to(projectID));
-		if (found.isPresent() && data.isPresent()) {
-
-			return this.editingContextSearchService.findById(data.get().getSemanticData().getId().toString())
-					.filter(IEMFEditingContext.class::isInstance).map(IEMFEditingContext.class::cast)
-					.flatMap(editingContext -> {
-						var uri = new JSONResourceFactory().createResourceURI(found.get().getId().toString());
-						return editingContext.getDomain().getResourceSet().getResources().stream()
-								.filter(resource -> resource.getURI().equals(uri)).findFirst();
-					});
-		} else {
-			return Optional.empty();
-		}
-
-	}
-
+    private URI createURIForDocument(Document document) {
+        return new JSONResourceFactory().createResourceURI(document.getId().toString());
+    }
 }

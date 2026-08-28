@@ -1,94 +1,40 @@
+# RESTful EMF for Sirius Web
 
-Component to provide REST endpoints for model documents exposed as XMI, Binary, Zipped XMI or CSV resource.
+This prototype exposes Sirius Web semantic documents as XMI, zipped XMI, EMF binary, or CSV. It targets Sirius Web 2026.7.3 and preserves EMF object identifiers when documents are downloaded and uploaded again.
 
-Thanks to this you can:
- - access the model elements as CSV suitable for Jupyter notebook.
- - open and edit an EMF model in Sirius Desktop when it is hosted on Sirius Web
- - write a Java program which gets the model, do something, and save the changes back to the server while only using EMF APIs, even without having the dedicated Ecore Java API (the EPackages can be retrieved from a REST endpoint)
+The project path parameter is always the Sirius Web project ID. A document can be selected by its UUID or its exact name.
 
+## Endpoints
 
-### REST Endpoints
+All endpoints start with `/api/rest/projects/{projectId}`.
 
-#### Binary Resource
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/documents` | Lists document UUIDs and names. |
+| `GET`, `PUT` | `/{document}/xmi` | Reads or replaces a document as XMI. |
+| `GET`, `PUT` | `/{document}/xmi.zip` | Reads or replaces a document as zipped XMI. |
+| `GET`, `PUT` | `/{document}/bin` | Reads or replaces a document using EMF binary serialization. |
+| `GET` | `/{document}/csv?sep=\t` | Exports mono-valued attributes as CSV. |
+| `GET` | `/epackages/bin` | Returns the registered EPackages as an EMF binary resource. |
 
+Unknown projects, documents, or resources return `404`. Invalid XMI or binary input returns `400`, and updates to read-only documents return `403`. CSV updates are not supported and return `405`.
 
-`/projects/{Name or ID of the project}/{Name or ID of the document}/bin`
-
-
-Should be the preferred resource format when the client is using the EMF runtime as the serialization is compact, fast, and supports the element IDs.
-Here is a sample usage from a Java client using the EMF runtime.
+An EMF client can use the binary endpoint directly:
 
 ```java
 Map<String, Object> options = new HashMap<>();
 options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-Resource model = new XMLResourceImpl(URI.createURI("http://localhost:8080/projects/Travel Agency/MyModel.uml"));
-model.load(options);
-//...
-// do some changes on the model
-//
-model.save(options); // changes gets propagated back on the server.
 
+URI uri = URI.createURI("http://localhost:8080/api/rest/projects/PROJECT_ID/DOCUMENT_ID/bin");
+Resource resource = new XMLResourceImpl(uri);
+resource.load(options);
+
+// Modify the model, then persist it back to Sirius Web.
+resource.save(options);
 ```
 
+## Status and security
 
-#### XMI Resource
+This is a playground prototype, not a production-ready API. It deliberately has no authentication or authorization layer: every project and document available to the application is accessible to unauthenticated callers. Put it behind appropriate access control before exposing it outside a development environment.
 
-`/projects/{Name or ID of the project}/{Name or ID of the document}/xmi`
-
-
-#### Zipped XMI Resource
-
-`/projects/{Name or ID of the project}/{Name or ID of the document}/xmi.zip`
-
-
-#### CSV Resource
-
-`/projects/{Name or ID of the project}/{Name or ID of the document}/csv`
-
-**The CSV endpoint** currently only supports `GET` requests and no `PUT`.
-
-
-#### Reflective access to EPackages
-If you don't have prior knowledge of the specific EPackages you can retrieve the list of EPackages declared for a given project using this endpoint:
-
-`/projects/{Name or ID of the project}/epackages/bin`
-
-You'll get a binary resource with all the EPackages, enabling you to load and process the models reflectively in such a way:
-
-```java
-Resource usedEPackages = new XMLResourceImpl(URI.createURI(baseURL + projectNameOrID + "/epackages/bin"));
-	set.getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
-	usedEPackages.load(options);
-
-	for (EPackage pak : Iterables.filter(usedEPackages.getContents(), EPackage.class)) {
-		if (set.getPackageRegistry().getEPackage(pak.getNsURI()) == null) {
-			set.getPackageRegistry().put(pak.getNsURI(), pak);
-		}
-		System.out.println("Registered : " + pak.getNsURI());
-	}
-```
-
-
-### Maturity & Status
-This is prototype, suitable for POC but not for production, this is a starting point.
-**/!\ All the model/projects data gets accessible for non-logged users**
-
-
-ID's are provided in XMI and Binary serialization, that means when you save the resource back the objects identity will be kept.
-
-`GET` and `PUT` are supported for XMI, XMI.zip and Binary endpoints.
-
-Only `GET` is supported for CSV for now.
-
-#### Notably missing
-
-Access-rights/authorization management.
-
-Errors management and HTTP error codes.
-
-only mono-valued attributes are exposed through CSV.
-
-
-#### What could be explored next ?
-
-Managing PUT-like requests for CSV would be great if a client is able to leverage that.
+CSV currently ignores multi-valued attributes and only supports reads.
