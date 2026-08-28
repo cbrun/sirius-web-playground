@@ -1,7 +1,8 @@
 # RESTful EMF sample application
 
 The sample runs Sirius Web 2026.7.3 on Java 21 with the Ecore, Flow, BPMN and UML metamodels enabled.
-It keeps the standard Blank, Studio and Flow project templates, plus the playground's Many Models and 1M-Modeling templates.
+It keeps the standard Blank, Studio, Blank Studio and Flow project templates, plus the playground's Many Models and
+1M-Modeling templates.
 
 Start PostgreSQL:
 
@@ -26,7 +27,9 @@ With the application running, create and open a **Many Models** project in Siriu
 `ManyModelsRestEMFDemo.main` method from the IDE, then paste the URL of the opened project when prompted.
 
 The demo uses an EMF `Resource` backed by the remote binary URI. It loads `linux-kernel.uml`, adds a package named
-`Created from The Client code` at the first position of the UML model, saves it, and reloads it to verify the change.
+`Created from The Client code` at the first position of the UML model, pauses, saves it, and reloads it to verify the
+change. Press Enter immediately to test a successful save, or modify the model in Sirius Web during the pause to test
+the stale-update rejection.
 
 Run the full build and the PostgreSQL-backed integration tests with a running Docker daemon:
 
@@ -34,4 +37,6 @@ Run the full build and the PostgreSQL-backed integration tests with a running Do
 mvn clean verify -f restfulemf/backend/pom.xml
 ```
 
-The tests use the Sirius Web Ecore and Flow fixtures, exercise creation of the mixed-format Many Models template, verify the 1M-Modeling assets, and start an isolated PostgreSQL 17 container through Testcontainers.
+The tests use the Sirius Web Ecore and Flow fixtures, cover compatible and strict optimistic concurrency, rollback and
+cross-resource references, exercise creation of the mixed-format Many Models template, verify the 1M-Modeling assets,
+and start an isolated PostgreSQL 17 container through Testcontainers.

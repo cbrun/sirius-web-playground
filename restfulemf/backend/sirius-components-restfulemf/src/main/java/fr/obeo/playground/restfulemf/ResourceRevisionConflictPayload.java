@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2026 Obeo.
+ * Copyright (c) 2026 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -12,21 +12,20 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.eclipse.sirius.components.core.api.IInput;
+import org.eclipse.sirius.components.core.api.IPayload;
 
 /**
- * Describes the replacement of an EMF resource content.
+ * Indicates that a resource replacement was based on an outdated revision.
+ *
+ * @since 1.1.0
  */
-public record ReplaceResourceContentInput(UUID id, String documentId, String newResourceContent, List<String> expectedRevisions) implements IInput {
+public record ResourceRevisionConflictPayload(UUID id, String currentRevision) implements IPayload {
 
-    public ReplaceResourceContentInput {
+    public ResourceRevisionConflictPayload {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(documentId);
-        Objects.requireNonNull(newResourceContent);
-        expectedRevisions = List.copyOf(Objects.requireNonNull(expectedRevisions));
+        Objects.requireNonNull(currentRevision);
     }
 }

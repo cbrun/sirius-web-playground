@@ -28,6 +28,8 @@ import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 
+import fr.obeo.playground.restfulemf.RestfulEMFURIHandler;
+
 /**
  * Demonstrates how a plain EMF client can load and save a Sirius Web document.
  */
@@ -36,6 +38,8 @@ public class ManyModelsRestEMFDemo {
     private static final String CREATED_PACKAGE_NAME = "Created from The Client code";
 
     private static final Map<String, Object> OPTIONS = Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE);
+
+    private final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
     public static void main(String[] args) throws IOException {
         new ManyModelsRestEMFDemo().run();
@@ -49,6 +53,7 @@ public class ManyModelsRestEMFDemo {
         var createdPackage = UMLFactory.eINSTANCE.createPackage();
         createdPackage.setName(CREATED_PACKAGE_NAME);
         model.getPackagedElements().add(0, createdPackage);
+        this.waitBeforeSave();
         resource.save(OPTIONS);
 
         resource.unload();
@@ -62,8 +67,7 @@ public class ManyModelsRestEMFDemo {
 
     private URI readModelURI() throws IOException {
         System.out.print("Crée un projet \"Many Models\", puis colle l'URL du projet ici : ");
-        var reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        String projectURL = reader.readLine();
+        String projectURL = this.reader.readLine();
         if (projectURL == null || projectURL.isBlank()) {
             throw new IllegalArgumentException("A Sirius Web project URL is required");
         }
@@ -72,6 +76,14 @@ public class ManyModelsRestEMFDemo {
         String projectId = this.getProjectId(projectURI);
         return URI.createHierarchicalURI(projectURI.scheme(), projectURI.authority(), null,
                 new String[] { "api", "rest", "projects", projectId, "linux-kernel.uml", "bin" }, null, null);
+    }
+
+    private void waitBeforeSave() throws IOException {
+        System.out.println("Le modèle est chargé et modifié localement.");
+        System.out.print("Appuie sur Entrée pour sauvegarder, ou modifie d'abord le modèle dans Sirius Web pour tester le conflit : ");
+        if (this.reader.readLine() == null) {
+            throw new IOException("Standard input was closed before the save");
+        }
     }
 
     private String getProjectId(URI projectURI) {
@@ -90,6 +102,7 @@ public class ManyModelsRestEMFDemo {
 
     private Resource load(URI modelURI) throws IOException {
         var resourceSet = new ResourceSetImpl();
+        resourceSet.getURIConverter().getURIHandlers().add(0, new RestfulEMFURIHandler());
         resourceSet.getPackageRegistry().put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
         var resource = new XMLResourceImpl(modelURI);
         resourceSet.getResources().add(resource);

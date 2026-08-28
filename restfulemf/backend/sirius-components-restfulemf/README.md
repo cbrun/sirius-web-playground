@@ -17,7 +17,9 @@ All endpoints start with `/api/rest/projects/{projectId}`.
 | `GET` | `/{document}/csv?sep=\t` | Exports mono-valued attributes as CSV. |
 | `GET` | `/epackages/bin` | Returns the registered EPackages as an EMF binary resource. |
 
-Unknown projects, documents, or resources return `404`. Invalid XMI or binary input returns `400`, and updates to read-only documents return `403`. CSV updates are not supported and return `405`.
+Unknown projects, documents, or resources return `404`. Invalid XMI or binary input returns `400`, stale updates return `412`, and updates to read-only documents return `403`. CSV updates are not supported and return `405`.
+
+Resource responses include an `ETag` computed from the canonical Sirius Web JSON content. A PUT carrying `If-Match` is applied only if that revision is still current. For backward compatibility, a PUT without `If-Match` remains accepted by default. Set `sirius.web.restfulemf.require-if-match=true` to reject such requests with `428 Precondition Required`.
 
 An EMF client can use the binary endpoint directly:
 
@@ -26,15 +28,21 @@ Map<String, Object> options = new HashMap<>();
 options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
 
 URI uri = URI.createURI("http://localhost:8080/api/rest/projects/PROJECT_ID/DOCUMENT_ID/bin");
+ResourceSet resourceSet = new ResourceSetImpl();
+resourceSet.getURIConverter().getURIHandlers().add(0, new RestfulEMFURIHandler());
+resourceSet.getPackageRegistry().put(FlowPackage.eNS_URI, FlowPackage.eINSTANCE);
 Resource resource = new XMLResourceImpl(uri);
+resourceSet.getResources().add(resource);
 resource.load(options);
 
 // Modify the model, then persist it back to Sirius Web.
 resource.save(options);
 ```
 
+`RestfulEMFURIHandler` remembers the `ETag` received by `load()` and sends it as `If-Match` during `save()`. Consequently, `Resource.save()` throws an `IOException` instead of overwriting a concurrent update.
+
 ## Status and security
 
-This is a playground prototype, not a production-ready API. It deliberately has no authentication or authorization layer: every project and document available to the application is accessible to unauthenticated callers. Put it behind appropriate access control before exposing it outside a development environment.
+This is a playground prototype, not a production-ready API. Access to project resources follows the Sirius Web `VIEW` and `EDIT` capabilities, but the sample application does not configure an authentication mechanism. Put it behind appropriate authentication before exposing it outside a development environment.
 
 CSV currently ignores multi-valued attributes and only supports reads.
