@@ -35,6 +35,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
+import org.eclipse.sirius.components.collaborative.api.Monitoring;
 import org.eclipse.sirius.components.core.api.ErrorPayload;
 import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
 import org.eclipse.sirius.components.core.api.IPayload;
@@ -62,6 +63,7 @@ import fr.obeo.playground.restfulemf.ReplaceDocumentEventHandler;
 import fr.obeo.playground.restfulemf.ReplaceResourceContentInput;
 import fr.obeo.playground.restfulemf.ReplaceResourceContentSuccessPayload;
 import fr.obeo.playground.restfulemf.RestfulEMFURIHandler;
+import io.micrometer.core.instrument.MeterRegistry;
 import reactor.core.publisher.Sinks;
 
 /**
@@ -102,6 +104,9 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
 
     @Autowired
     private ReplaceDocumentEventHandler replaceDocumentEventHandler;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
 
     private WebTestClient webTestClient;
 
@@ -202,8 +207,13 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
             String replacementContent = this.resourceSnapshotService.getSnapshot(replacementResource).orElseThrow().content();
             var input = new ReplaceResourceContentInput(UUID.randomUUID(), FLOW_DOCUMENT_ID, replacementContent, List.of());
             var payloadSink = Sinks.<IPayload>one();
+            var counter = this.meterRegistry.get(Monitoring.EVENT_HANDLER)
+                    .tag(Monitoring.NAME, ReplaceDocumentEventHandler.class.getSimpleName())
+                    .counter();
+            double initialCount = counter.count();
             this.replaceDocumentEventHandler.handle(payloadSink, Sinks.many().unicast().onBackpressureBuffer(), editingContext, input);
             assertThat(payloadSink.asMono().block()).isInstanceOf(ReplaceResourceContentSuccessPayload.class);
+            assertThat(counter.count()).isEqualTo(initialCount + 1);
 
             EObject resolvedTarget = annotation.getReferences().get(0);
             assertThat(resolvedTarget).isNotSameAs(previousTarget);

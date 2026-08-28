@@ -23,7 +23,6 @@ import org.eclipse.sirius.components.core.api.IInput;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
-import org.eclipse.sirius.web.domain.services.api.IMessageService;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Sinks.Many;
@@ -37,11 +36,8 @@ public class GetResourceContentEventHandler implements IEditingContextEventHandl
 
     private final IResourceSnapshotService resourceSnapshotService;
 
-    private final IMessageService messageService;
-
-    public GetResourceContentEventHandler(IResourceSnapshotService resourceSnapshotService, IMessageService messageService) {
+    public GetResourceContentEventHandler(IResourceSnapshotService resourceSnapshotService) {
         this.resourceSnapshotService = Objects.requireNonNull(resourceSnapshotService);
-        this.messageService = Objects.requireNonNull(messageService);
     }
 
     @Override
@@ -51,7 +47,7 @@ public class GetResourceContentEventHandler implements IEditingContextEventHandl
 
     @Override
     public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
-        IPayload payload = new ErrorPayload(input.id(), this.messageService.unexpectedError());
+        IPayload payload = new ErrorPayload(input.id(), "Unexpected error");
         if (editingContext instanceof IEMFEditingContext emfEditingContext && input instanceof GetResourceContentInput resourceInput) {
             var resourceURI = new JSONResourceFactory().createResourceURI(resourceInput.documentId());
             payload = emfEditingContext.getDomain().getResourceSet().getResources().stream()

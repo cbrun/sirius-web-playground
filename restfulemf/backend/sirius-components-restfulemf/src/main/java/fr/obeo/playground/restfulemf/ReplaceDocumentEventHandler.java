@@ -30,17 +30,19 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.sirius.components.collaborative.api.ChangeDescription;
 import org.eclipse.sirius.components.collaborative.api.ChangeKind;
 import org.eclipse.sirius.components.collaborative.api.IEditingContextEventHandler;
+import org.eclipse.sirius.components.collaborative.api.Monitoring;
 import org.eclipse.sirius.components.core.api.ErrorPayload;
 import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IInput;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
-import org.eclipse.sirius.web.domain.services.api.IMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import reactor.core.publisher.Sinks.Many;
 import reactor.core.publisher.Sinks.One;
 
@@ -50,15 +52,17 @@ import reactor.core.publisher.Sinks.One;
 @Service
 public class ReplaceDocumentEventHandler implements IEditingContextEventHandler {
 
-    private final IMessageService messageService;
-
     private final IResourceSnapshotService resourceSnapshotService;
+
+    private final Counter counter;
 
     private final Logger logger = LoggerFactory.getLogger(ReplaceDocumentEventHandler.class);
 
-    public ReplaceDocumentEventHandler(IMessageService messageService, IResourceSnapshotService resourceSnapshotService) {
-        this.messageService = Objects.requireNonNull(messageService);
+    public ReplaceDocumentEventHandler(IResourceSnapshotService resourceSnapshotService, MeterRegistry meterRegistry) {
         this.resourceSnapshotService = Objects.requireNonNull(resourceSnapshotService);
+        this.counter = Counter.builder(Monitoring.EVENT_HANDLER)
+                .tag(Monitoring.NAME, this.getClass().getSimpleName())
+                .register(meterRegistry);
     }
 
     @Override
@@ -68,7 +72,9 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
 
     @Override
     public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
-        IPayload payload = new ErrorPayload(input.id(), this.messageService.unexpectedError());
+        this.counter.increment();
+
+        IPayload payload = new ErrorPayload(input.id(), "Unexpected error");
         ChangeDescription changeDescription = new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input);
 
         if (editingContext instanceof IEMFEditingContext emfEditingContext && input instanceof ReplaceResourceContentInput replaceInput) {
@@ -86,25 +92,58 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
                     } else if (currentSnapshot.content().equals(replaceInput.newResourceContent())) {
                         payload = new ReplaceResourceContentSuccessPayload(input.id(), currentSnapshot.revision());
                     } else {
-                        var optionalNewSnapshot = this.replaceContents(targetResource, replaceInput.newResourceContent(), currentSnapshot);
+                        var optionalNewSnapshot = this.replaceContents(targetResource, replaceInput.newResourceContent(), currentSnapshot,
+                                editingContext.getId(), replaceInput.documentId());
                         if (optionalNewSnapshot.isPresent()) {
                             payload = new ReplaceResourceContentSuccessPayload(input.id(), optionalNewSnapshot.get().revision());
                             changeDescription = new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, editingContext.getId(), input);
                         }
                     }
+                } else {
+                    this.logFailure(editingContext.getId(), replaceInput.documentId());
                 }
+            } else {
+                this.logFailure(editingContext.getId(), replaceInput.documentId());
             }
+            this.logOutcome(editingContext.getId(), replaceInput.documentId(), payload);
         }
 
         payloadSink.tryEmitValue(payload);
         changeDescriptionSink.tryEmitNext(changeDescription);
     }
 
+    private void logOutcome(String editingContextId, String documentId, IPayload payload) {
+        if (payload instanceof ReplaceResourceContentSuccessPayload) {
+            this.logger.atInfo()
+                    .setMessage("EMF resource {} replaced")
+                    .addArgument(documentId)
+                    .addKeyValue("editingContextId", editingContextId)
+                    .addKeyValue("documentId", documentId)
+                    .log();
+        } else if (payload instanceof ResourceRevisionConflictPayload) {
+            this.logger.atWarn()
+                    .setMessage("Replacement of EMF resource {} rejected due to a revision conflict")
+                    .addArgument(documentId)
+                    .addKeyValue("editingContextId", editingContextId)
+                    .addKeyValue("documentId", documentId)
+                    .log();
+        }
+    }
+
+    private void logFailure(String editingContextId, String documentId) {
+        this.logger.atWarn()
+                .setMessage("Replacement of EMF resource {} failed")
+                .addArgument(documentId)
+                .addKeyValue("editingContextId", editingContextId)
+                .addKeyValue("documentId", documentId)
+                .log();
+    }
+
     private boolean matches(java.util.List<String> expectedRevisions, String currentRevision) {
         return expectedRevisions.isEmpty() || expectedRevisions.contains("*") || expectedRevisions.contains(currentRevision);
     }
 
-    private Optional<ResourceSnapshot> replaceContents(Resource targetResource, String newContent, ResourceSnapshot currentSnapshot) {
+    private Optional<ResourceSnapshot> replaceContents(Resource targetResource, String newContent, ResourceSnapshot currentSnapshot, String editingContextId, String documentId) {
         List<ExternalReference> externalReferences = this.getExternalReferences(targetResource);
         try {
             this.reload(targetResource, newContent);
@@ -114,7 +153,9 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
         } catch (IOException | RuntimeException replacementException) {
             this.logger.atWarn()
                     .setMessage("Replacement of EMF resource {} failed")
-                    .addArgument(targetResource.getURI())
+                    .addArgument(documentId)
+                    .addKeyValue("editingContextId", editingContextId)
+                    .addKeyValue("documentId", documentId)
                     .setCause(replacementException)
                     .log();
             try {
@@ -125,6 +166,8 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
                 this.logger.atError()
                         .setMessage("Rollback of EMF resource {} failed")
                         .addArgument(targetResource.getURI())
+                        .addKeyValue("editingContextId", editingContextId)
+                        .addKeyValue("documentId", documentId)
                         .setCause(replacementException)
                         .log();
             }

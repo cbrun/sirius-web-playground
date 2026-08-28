@@ -40,5 +40,14 @@
             <artifactId>sirius-web-application</artifactId>
             <version>${sirius.web.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-domain</artifactId>
+            <version>${sirius.web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
     </dependencies>
 </project>
