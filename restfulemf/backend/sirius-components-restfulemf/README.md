@@ -41,6 +41,13 @@ resource.save(options);
 
 `RestfulEMFURIHandler` remembers the `ETag` received by `load()` and sends it as `If-Match` during `save()`. Consequently, `Resource.save()` throws an `IOException` instead of overwriting a concurrent update.
 
+## Architecture
+
+The REST controller only handles HTTP parameters, capability checks and response mapping. Read and write application
+services resolve projects and documents, then dispatch access to the collaborative editing context. The live EMF
+`ResourceSet` is only read or modified by collaborative handlers. A dedicated format service owns XMI, binary and CSV
+conversion, while Sirius Web domain objects remain behind the project-document service boundary.
+
 ## Status and security
 
 This is a playground prototype, not a production-ready API. Access to project resources follows the Sirius Web `VIEW` and `EDIT` capabilities, but the sample application does not configure an authentication mechanism. Put it behind appropriate authentication before exposing it outside a development environment.

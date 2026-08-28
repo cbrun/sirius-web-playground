@@ -18,11 +18,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import fr.obeo.playground.restfulemf.application.api.RestfulEMFException;
+
 /**
  * Prevents REST errors from being converted to the Sirius Web frontend fallback page.
  */
 @RestControllerAdvice
 public class RestfulEMFExceptionHandler {
+
+    @ExceptionHandler(RestfulEMFException.class)
+    public ResponseEntity<Void> handleRestfulEMFException(RestfulEMFException exception) {
+        var status = switch (exception.getError()) {
+            case NOT_FOUND -> 404;
+            case READ_ONLY -> 403;
+            case INVALID_RESOURCE -> 400;
+            case PROCESSING_FAILURE -> 500;
+        };
+        return ResponseEntity.status(status).build();
+    }
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Void> handleResponseStatusException(ResponseStatusException exception) {
