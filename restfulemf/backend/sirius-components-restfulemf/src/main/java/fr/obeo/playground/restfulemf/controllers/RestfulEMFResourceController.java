@@ -15,6 +15,7 @@ package fr.obeo.playground.restfulemf.controllers;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,19 +32,21 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
-import org.eclipse.sirius.components.collaborative.api.IEditingContextEventProcessorRegistry;
+import org.eclipse.sirius.components.collaborative.dto.QueryBasedObjectSuccessPayload;
 import org.eclipse.sirius.components.core.api.ErrorPayload;
-import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.EObjectIDManager;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
-import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.components.emf.utils.EMFResourceUtils;
+import org.eclipse.sirius.components.graphql.api.IEditingContextDispatcher;
+import org.eclipse.sirius.web.application.capability.SiriusWebCapabilities;
+import org.eclipse.sirius.web.application.capability.services.api.ICapabilityEvaluator;
 import org.eclipse.sirius.web.application.project.services.api.IProjectEditingContextService;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.Document;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.SemanticData;
@@ -59,6 +62,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import fr.obeo.playground.restfulemf.GetResourceContentInput;
 import fr.obeo.playground.restfulemf.ReplaceResourceContentInput;
 import fr.obeo.playground.restfulemf.SheetDataTable;
 
@@ -70,31 +74,30 @@ public class RestfulEMFResourceController {
 
     private static final Duration EVENT_TIMEOUT = Duration.ofSeconds(10);
 
-    private final IEditingContextSearchService editingContextSearchService;
-
     private final ISemanticDataSearchService semanticDataSearchService;
 
     private final IProjectEditingContextService projectEditingContextService;
 
-    private final IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry;
+    private final IEditingContextDispatcher editingContextDispatcher;
+
+    private final ICapabilityEvaluator capabilityEvaluator;
 
     private final List<EPackage> registeredPackages;
 
     private final Logger logger = LoggerFactory.getLogger(RestfulEMFResourceController.class);
 
-    public RestfulEMFResourceController(IEditingContextSearchService editingContextSearchService, ISemanticDataSearchService semanticDataSearchService,
-            IProjectEditingContextService projectEditingContextService, IEditingContextEventProcessorRegistry editingContextEventProcessorRegistry,
-            List<EPackage> registeredPackages) {
-        this.editingContextSearchService = Objects.requireNonNull(editingContextSearchService);
+    public RestfulEMFResourceController(ISemanticDataSearchService semanticDataSearchService, IProjectEditingContextService projectEditingContextService,
+            IEditingContextDispatcher editingContextDispatcher, ICapabilityEvaluator capabilityEvaluator, List<EPackage> registeredPackages) {
         this.semanticDataSearchService = Objects.requireNonNull(semanticDataSearchService);
         this.projectEditingContextService = Objects.requireNonNull(projectEditingContextService);
-        this.editingContextEventProcessorRegistry = Objects.requireNonNull(editingContextEventProcessorRegistry);
+        this.editingContextDispatcher = Objects.requireNonNull(editingContextDispatcher);
+        this.capabilityEvaluator = Objects.requireNonNull(capabilityEvaluator);
         this.registeredPackages = List.copyOf(Objects.requireNonNull(registeredPackages));
     }
 
     @GetMapping("/api/rest/projects/{projectId}/epackages/bin")
     public byte[] getEPackages(@PathVariable String projectId) {
-        this.getEditingContextId(projectId);
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
         XMLResource targetResource = new XMLResourceImpl(URI.createURI("sirius:///" + projectId + "/epackages"));
         var copier = new EcoreUtil.Copier();
         this.registeredPackages.forEach(ePackage -> targetResource.getContents().add(copier.copy(ePackage)));
@@ -105,6 +108,7 @@ public class RestfulEMFResourceController {
 
     @GetMapping("/api/rest/projects/{projectId}/documents")
     public Map<String, String> getDocuments(@PathVariable String projectId) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
         Map<String, String> documents = new LinkedHashMap<>();
         this.getSemanticData(projectId).getDocuments().forEach(document -> documents.put(document.getId().toString(), document.getName()));
         return documents;
@@ -112,6 +116,7 @@ public class RestfulEMFResourceController {
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/bin")
     public byte[] getBinaryResource(@PathVariable String projectId, @PathVariable String documentName) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
         Resource resource = this.getResource(projectId, documentName);
         XMLResource targetResource = new XMLResourceImpl(resource.getURI());
         this.copyContents(resource, targetResource);
@@ -120,17 +125,20 @@ public class RestfulEMFResourceController {
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/xmi")
     public byte[] getXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
         return this.getXMI(projectId, documentName, false);
     }
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/xmi.zip")
     public byte[] getZippedXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
         return this.getXMI(projectId, documentName, true);
     }
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/csv")
     public String getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
             @RequestParam(defaultValue = "\t", name = "sep") String separator) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
         Resource resource = this.getResource(projectId, documentName);
         var table = new SheetDataTable();
         var idManager = new EObjectIDManager();
@@ -160,16 +168,19 @@ public class RestfulEMFResourceController {
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/xmi")
     public void putXMIResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.EDIT);
         this.putXMI(content, projectId, documentName, false);
     }
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/xmi.zip")
     public void putZippedXMIResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.EDIT);
         this.putXMI(content, projectId, documentName, true);
     }
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/bin")
     public void putBinaryResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName) {
+        this.checkCapability(projectId, SiriusWebCapabilities.Project.EDIT);
         Document document = this.getWritableDocument(projectId, documentName);
         XMLResource resource = new XMLResourceImpl(this.createURIForDocument(document));
         Map<String, Object> options = new HashMap<>();
@@ -214,7 +225,7 @@ public class RestfulEMFResourceController {
         String editingContextId = this.getEditingContextId(projectId);
         var input = new ReplaceResourceContentInput(UUID.randomUUID(), resource);
         try {
-            IPayload payload = this.editingContextEventProcessorRegistry.dispatchEvent(editingContextId, input).block(EVENT_TIMEOUT);
+            IPayload payload = this.editingContextDispatcher.dispatchMutation(editingContextId, input).block(EVENT_TIMEOUT);
             if (payload == null || payload instanceof ErrorPayload) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The EMF document could not be replaced");
             }
@@ -275,7 +286,6 @@ public class RestfulEMFResourceController {
         if (document.isReadOnly()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The document is read-only");
         }
-        this.getResource(projectId, documentName);
         return document;
     }
 
@@ -299,14 +309,28 @@ public class RestfulEMFResourceController {
     private Resource getResource(String projectId, String documentName) {
         Document document = this.findDocument(projectId, documentName);
         String editingContextId = this.getEditingContextId(projectId);
-        URI documentURI = new JSONResourceFactory().createResourceURI(document.getId().toString());
-        return this.editingContextSearchService.findById(editingContextId)
-                .filter(IEMFEditingContext.class::isInstance)
-                .map(IEMFEditingContext.class::cast)
-                .flatMap(editingContext -> editingContext.getDomain().getResourceSet().getResources().stream()
-                        .filter(resource -> resource.getURI().equals(documentURI))
-                        .findFirst())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document resource not found"));
+        var input = new GetResourceContentInput(UUID.randomUUID(), document.getId().toString());
+        IPayload payload = this.editingContextDispatcher.dispatchQuery(editingContextId, input).block(EVENT_TIMEOUT);
+        if (payload instanceof QueryBasedObjectSuccessPayload successPayload && successPayload.result() instanceof String content) {
+            var resourceSet = new ResourceSetImpl();
+            this.registeredPackages.forEach(ePackage -> resourceSet.getPackageRegistry().put(ePackage.getNsURI(), ePackage));
+            Resource resource = new JSONResourceFactory().createResource(this.createURIForDocument(document));
+            resourceSet.getResources().add(resource);
+            try (var inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+                resource.load(inputStream, Map.of());
+                return resource;
+            } catch (IOException | RuntimeException exception) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The EMF resource snapshot could not be loaded", exception);
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document resource not found");
+    }
+
+    private void checkCapability(String projectId, String capability) {
+        this.getEditingContextId(projectId);
+        if (!this.capabilityEvaluator.hasCapability(SiriusWebCapabilities.PROJECT, projectId, capability)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The project capability is not granted");
+        }
     }
 
     private String getEditingContextId(String projectId) {
