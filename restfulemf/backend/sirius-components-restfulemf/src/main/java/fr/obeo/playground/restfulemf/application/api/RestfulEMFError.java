@@ -18,8 +18,10 @@ package fr.obeo.playground.restfulemf.application.api;
  * @since 1.1.0
  */
 public enum RestfulEMFError {
+    CAPABILITY_DENIED,
     NOT_FOUND,
     READ_ONLY,
     INVALID_RESOURCE,
+    TIMEOUT,
     PROCESSING_FAILURE
 }

@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.sirius.components.core.api.ErrorPayload;
 import org.eclipse.sirius.components.core.api.IPayload;
@@ -73,7 +74,10 @@ public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplic
         ResourceSnapshot newSnapshot = this.resourceFormatService.deserialize(content, document, format);
         var input = new ReplaceResourceContentInput(UUID.randomUUID(), document.id().toString(), newSnapshot.content(), expectedRevisions);
         try {
-            IPayload payload = this.editingContextDispatcher.dispatchMutation(projectDocuments.editingContextId(), input).block(EVENT_TIMEOUT);
+            IPayload payload = this.editingContextDispatcher.dispatchMutation(projectDocuments.editingContextId(), input)
+                    .timeout(EVENT_TIMEOUT)
+                    .onErrorMap(TimeoutException.class, exception -> new RestfulEMFException(RestfulEMFError.TIMEOUT, "The EMF document replacement timed out", exception))
+                    .block();
             if (payload instanceof ReplaceResourceContentSuccessPayload successPayload) {
                 return new ResourceWriteResult(ResourceWriteStatus.SUCCESS, successPayload.revision());
             } else if (payload instanceof ResourceRevisionConflictPayload conflictPayload) {

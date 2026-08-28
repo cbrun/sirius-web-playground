@@ -13,7 +13,8 @@
 package fr.obeo.playground.restfulemf.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,27 +24,29 @@ import fr.obeo.playground.restfulemf.application.api.RestfulEMFException;
 /**
  * Prevents REST errors from being converted to the Sirius Web frontend fallback page.
  */
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = RestfulEMFResourceController.class)
 public class RestfulEMFExceptionHandler {
 
     @ExceptionHandler(RestfulEMFException.class)
-    public ResponseEntity<Void> handleRestfulEMFException(RestfulEMFException exception) {
+    public ResponseEntity<ProblemDetail> handleRestfulEMFException(RestfulEMFException exception) {
         var status = switch (exception.getError()) {
-            case NOT_FOUND -> 404;
-            case READ_ONLY -> 403;
-            case INVALID_RESOURCE -> 400;
-            case PROCESSING_FAILURE -> 500;
+            case CAPABILITY_DENIED, READ_ONLY -> HttpStatus.FORBIDDEN;
+            case NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case INVALID_RESOURCE -> HttpStatus.BAD_REQUEST;
+            case TIMEOUT -> HttpStatus.GATEWAY_TIMEOUT;
+            case PROCESSING_FAILURE -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
-        return ResponseEntity.status(status).build();
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, exception.getMessage());
+        problem.setProperty("code", exception.getError().name());
+        return ResponseEntity.status(status).body(problem);
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Void> handleResponseStatusException(ResponseStatusException exception) {
-        return ResponseEntity.status(exception.getStatusCode()).build();
-    }
-
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Void> handleMethodNotSupportedException() {
-        return ResponseEntity.status(405).build();
+    public ResponseEntity<ProblemDetail> handleResponseStatusException(ResponseStatusException exception) {
+        ProblemDetail problem = exception.getBody();
+        if (exception.getStatusCode() instanceof HttpStatus status) {
+            problem.setProperty("code", status.name());
+        }
+        return ResponseEntity.status(exception.getStatusCode()).body(problem);
     }
 }

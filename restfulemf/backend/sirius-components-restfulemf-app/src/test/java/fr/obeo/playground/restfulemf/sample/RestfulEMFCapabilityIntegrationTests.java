@@ -60,7 +60,11 @@ public class RestfulEMFCapabilityIntegrationTests extends AbstractIntegrationTes
     public void givenDeniedProjectCapabilitiesWhenADocumentIsReadOrWrittenThenForbiddenIsReturned() {
         this.webTestClient.get().uri("/api/rest/projects/{projectId}/documents", FLOW_PROJECT_ID).exchange().expectStatus().isForbidden();
         this.webTestClient.get().uri("/api/rest/projects/{projectId}/epackages/bin", FLOW_PROJECT_ID).exchange().expectStatus().isForbidden();
-        this.webTestClient.get().uri(FLOW_XMI_URI).exchange().expectStatus().isForbidden();
+        this.webTestClient.get().uri(FLOW_XMI_URI).exchange()
+                .expectStatus().isForbidden()
+                .expectHeader().contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("CAPABILITY_DENIED");
         this.webTestClient.put().uri(FLOW_XMI_URI)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .bodyValue(new byte[] { 1 })

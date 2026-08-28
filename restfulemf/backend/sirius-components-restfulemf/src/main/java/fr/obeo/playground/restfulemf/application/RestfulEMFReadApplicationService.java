@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.graphql.api.IEditingContextDispatcher;
@@ -78,7 +79,10 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
         ResourceDocument document = this.findDocument(projectDocuments, documentSelector);
         var input = new GetResourceContentInput(UUID.randomUUID(), document.id().toString());
         try {
-            IPayload payload = this.editingContextDispatcher.dispatchQuery(projectDocuments.editingContextId(), input).block(EVENT_TIMEOUT);
+            IPayload payload = this.editingContextDispatcher.dispatchQuery(projectDocuments.editingContextId(), input)
+                    .timeout(EVENT_TIMEOUT)
+                    .onErrorMap(TimeoutException.class, exception -> new RestfulEMFException(RestfulEMFError.TIMEOUT, "The EMF document read timed out", exception))
+                    .block();
             if (payload instanceof GetResourceContentSuccessPayload successPayload) {
                 byte[] content = this.resourceFormatService.serialize(successPayload.snapshot(), document, format, separator);
                 return new ResourceRepresentation(content, successPayload.snapshot().revision());

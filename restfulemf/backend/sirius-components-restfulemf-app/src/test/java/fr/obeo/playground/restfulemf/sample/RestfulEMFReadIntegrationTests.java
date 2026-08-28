@@ -119,7 +119,10 @@ public class RestfulEMFReadIntegrationTests extends AbstractIntegrationTests {
     @Test
     @DisplayName("Given unknown project or document identifiers, when a resource is requested, then not found is returned")
     public void givenUnknownProjectOrDocumentIdentifiersWhenAResourceIsRequestedThenNotFoundIsReturned() {
-        this.webTestClient.get().uri("/api/rest/projects/unknown/documents").exchange().expectStatus().isNotFound();
+        this.webTestClient.get().uri("/api/rest/projects/unknown/documents").exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("NOT_FOUND");
         this.webTestClient.get().uri("/api/rest/projects/{projectId}/unknown/xmi", ECORE_PROJECT_ID).exchange().expectStatus().isNotFound();
     }
 

@@ -148,7 +148,9 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
                 .getResponseHeaders().getETag();
         this.put(FLOW_XMI_URI, staleUpdate, initialRevision)
                 .expectStatus().isEqualTo(412)
-                .expectHeader().valueEquals("ETag", currentRevision);
+                .expectHeader().valueEquals("ETag", currentRevision)
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("REVISION_CONFLICT");
 
         assertThat(new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8)).contains("FirstUpdate").doesNotContain("StaleUpdate");
     }
@@ -251,7 +253,10 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         byte[] unsafeXML = ("<?xml version=\"1.0\"?><!DOCTYPE xmi:XMI [<!ENTITY xxe SYSTEM \"file:///does-not-exist\">]>"
                 + "<xmi:XMI xmlns:xmi=\"http://www.omg.org/XMI\">&xxe;</xmi:XMI>").getBytes(StandardCharsets.UTF_8);
 
-        this.put(FLOW_XMI_URI, unsafeXML).expectStatus().isBadRequest();
+        this.put(FLOW_XMI_URI, unsafeXML)
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("INVALID_RESOURCE");
         this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/Flow/bin", new byte[] { 1, 2, 3 }).expectStatus().isBadRequest();
     }
 
@@ -262,14 +267,20 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         this.givenInitialServerState.initialize();
         this.jdbcTemplate.update("UPDATE document SET is_read_only = true WHERE id = ?::uuid", FLOW_DOCUMENT_ID);
 
-        this.put(FLOW_XMI_URI, xmi).expectStatus().isForbidden();
+        this.put(FLOW_XMI_URI, xmi)
+                .expectStatus().isForbidden()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("READ_ONLY");
     }
 
     @Test
     @DisplayName("Given CSV output, when a CSV update is requested, then method not allowed is returned")
     public void givenCSVOutputWhenACSVUpdateIsRequestedThenMethodNotAllowedIsReturned() {
         this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/Flow/csv", "id".getBytes(StandardCharsets.UTF_8))
-                .expectStatus().isEqualTo(405);
+                .expectStatus().isEqualTo(405)
+                .expectHeader().valueEquals(HttpHeaders.ALLOW, "GET")
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("METHOD_NOT_ALLOWED");
     }
 
     private byte[] getBytes(String uri) {
