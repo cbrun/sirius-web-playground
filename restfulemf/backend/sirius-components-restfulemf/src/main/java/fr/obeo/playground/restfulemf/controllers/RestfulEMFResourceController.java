@@ -12,10 +12,12 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.controllers;
 
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Semaphore;
 
 import org.eclipse.sirius.web.application.capability.SiriusWebCapabilities;
 import org.eclipse.sirius.web.application.capability.services.api.ICapabilityEvaluator;
@@ -25,14 +27,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import fr.obeo.playground.restfulemf.application.api.IRestfulEMFReadApplicationService;
 import fr.obeo.playground.restfulemf.application.api.IRestfulEMFWriteApplicationService;
@@ -41,6 +46,7 @@ import fr.obeo.playground.restfulemf.application.api.ResourceRepresentation;
 import fr.obeo.playground.restfulemf.application.api.ResourceWriteStatus;
 import fr.obeo.playground.restfulemf.application.api.RestfulEMFError;
 import fr.obeo.playground.restfulemf.application.api.RestfulEMFException;
+import fr.obeo.playground.restfulemf.services.SizeLimitedInputStream;
 
 /**
  * Exposes Sirius Web EMF documents through simple REST representations.
@@ -56,18 +62,38 @@ public class RestfulEMFResourceController {
 
     private final boolean requireIfMatch;
 
+    private final long maximumRequestSize;
+
+    private final Semaphore transferPermits;
+
     public RestfulEMFResourceController(IRestfulEMFReadApplicationService readApplicationService, IRestfulEMFWriteApplicationService writeApplicationService,
-            ICapabilityEvaluator capabilityEvaluator, @Value("${sirius.web.restfulemf.require-if-match:false}") boolean requireIfMatch) {
+            ICapabilityEvaluator capabilityEvaluator, @Value("${sirius.web.restfulemf.require-if-match:false}") boolean requireIfMatch,
+            @Value("${sirius.web.restfulemf.max-request-size:256MB}") DataSize maximumRequestSize,
+            @Value("${sirius.web.restfulemf.max-concurrent-transfers:2}") int maximumConcurrentTransfers) {
         this.readApplicationService = Objects.requireNonNull(readApplicationService);
         this.writeApplicationService = Objects.requireNonNull(writeApplicationService);
         this.capabilityEvaluator = Objects.requireNonNull(capabilityEvaluator);
         this.requireIfMatch = requireIfMatch;
+        this.maximumRequestSize = Objects.requireNonNull(maximumRequestSize).toBytes();
+        if (this.maximumRequestSize < 1) {
+            throw new IllegalArgumentException("The maximum request size must be positive");
+        }
+        if (maximumConcurrentTransfers < 1) {
+            throw new IllegalArgumentException("The maximum number of concurrent transfers must be positive");
+        }
+        this.transferPermits = new Semaphore(maximumConcurrentTransfers, true);
     }
 
     @GetMapping("/api/rest/projects/{projectId}/epackages/bin")
-    public byte[] getEPackages(@PathVariable String projectId) {
+    public void getEPackages(@PathVariable String projectId, HttpServletResponse response) throws IOException {
         this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
-        return this.readApplicationService.getEPackages(projectId);
+        this.acquireTransferPermit();
+        try {
+            response.setContentType("application/octet-stream");
+            this.readApplicationService.getEPackages(projectId).write(response.getOutputStream());
+        } finally {
+            this.transferPermits.release();
+        }
     }
 
     @GetMapping("/api/rest/projects/{projectId}/documents")
@@ -77,41 +103,39 @@ public class RestfulEMFResourceController {
     }
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/bin")
-    public ResponseEntity<byte[]> getBinaryResource(@PathVariable String projectId, @PathVariable String documentName) {
-        return this.getResource(projectId, documentName, ResourceFormat.BINARY);
+    public void getBinaryResource(@PathVariable String projectId, @PathVariable String documentName, HttpServletResponse response) throws IOException {
+        this.getResource(projectId, documentName, ResourceFormat.BINARY, "\t", "application/octet-stream", response);
     }
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/xmi")
-    public ResponseEntity<byte[]> getXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
-        return this.getResource(projectId, documentName, ResourceFormat.XMI);
+    public void getXMIResource(@PathVariable String projectId, @PathVariable String documentName, HttpServletResponse response) throws IOException {
+        this.getResource(projectId, documentName, ResourceFormat.XMI, "\t", "application/octet-stream", response);
     }
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/xmi.zip")
-    public ResponseEntity<byte[]> getZippedXMIResource(@PathVariable String projectId, @PathVariable String documentName) {
-        return this.getResource(projectId, documentName, ResourceFormat.ZIPPED_XMI);
+    public void getZippedXMIResource(@PathVariable String projectId, @PathVariable String documentName, HttpServletResponse response) throws IOException {
+        this.getResource(projectId, documentName, ResourceFormat.ZIPPED_XMI, "\t", "application/octet-stream", response);
     }
 
     @GetMapping("/api/rest/projects/{projectId}/{documentName}/csv")
-    public ResponseEntity<String> getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
-            @RequestParam(defaultValue = "\t", name = "sep") String separator) {
-        this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
-        ResourceRepresentation representation = this.readApplicationService.getResource(projectId, documentName, ResourceFormat.CSV, separator);
-        return ResponseEntity.ok().eTag(representation.revision()).body(new String(representation.content(), StandardCharsets.UTF_8));
+    public void getCSVResource(@PathVariable String projectId, @PathVariable String documentName,
+            @RequestParam(defaultValue = "\t", name = "sep") String separator, HttpServletResponse response) throws IOException {
+        this.getResource(projectId, documentName, ResourceFormat.CSV, separator, "text/plain;charset=UTF-8", response);
     }
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/xmi")
-    public ResponseEntity<?> putXMIResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName, @RequestHeader HttpHeaders headers) {
-        return this.replaceResource(projectId, documentName, ResourceFormat.XMI, content, headers);
+    public ResponseEntity<?> putXMIResource(HttpServletRequest request, @PathVariable String projectId, @PathVariable String documentName, @RequestHeader HttpHeaders headers) throws IOException {
+        return this.replaceResource(projectId, documentName, ResourceFormat.XMI, request.getInputStream(), headers);
     }
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/xmi.zip")
-    public ResponseEntity<?> putZippedXMIResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName, @RequestHeader HttpHeaders headers) {
-        return this.replaceResource(projectId, documentName, ResourceFormat.ZIPPED_XMI, content, headers);
+    public ResponseEntity<?> putZippedXMIResource(HttpServletRequest request, @PathVariable String projectId, @PathVariable String documentName, @RequestHeader HttpHeaders headers) throws IOException {
+        return this.replaceResource(projectId, documentName, ResourceFormat.ZIPPED_XMI, request.getInputStream(), headers);
     }
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/bin")
-    public ResponseEntity<?> putBinaryResource(@RequestBody byte[] content, @PathVariable String projectId, @PathVariable String documentName, @RequestHeader HttpHeaders headers) {
-        return this.replaceResource(projectId, documentName, ResourceFormat.BINARY, content, headers);
+    public ResponseEntity<?> putBinaryResource(HttpServletRequest request, @PathVariable String projectId, @PathVariable String documentName, @RequestHeader HttpHeaders headers) throws IOException {
+        return this.replaceResource(projectId, documentName, ResourceFormat.BINARY, request.getInputStream(), headers);
     }
 
     @PutMapping("/api/rest/projects/{projectId}/{documentName}/csv")
@@ -121,21 +145,37 @@ public class RestfulEMFResourceController {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).allow(HttpMethod.GET).body(problem);
     }
 
-    private ResponseEntity<byte[]> getResource(String projectId, String documentName, ResourceFormat format) {
+    private void getResource(String projectId, String documentName, ResourceFormat format, String separator, String contentType, HttpServletResponse response) throws IOException {
         this.checkCapability(projectId, SiriusWebCapabilities.Project.VIEW);
-        ResourceRepresentation representation = this.readApplicationService.getResource(projectId, documentName, format, "\t");
-        return ResponseEntity.ok().eTag(representation.revision()).body(representation.content());
+        this.acquireTransferPermit();
+        try {
+            ResourceRepresentation representation = this.readApplicationService.getResource(projectId, documentName, format, separator);
+            response.setContentType(contentType);
+            response.setHeader(HttpHeaders.ETAG, '"' + representation.revision() + '"');
+            representation.writer().write(response.getOutputStream());
+        } finally {
+            this.transferPermits.release();
+        }
     }
 
-    private ResponseEntity<?> replaceResource(String projectId, String documentName, ResourceFormat format, byte[] content, HttpHeaders headers) {
+    private ResponseEntity<?> replaceResource(String projectId, String documentName, ResourceFormat format, InputStream content, HttpHeaders headers) {
         this.checkCapability(projectId, SiriusWebCapabilities.Project.EDIT);
-        var result = this.writeApplicationService.replaceResource(projectId, documentName, format, content, this.getExpectedRevisions(headers));
-        if (result.status() == ResourceWriteStatus.CONFLICT) {
-            ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.PRECONDITION_FAILED, "The document revision does not match If-Match");
-            problem.setProperty("code", "REVISION_CONFLICT");
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).eTag(result.revision()).body(problem);
+        if (headers.getContentLength() > this.maximumRequestSize) {
+            throw new RestfulEMFException(RestfulEMFError.PAYLOAD_TOO_LARGE, "The request payload is too large");
         }
-        return ResponseEntity.ok().eTag(result.revision()).build();
+        this.acquireTransferPermit();
+        try {
+            var limitedContent = new SizeLimitedInputStream(content, this.maximumRequestSize);
+            var result = this.writeApplicationService.replaceResource(projectId, documentName, format, limitedContent, this.getExpectedRevisions(headers));
+            if (result.status() == ResourceWriteStatus.CONFLICT) {
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.PRECONDITION_FAILED, "The document revision does not match If-Match");
+                problem.setProperty("code", "REVISION_CONFLICT");
+                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).eTag(result.revision()).body(problem);
+            }
+            return ResponseEntity.ok().eTag(result.revision()).build();
+        } finally {
+            this.transferPermits.release();
+        }
     }
 
     private List<String> getExpectedRevisions(HttpHeaders headers) {
@@ -156,6 +196,12 @@ public class RestfulEMFResourceController {
     private void checkCapability(String projectId, String capability) {
         if (!this.capabilityEvaluator.hasCapability(SiriusWebCapabilities.PROJECT, projectId, capability)) {
             throw new RestfulEMFException(RestfulEMFError.CAPABILITY_DENIED, "The project capability is not granted");
+        }
+    }
+
+    private void acquireTransferPermit() {
+        if (!this.transferPermits.tryAcquire()) {
+            throw new RestfulEMFException(RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED, "Too many concurrent resource transfers");
         }
     }
 }

@@ -37,6 +37,13 @@ Run the full build and the PostgreSQL-backed integration tests with a running Do
 mvn clean verify -f restfulemf/backend/pom.xml
 ```
 
+Run the opt-in 1M-Modeling round-trip with a 4 GiB test JVM:
+
+```shell
+mvn clean verify -Plarge-model-tests -f restfulemf/backend/pom.xml
+```
+
 The tests use the Sirius Web Ecore and Flow fixtures, cover compatible and strict optimistic concurrency, rollback and
 cross-resource references, exercise creation of the mixed-format Many Models template, verify the 1M-Modeling assets,
-and start an isolated PostgreSQL 17 container through Testcontainers.
+enforce streamed-transfer limits, and start an isolated PostgreSQL 17 container through Testcontainers. The large-model
+profile additionally creates the full 1M-Modeling project and performs an EMF binary load/save round-trip.

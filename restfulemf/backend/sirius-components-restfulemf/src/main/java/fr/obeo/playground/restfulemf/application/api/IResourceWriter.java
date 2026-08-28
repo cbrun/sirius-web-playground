@@ -12,17 +12,15 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.application.api;
 
-import java.util.Objects;
+import java.io.OutputStream;
 
 /**
- * A streamable resource and its revision.
+ * Writes a resource representation without materializing it in memory.
  *
  * @since 1.1.0
  */
-public record ResourceRepresentation(IResourceWriter writer, String revision) {
+@FunctionalInterface
+public interface IResourceWriter {
 
-    public ResourceRepresentation {
-        Objects.requireNonNull(writer);
-        Objects.requireNonNull(revision);
-    }
+    void write(OutputStream outputStream);
 }

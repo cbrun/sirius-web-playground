@@ -12,7 +12,11 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -63,10 +67,13 @@ public class ResourceSnapshotService implements IResourceSnapshotService {
 
     private String getRevision(String content) {
         try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(content.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 is not available", exception);
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            try (var writer = new OutputStreamWriter(new DigestOutputStream(OutputStream.nullOutputStream(), messageDigest), StandardCharsets.UTF_8)) {
+                writer.write(content);
+            }
+            return HexFormat.of().formatHex(messageDigest.digest());
+        } catch (IOException | NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("The resource revision could not be computed", exception);
         }
     }
 }

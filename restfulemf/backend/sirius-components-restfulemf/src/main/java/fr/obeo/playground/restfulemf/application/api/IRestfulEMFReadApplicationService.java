@@ -23,7 +23,7 @@ public interface IRestfulEMFReadApplicationService {
 
     Map<String, String> getDocuments(String projectId);
 
-    byte[] getEPackages(String projectId);
+    IResourceWriter getEPackages(String projectId);
 
     ResourceRepresentation getResource(String projectId, String documentSelector, ResourceFormat format, String separator);
 }

@@ -13,17 +13,26 @@
 package fr.obeo.playground.restfulemf.services;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+import java.util.zip.ZipInputStream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
@@ -41,13 +50,15 @@ import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.sirius.components.emf.services.EObjectIDManager;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.utils.EMFResourceUtils;
+import org.eclipse.sirius.emfjson.resource.JsonResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.unit.DataSize;
 
 import fr.obeo.playground.restfulemf.IResourceSnapshotService;
 import fr.obeo.playground.restfulemf.ResourceSnapshot;
-import fr.obeo.playground.restfulemf.SheetDataTable;
 import fr.obeo.playground.restfulemf.application.api.ResourceFormat;
 import fr.obeo.playground.restfulemf.application.api.RestfulEMFError;
 import fr.obeo.playground.restfulemf.application.api.RestfulEMFException;
@@ -64,35 +75,42 @@ public class ResourceFormatService implements IResourceFormatService {
 
     private final List<EPackage> registeredPackages;
 
+    private final long maximumUncompressedSize;
+
     private final Logger logger = LoggerFactory.getLogger(ResourceFormatService.class);
 
-    public ResourceFormatService(IResourceSnapshotService resourceSnapshotService, List<EPackage> registeredPackages) {
+    public ResourceFormatService(IResourceSnapshotService resourceSnapshotService, List<EPackage> registeredPackages,
+            @Value("${sirius.web.restfulemf.max-uncompressed-size:256MB}") DataSize maximumUncompressedSize) {
         this.resourceSnapshotService = Objects.requireNonNull(resourceSnapshotService);
         this.registeredPackages = List.copyOf(Objects.requireNonNull(registeredPackages));
+        this.maximumUncompressedSize = Objects.requireNonNull(maximumUncompressedSize).toBytes();
+        if (this.maximumUncompressedSize < 1) {
+            throw new IllegalArgumentException("The maximum uncompressed size must be positive");
+        }
     }
 
     @Override
-    public byte[] serializeEPackages(String projectId) {
+    public void serializeEPackages(String projectId, OutputStream outputStream) {
         XMLResource targetResource = new XMLResourceImpl(URI.createURI("sirius:///" + projectId + "/epackages"));
         var copier = new EcoreUtil.Copier();
         this.registeredPackages.forEach(ePackage -> targetResource.getContents().add(copier.copy(ePackage)));
         copier.copyReferences();
-        return this.save(targetResource, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE), null);
+        this.save(targetResource, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE), null, outputStream);
     }
 
     @Override
-    public byte[] serialize(ResourceSnapshot snapshot, ResourceDocument document, ResourceFormat format, String separator) {
+    public void serialize(ResourceSnapshot snapshot, ResourceDocument document, ResourceFormat format, String separator, OutputStream outputStream) {
         Resource resource = this.loadSnapshot(snapshot, document);
-        return switch (format) {
-            case BINARY -> this.serializeBinary(resource, document);
-            case XMI -> this.serializeXMI(resource, document, false);
-            case ZIPPED_XMI -> this.serializeXMI(resource, document, true);
-            case CSV -> this.serializeCSV(resource, separator).getBytes(StandardCharsets.UTF_8);
-        };
+        switch (format) {
+            case BINARY -> this.serializeBinary(resource, document, outputStream);
+            case XMI -> this.serializeXMI(resource, document, false, outputStream);
+            case ZIPPED_XMI -> this.serializeXMI(resource, document, true, outputStream);
+            case CSV -> this.serializeCSV(resource, separator, document, outputStream);
+        }
     }
 
     @Override
-    public ResourceSnapshot deserialize(byte[] content, ResourceDocument document, ResourceFormat format) {
+    public ResourceSnapshot deserialize(InputStream content, ResourceDocument document, ResourceFormat format) {
         if (format == ResourceFormat.CSV) {
             throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "CSV resources cannot be imported");
         }
@@ -100,10 +118,23 @@ public class ResourceFormatService implements IResourceFormatService {
         Resource resource = format == ResourceFormat.BINARY ? new XMLResourceImpl(this.createURI(document)) : new XMIResourceImpl(this.createURI(document));
         var resourceSet = this.createResourceSet();
         resourceSet.getResources().add(resource);
-        try (var inputStream = new ByteArrayInputStream(content)) {
-            resource.load(inputStream, this.getOptions(format));
-            return this.resourceSnapshotService.getSnapshot(resource)
+        try {
+            InputStream resourceContent = content;
+            Map<String, Object> options = this.getOptions(format);
+            if (format == ResourceFormat.ZIPPED_XMI) {
+                var zipInputStream = new ZipInputStream(content);
+                if (zipInputStream.getNextEntry() == null) {
+                    throw new IOException("The zipped XMI resource is empty");
+                }
+                resourceContent = new SizeLimitedInputStream(zipInputStream, this.maximumUncompressedSize);
+                options = this.getOptions(ResourceFormat.XMI);
+            }
+            resource.load(resourceContent, options);
+            Resource canonicalResource = this.moveToJsonResource(resource);
+            return this.resourceSnapshotService.getSnapshot(canonicalResource)
                     .orElseThrow(() -> new IllegalArgumentException("The EMF resource could not be serialized"));
+        } catch (RestfulEMFException exception) {
+            throw exception;
         } catch (IOException | RuntimeException exception) {
             this.logger.atWarn()
                     .setMessage("Document content could not be loaded")
@@ -131,47 +162,72 @@ public class ResourceFormatService implements IResourceFormatService {
         }
     }
 
-    private byte[] serializeBinary(Resource resource, ResourceDocument document) {
+    private void serializeBinary(Resource resource, ResourceDocument document, OutputStream outputStream) {
         XMLResource targetResource = new XMLResourceImpl(resource.getURI());
-        this.copyContents(resource, targetResource);
-        return this.save(targetResource, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE), document);
+        this.moveContents(resource, targetResource);
+        this.save(targetResource, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE), document, outputStream);
     }
 
-    private byte[] serializeXMI(Resource resource, ResourceDocument document, boolean zipped) {
+    private void serializeXMI(Resource resource, ResourceDocument document, boolean zipped, OutputStream outputStream) {
         XMIResource targetResource = new XMIResourceImpl(resource.getURI());
-        this.copyContents(resource, targetResource);
+        this.moveContents(resource, targetResource);
         Map<String, Object> options = this.getOptions(zipped ? ResourceFormat.ZIPPED_XMI : ResourceFormat.XMI);
-        return this.save(targetResource, options, document);
+        this.save(targetResource, options, document, outputStream);
     }
 
-    private String serializeCSV(Resource resource, String separator) {
-        var table = new SheetDataTable();
-        var idManager = new EObjectIDManager();
-        Set<EObject> ignoredObjects = Collections.newSetFromMap(new IdentityHashMap<>());
+    private void serializeCSV(Resource resource, String separator, ResourceDocument document, OutputStream outputStream) {
+        try {
+            Set<String> headers = new LinkedHashSet<>(List.of("id"));
+            this.forEachCSVRow(resource, row -> headers.addAll(row.keySet()));
+            Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+            this.writeCSVLine(writer, separator, new ArrayList<>(headers));
+            this.forEachCSVRow(resource, row -> {
+                List<String> values = headers.stream().map(header -> row.getOrDefault(header, "")).toList();
+                this.writeCSVLine(writer, separator, values);
+            });
+            writer.flush();
+        } catch (IOException | UncheckedIOException exception) {
+            this.logSerializationFailure(document, exception);
+            throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF resource could not be serialized", exception);
+        }
+    }
 
-        resource.getAllContents().forEachRemaining(object -> {
-            if (!ignoredObjects.contains(object)) {
+    private void forEachCSVRow(Resource resource, Consumer<Map<String, String>> consumer) {
+        Set<EObject> embeddedObjects = Collections.newSetFromMap(new IdentityHashMap<>());
+        var idManager = new EObjectIDManager();
+        var iterator = resource.getAllContents();
+        while (iterator.hasNext()) {
+            EObject object = iterator.next();
+            if (!embeddedObjects.contains(object)) {
                 idManager.findId(object).ifPresent(id -> {
-                    table.updateValue(id, "eClass", object.eClass().getName());
-                    this.putAttributesInTable(table, object, id);
-                    for (EReference containment : object.eClass().getEAllContainments()) {
-                        if (containment.getUpperBound() == 1 && object.eGet(containment) instanceof EObject child) {
-                            ignoredObjects.add(child);
-                            table.updateValue(id, containment.getName(), child.eClass().getName());
-                            this.putAttributesInTable(table, child, id);
+                    Map<String, String> row = new LinkedHashMap<>();
+                    row.put("id", id);
+                    row.put("eClass", object.eClass().getName());
+                    this.putAttributesInRow(row, object);
+                    for (EReference reference : object.eClass().getEAllContainments()) {
+                        Object value = object.eGet(reference);
+                        if (!reference.isMany() && value instanceof EObject embeddedObject) {
+                            embeddedObjects.add(embeddedObject);
+                            row.put(reference.getName(), embeddedObject.eClass().getName());
+                            this.putAttributesInRow(row, embeddedObject);
                         }
                     }
+                    consumer.accept(row);
                 });
             }
-        });
-
-        table.fillEmptyCells();
-        return table.getValues().stream()
-                .map(line -> String.join(separator, line))
-                .collect(Collectors.joining("\n", "", "\n"));
+        }
     }
 
-    private void putAttributesInTable(SheetDataTable table, EObject object, String objectId) {
+    private void writeCSVLine(Writer writer, String separator, List<String> values) {
+        try {
+            writer.write(String.join(separator, values));
+            writer.write(System.lineSeparator());
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
+        }
+    }
+
+    private void putAttributesInRow(Map<String, String> row, EObject object) {
         for (EAttribute attribute : object.eClass().getEAllAttributes()) {
             Object value = object.eGet(attribute);
             if (!attribute.isMany() && value != null) {
@@ -179,33 +235,45 @@ public class ResourceFormatService implements IResourceFormatService {
                 if (value instanceof String) {
                     serializedValue = "\"" + serializedValue.replace("\"", "\"\"") + "\"";
                 }
-                table.updateValue(objectId, attribute.getName(), serializedValue);
+                row.put(attribute.getName(), serializedValue);
             }
         }
     }
 
-    private byte[] save(Resource resource, Map<String, Object> options, ResourceDocument document) {
-        try (var outputStream = new ByteArrayOutputStream()) {
+    private void save(Resource resource, Map<String, Object> options, ResourceDocument document, OutputStream outputStream) {
+        try {
             resource.save(outputStream, options);
-            return outputStream.toByteArray();
         } catch (IOException exception) {
-            var loggingEvent = this.logger.atWarn()
-                    .setMessage("EMF resource serialization failed")
-                    .setCause(exception);
-            if (document != null) {
-                loggingEvent.addKeyValue("documentId", document.id());
-            }
-            loggingEvent.log();
+            this.logSerializationFailure(document, exception);
             throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF resource could not be serialized", exception);
         }
     }
 
-    private void copyContents(Resource sourceResource, XMLResource targetResource) {
-        var copier = new EcoreUtil.Copier();
-        targetResource.getContents().addAll(copier.copyAll(sourceResource.getContents()));
-        copier.copyReferences();
+    private void logSerializationFailure(ResourceDocument document, Exception exception) {
+        var logBuilder = this.logger.atWarn()
+                .setMessage("EMF resource could not be serialized")
+                .setCause(exception);
+        if (document != null) {
+            logBuilder.addKeyValue("documentId", document.id());
+        }
+        logBuilder.log();
+    }
+
+    private void moveContents(Resource sourceResource, XMLResource targetResource) {
         var idManager = new EObjectIDManager();
-        copier.forEach((sourceObject, copiedObject) -> idManager.findId(sourceObject).ifPresent(id -> targetResource.setID(copiedObject, id)));
+        sourceResource.getAllContents().forEachRemaining(object -> idManager.findId(object).ifPresent(id -> targetResource.setID(object, id)));
+        targetResource.getContents().addAll(List.copyOf(sourceResource.getContents()));
+    }
+
+    private Resource moveToJsonResource(Resource sourceResource) {
+        JsonResource targetResource = (JsonResource) new JSONResourceFactory().createResource(sourceResource.getURI());
+        var idManager = new EObjectIDManager();
+        sourceResource.getAllContents().forEachRemaining(object -> {
+            String id = sourceResource instanceof XMLResource xmlResource ? xmlResource.getID(object) : null;
+            Optional.ofNullable(id).or(() -> idManager.findId(object)).ifPresent(value -> targetResource.setID(object, value));
+        });
+        targetResource.getContents().addAll(List.copyOf(sourceResource.getContents()));
+        return targetResource;
     }
 
     private ResourceSetImpl createResourceSet() {

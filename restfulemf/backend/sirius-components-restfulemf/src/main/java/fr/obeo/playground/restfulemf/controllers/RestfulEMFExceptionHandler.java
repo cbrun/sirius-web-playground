@@ -12,13 +12,15 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.controllers;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import fr.obeo.playground.restfulemf.application.api.RestfulEMFError;
 import fr.obeo.playground.restfulemf.application.api.RestfulEMFException;
 
 /**
@@ -33,12 +35,18 @@ public class RestfulEMFExceptionHandler {
             case CAPABILITY_DENIED, READ_ONLY -> HttpStatus.FORBIDDEN;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case INVALID_RESOURCE -> HttpStatus.BAD_REQUEST;
+            case PAYLOAD_TOO_LARGE -> HttpStatus.PAYLOAD_TOO_LARGE;
+            case TRANSFER_CAPACITY_EXHAUSTED -> HttpStatus.SERVICE_UNAVAILABLE;
             case TIMEOUT -> HttpStatus.GATEWAY_TIMEOUT;
             case PROCESSING_FAILURE -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, exception.getMessage());
         problem.setProperty("code", exception.getError().name());
-        return ResponseEntity.status(status).body(problem);
+        var response = ResponseEntity.status(status);
+        if (exception.getError() == RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED) {
+            response.header(HttpHeaders.RETRY_AFTER, "1");
+        }
+        return response.body(problem);
     }
 
     @ExceptionHandler(ResponseStatusException.class)

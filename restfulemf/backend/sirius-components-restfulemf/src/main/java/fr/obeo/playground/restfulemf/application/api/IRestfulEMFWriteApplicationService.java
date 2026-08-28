@@ -12,6 +12,7 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.application.api;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -21,5 +22,5 @@ import java.util.List;
  */
 public interface IRestfulEMFWriteApplicationService {
 
-    ResourceWriteResult replaceResource(String projectId, String documentSelector, ResourceFormat format, byte[] content, List<String> expectedRevisions);
+    ResourceWriteResult replaceResource(String projectId, String documentSelector, ResourceFormat format, InputStream content, List<String> expectedRevisions);
 }

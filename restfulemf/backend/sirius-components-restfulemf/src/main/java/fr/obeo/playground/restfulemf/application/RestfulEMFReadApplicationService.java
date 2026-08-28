@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import fr.obeo.playground.restfulemf.GetResourceContentInput;
 import fr.obeo.playground.restfulemf.GetResourceContentSuccessPayload;
 import fr.obeo.playground.restfulemf.application.api.IRestfulEMFReadApplicationService;
+import fr.obeo.playground.restfulemf.application.api.IResourceWriter;
 import fr.obeo.playground.restfulemf.application.api.ResourceFormat;
 import fr.obeo.playground.restfulemf.application.api.ResourceRepresentation;
 import fr.obeo.playground.restfulemf.application.api.RestfulEMFError;
@@ -68,9 +69,9 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
     }
 
     @Override
-    public byte[] getEPackages(String projectId) {
+    public IResourceWriter getEPackages(String projectId) {
         this.getProjectDocuments(projectId);
-        return this.resourceFormatService.serializeEPackages(projectId);
+        return outputStream -> this.resourceFormatService.serializeEPackages(projectId, outputStream);
     }
 
     @Override
@@ -84,8 +85,8 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
                     .onErrorMap(TimeoutException.class, exception -> new RestfulEMFException(RestfulEMFError.TIMEOUT, "The EMF document read timed out", exception))
                     .block();
             if (payload instanceof GetResourceContentSuccessPayload successPayload) {
-                byte[] content = this.resourceFormatService.serialize(successPayload.snapshot(), document, format, separator);
-                return new ResourceRepresentation(content, successPayload.snapshot().revision());
+                IResourceWriter writer = outputStream -> this.resourceFormatService.serialize(successPayload.snapshot(), document, format, separator, outputStream);
+                return new ResourceRepresentation(writer, successPayload.snapshot().revision());
             }
             throw new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Document resource not found");
         } catch (RestfulEMFException exception) {

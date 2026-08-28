@@ -12,6 +12,9 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.services.api;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import fr.obeo.playground.restfulemf.ResourceSnapshot;
 import fr.obeo.playground.restfulemf.application.api.ResourceFormat;
 
@@ -22,9 +25,9 @@ import fr.obeo.playground.restfulemf.application.api.ResourceFormat;
  */
 public interface IResourceFormatService {
 
-    byte[] serializeEPackages(String projectId);
+    void serializeEPackages(String projectId, OutputStream outputStream);
 
-    byte[] serialize(ResourceSnapshot snapshot, ResourceDocument document, ResourceFormat format, String separator);
+    void serialize(ResourceSnapshot snapshot, ResourceDocument document, ResourceFormat format, String separator, OutputStream outputStream);
 
-    ResourceSnapshot deserialize(byte[] content, ResourceDocument document, ResourceFormat format);
+    ResourceSnapshot deserialize(InputStream content, ResourceDocument document, ResourceFormat format);
 }

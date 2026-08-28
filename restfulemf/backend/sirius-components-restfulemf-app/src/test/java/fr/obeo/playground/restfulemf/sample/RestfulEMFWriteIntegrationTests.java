@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -70,7 +73,10 @@ import reactor.core.publisher.Sinks;
  * Integration tests of the RESTful EMF write endpoints.
  */
 @GivenSiriusWebServer
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
+        "sirius.web.restfulemf.max-request-size=1MB",
+        "sirius.web.restfulemf.max-uncompressed-size=1MB"
+})
 public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
 
     private static final String FLOW_PROJECT_ID = "d419bbee-9cba-4b85-972c-660d875ad705";
@@ -268,6 +274,26 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
                 .expectBody()
                 .jsonPath("$.code").isEqualTo("INVALID_RESOURCE");
         this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/Flow/bin", new byte[] { 1, 2, 3 }).expectStatus().isBadRequest();
+    }
+
+    @Test
+    @DisplayName("Given oversized raw or compressed content, when it is uploaded, then payload too large is returned")
+    public void givenOversizedRawOrCompressedContentWhenItIsUploadedThenPayloadTooLargeIsReturned() throws IOException {
+        this.put(FLOW_XMI_URI, new byte[1024 * 1024 + 1])
+                .expectStatus().isEqualTo(413)
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("PAYLOAD_TOO_LARGE");
+
+        var compressedContent = new ByteArrayOutputStream();
+        try (var zipOutputStream = new ZipOutputStream(compressedContent)) {
+            zipOutputStream.putNextEntry(new ZipEntry("model.xmi"));
+            zipOutputStream.write(("<?xml version=\"1.0\"?><xmi:XMI xmlns:xmi=\"http://www.omg.org/XMI\">"
+                    + " ".repeat(1024 * 1024) + "</xmi:XMI>").getBytes(StandardCharsets.UTF_8));
+        }
+        this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/Flow/xmi.zip", compressedContent.toByteArray())
+                .expectStatus().isEqualTo(413)
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("PAYLOAD_TOO_LARGE");
     }
 
     @Test

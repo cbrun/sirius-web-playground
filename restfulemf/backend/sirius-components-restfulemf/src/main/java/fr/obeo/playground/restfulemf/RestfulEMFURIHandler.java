@@ -72,6 +72,7 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
     public OutputStream createOutputStream(URI uri, Map<?, ?> options) throws IOException {
         HttpURLConnection connection = this.openConnection(uri, options);
         connection.setDoOutput(true);
+        connection.setChunkedStreamingMode(64 * 1024);
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/octet-stream");
         String entityTag = this.entityTags.get(uri);

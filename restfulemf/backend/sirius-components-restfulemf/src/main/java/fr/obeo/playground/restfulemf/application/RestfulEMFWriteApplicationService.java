@@ -12,6 +12,7 @@
  *******************************************************************************/
 package fr.obeo.playground.restfulemf.application;
 
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
@@ -64,7 +65,7 @@ public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplic
     }
 
     @Override
-    public ResourceWriteResult replaceResource(String projectId, String documentSelector, ResourceFormat format, byte[] content, List<String> expectedRevisions) {
+    public ResourceWriteResult replaceResource(String projectId, String documentSelector, ResourceFormat format, InputStream content, List<String> expectedRevisions) {
         ProjectDocuments projectDocuments = this.getProjectDocuments(projectId);
         ResourceDocument document = this.findDocument(projectDocuments, documentSelector);
         if (document.readOnly()) {
