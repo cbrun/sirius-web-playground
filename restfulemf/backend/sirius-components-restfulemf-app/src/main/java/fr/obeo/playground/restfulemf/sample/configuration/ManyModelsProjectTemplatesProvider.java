@@ -28,7 +28,7 @@ public class ManyModelsProjectTemplatesProvider implements IProjectTemplateProvi
     @Override
     public List<ProjectTemplate> getProjectTemplates() {
         return List.of(
-                new ProjectTemplate(MANY_MODELS_TEMPLATE_ID, "Many Models", "/images/Models-Template.png", List.of()),
-                new ProjectTemplate(ONE_MILLION_TEMPLATE_ID, "1M-Modeling", "/images/1MModeling-Template.png", List.of()));
+                new ProjectTemplate(MANY_MODELS_TEMPLATE_ID, "Many Models", "/project-templates/Models-Template.png", List.of()),
+                new ProjectTemplate(ONE_MILLION_TEMPLATE_ID, "1M-Modeling", "/project-templates/1MModeling-Template.png", List.of()));
     }
 }

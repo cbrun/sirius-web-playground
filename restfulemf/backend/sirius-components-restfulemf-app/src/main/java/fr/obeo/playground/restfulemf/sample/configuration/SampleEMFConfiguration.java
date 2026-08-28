@@ -14,10 +14,10 @@ package fr.obeo.playground.restfulemf.sample.configuration;
 
 import fr.obeo.dsl.designer.sample.flow.FlowPackage;
 
-import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.provider.EcoreItemProviderAdapterFactory;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.edit.providers.UMLItemProviderAdapterFactory;
 import org.obeonetwork.dsl.bpmn2.Bpmn2Package;
@@ -52,17 +52,17 @@ public class SampleEMFConfiguration {
     }
 
     @Bean
-    public AdapterFactory ecoreAdapterFactory() {
-        return new EcoreItemProviderAdapterFactory();
+    public ComposedAdapterFactory.Descriptor ecoreItemProviderAdapterFactoryDescriptor() {
+        return EcoreItemProviderAdapterFactory::new;
     }
 
     @Bean
-    public AdapterFactory bpmnAdapterFactory() {
-        return new Bpmn2ItemProviderAdapterFactory();
+    public ComposedAdapterFactory.Descriptor bpmnItemProviderAdapterFactoryDescriptor() {
+        return Bpmn2ItemProviderAdapterFactory::new;
     }
 
     @Bean
-    public AdapterFactory umlAdapterFactory() {
-        return new UMLItemProviderAdapterFactory();
+    public ComposedAdapterFactory.Descriptor umlItemProviderAdapterFactoryDescriptor() {
+        return UMLItemProviderAdapterFactory::new;
     }
 }
