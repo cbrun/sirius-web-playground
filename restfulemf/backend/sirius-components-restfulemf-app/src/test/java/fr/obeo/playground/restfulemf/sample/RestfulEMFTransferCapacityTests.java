@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.sirius.web.application.capability.services.api.ICapabilityEvaluator;
@@ -62,8 +63,9 @@ public class RestfulEMFTransferCapacityTests {
         var controller = new RestfulEMFResourceController(readApplicationService, mock(IRestfulEMFWriteApplicationService.class), capabilityEvaluator,
                 false, DataSize.ofMegabytes(1), 1);
 
-        try (var executor = Executors.newSingleThreadExecutor()) {
-            var firstTransfer = executor.submit(() -> {
+        var executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<?> firstTransfer = executor.submit(() -> {
                 try {
                     controller.getXMIResource("project", "document", new MockHttpServletResponse());
                 } catch (IOException exception) {
@@ -84,6 +86,7 @@ public class RestfulEMFTransferCapacityTests {
             firstTransfer.get(5, TimeUnit.SECONDS);
         } finally {
             releaseTransfer.countDown();
+            executor.shutdownNow();
         }
     }
 }

@@ -16,10 +16,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
@@ -176,11 +179,11 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
     }
 
     private List<ExternalReference> getExternalReferences(Resource targetResource) {
-        List<EObject> targets = new ArrayList<>();
+        Set<EObject> targets = Collections.newSetFromMap(new IdentityHashMap<>());
         targetResource.getAllContents().forEachRemaining(targets::add);
         List<ExternalReference> references = new ArrayList<>();
         if (targetResource.getResourceSet() != null) {
-            targets.forEach(target -> EcoreUtil.UsageCrossReferencer.find(target, targetResource.getResourceSet()).stream()
+            EcoreUtil.UsageCrossReferencer.findAll(targets, targetResource.getResourceSet()).forEach((target, settings) -> settings.stream()
                     .filter(setting -> setting.getEObject().eResource() != targetResource)
                     .forEach(setting -> this.addExternalReferences(references, setting, target, targetResource.getURIFragment(target))));
         }

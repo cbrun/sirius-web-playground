@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -27,6 +28,8 @@ import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.obeo.playground.restfulemf.RestfulEMFURIHandler;
 
@@ -41,28 +44,70 @@ public class ManyModelsRestEMFDemo {
 
     private final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
+    private final Logger logger = LoggerFactory.getLogger(ManyModelsRestEMFDemo.class);
+
     public static void main(String[] args) throws IOException {
         new ManyModelsRestEMFDemo().run();
     }
 
     private void run() throws IOException {
+        long demoStartedAt = this.startStep("demo");
+        long stepStartedAt = this.startStep("project-url-input");
         URI modelURI = this.readModelURI();
-        Resource resource = this.load(modelURI);
-        Model model = this.getModel(resource);
+        this.completeStep("project-url-input", stepStartedAt);
 
+        stepStartedAt = this.startStep("initial-resource-load");
+        Resource resource = this.load(modelURI);
+        this.completeStep("initial-resource-load", stepStartedAt);
+
+        stepStartedAt = this.startStep("local-model-update");
+        Model model = this.getModel(resource);
         var createdPackage = UMLFactory.eINSTANCE.createPackage();
         createdPackage.setName(CREATED_PACKAGE_NAME);
         model.getPackagedElements().add(0, createdPackage);
-        this.waitBeforeSave();
-        resource.save(OPTIONS);
+        this.completeStep("local-model-update", stepStartedAt);
 
+        stepStartedAt = this.startStep("user-pause");
+        this.waitBeforeSave();
+        this.completeStep("user-pause", stepStartedAt);
+
+        stepStartedAt = this.startStep("resource-save");
+        resource.save(OPTIONS);
+        this.completeStep("resource-save", stepStartedAt);
+
+        stepStartedAt = this.startStep("resource-reload");
         resource.unload();
         resource.load(OPTIONS);
+        this.completeStep("resource-reload", stepStartedAt);
+
+        stepStartedAt = this.startStep("persisted-model-validation");
         Model reloadedModel = this.getModel(resource);
         if (reloadedModel.getPackagedElements().isEmpty() || !CREATED_PACKAGE_NAME.equals(reloadedModel.getPackagedElements().get(0).getName())) {
             throw new IllegalStateException("The package was not persisted at the first position");
         }
+        this.completeStep("persisted-model-validation", stepStartedAt);
+        this.completeStep("demo", demoStartedAt);
         System.out.println("The package was created and persisted in linux-kernel.uml.");
+    }
+
+    private long startStep(String step) {
+        this.logger.atInfo()
+                .setMessage("RESTful EMF demo step {} started")
+                .addArgument(step)
+                .addKeyValue("step", step)
+                .log();
+        return System.nanoTime();
+    }
+
+    private void completeStep(String step, long startedAt) {
+        long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+        this.logger.atInfo()
+                .setMessage("RESTful EMF demo step {} completed in {} ms")
+                .addArgument(step)
+                .addArgument(duration)
+                .addKeyValue("step", step)
+                .addKeyValue("durationMs", duration)
+                .log();
     }
 
     private URI readModelURI() throws IOException {
