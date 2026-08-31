@@ -6,8 +6,58 @@ The project path parameter is always the Sirius Web project ID. A document can b
 
 ## Integration and build
 
-Add the `org.eclipse.sirius:sirius-web-restful-emf:2026.7.3-SNAPSHOT` dependency to a Sirius Web application, then enable
-the component with `sirius.web.enabled=restful-emf` (or `sirius.web.enabled=*`). An explicit
+Snapshots built from the `master` branch are published to GitHub Packages. GitHub requires authentication to download
+public Maven packages: create a classic personal access token with the `read:packages` scope, then expose the associated
+GitHub account and token as `GITHUB_USER` and `GITHUB_TOKEN`.
+
+Configure both package repositories in the consuming project:
+
+```xml
+<repositories>
+    <repository>
+        <id>github-restful-emf</id>
+        <url>https://maven.pkg.github.com/cbrun/sirius-web-playground</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+    <repository>
+        <id>github-sirius-web</id>
+        <url>https://maven.pkg.github.com/eclipse-sirius/sirius-web</url>
+    </repository>
+</repositories>
+```
+
+Add matching credentials to `~/.m2/settings.xml`. Do not store the token in the project POM:
+
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0">
+    <servers>
+        <server>
+            <id>github-restful-emf</id>
+            <username>${env.GITHUB_USER}</username>
+            <password>${env.GITHUB_TOKEN}</password>
+        </server>
+        <server>
+            <id>github-sirius-web</id>
+            <username>${env.GITHUB_USER}</username>
+            <password>${env.GITHUB_TOKEN}</password>
+        </server>
+    </servers>
+</settings>
+```
+
+Add the component dependency to the Sirius Web application:
+
+```xml
+<dependency>
+    <groupId>org.eclipse.sirius</groupId>
+    <artifactId>sirius-web-restful-emf</artifactId>
+    <version>2026.7.3-SNAPSHOT</version>
+</dependency>
+```
+
+Enable the component with `sirius.web.enabled=restful-emf` (or `sirius.web.enabled=*`). An explicit
 `sirius.web.disabled=restful-emf` takes precedence.
 
 Build the reusable component from the repository root:
