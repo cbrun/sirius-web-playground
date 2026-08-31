@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2019, 2026 Obeo.
+ This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v2.0
+ which accompanies this distribution, and is available at
+ https://www.eclipse.org/legal/epl-2.0/
+
+ SPDX-License-Identifier: EPL-2.0
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.eclipse.sirius</groupId>
+        <artifactId>sirius-web-restful-emf-parent</artifactId>
+        <version>2026.7.3-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>sirius-web-restful-emf-sample</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-restful-emf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-starter</artifactId>
+            <version>${sirius.web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-frontend</artifactId>
+            <version>${sirius.web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-components-flow-starter</artifactId>
+            <version>${sirius.web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>BPMN2</groupId>
+            <artifactId>org.obeonetwork.dsl.bpmn2</artifactId>
+            <version>${bpmn.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>BPMN2</groupId>
+            <artifactId>org.obeonetwork.dsl.bpmn2.edit</artifactId>
+            <version>${bpmn.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.uml</artifactId>
+            <version>${uml2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.common</artifactId>
+            <version>2.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.types</artifactId>
+            <version>2.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.uml.edit</artifactId>
+            <version>5.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.common.edit</artifactId>
+            <version>2.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.uml.resources</artifactId>
+            <version>5.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2.plugins</groupId>
+            <artifactId>org.eclipse.uml2.uml.profile.standard</artifactId>
+            <version>1.5.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-tests</artifactId>
+            <version>${sirius.web.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-tests-data</artifactId>
+            <version>${sirius.web.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>github-flow</id>
+            <url>https://maven.pkg.github.com/ObeoNetwork/BPMN-Designer</url>
+        </repository>
+        <repository>
+            <id>github-papyrus-sirius-uml2</id>
+            <url>https://maven.pkg.github.com/PapyrusSirius/uml2</url>
+        </repository>
+        <repository>
+            <id>eclipse-eef-snapshots</id>
+            <url>https://repo.eclipse.org/content/repositories/eef-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>large-model-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Xmx4g</argLine>
+                            <includes>
+                                <include>**/*LargeModelIT.java</include>
+                            </includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

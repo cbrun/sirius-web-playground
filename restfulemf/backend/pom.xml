@@ -13,25 +13,28 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <groupId>org.eclipse.sirius</groupId>
+        <artifactId>sirius-web-parent</artifactId>
+        <version>2026.7.3</version>
         <relativePath />
     </parent>
 
-    <groupId>fr.obeo.playground</groupId>
-    <artifactId>sirius-components-restful-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <groupId>org.eclipse.sirius</groupId>
+    <artifactId>sirius-web-restful-emf-parent</artifactId>
+    <version>2026.7.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>sirius-components-restfulemf</module>
-        <module>sirius-components-restfulemf-app</module>
+        <module>sirius-web-restful-emf</module>
     </modules>
 
     <properties>
         <bpmn.version>4.0.3-SNAPSHOT</bpmn.version>
-        <java.version>21</java.version>
+        <emf.common.version>2.45.0</emf.common.version>
+        <emf.ecore.version>2.42.0</emf.ecore.version>
+        <emf.edit.version>2.23.0</emf.edit.version>
+        <emf.xmi.version>2.40.0</emf.xmi.version>
+        <sirius.emfjson.version>2.5.4-SNAPSHOT</sirius.emfjson.version>
         <sirius.web.version>2026.7.3</sirius.web.version>
         <uml2.version>5.6.0-SNAPSHOT</uml2.version>
     </properties>
@@ -41,20 +44,14 @@
             <id>github-sirius-web</id>
             <url>https://maven.pkg.github.com/eclipse-sirius/sirius-web</url>
         </repository>
-        <repository>
-            <id>github-flow</id>
-            <url>https://maven.pkg.github.com/ObeoNetwork/BPMN-Designer</url>
-        </repository>
-        <repository>
-            <id>github-papyrus-sirius-uml2</id>
-            <url>https://maven.pkg.github.com/PapyrusSirius/uml2</url>
-        </repository>
-        <repository>
-            <id>eclipse-eef-snapshots</id>
-            <url>https://repo.eclipse.org/content/repositories/eef-snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>sample</id>
+            <modules>
+                <module>sirius-web-restful-emf-sample</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
