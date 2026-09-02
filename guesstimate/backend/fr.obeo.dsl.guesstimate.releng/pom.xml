@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2019, 2022 Obeo
+  All rights reserved.
+  Contributors:
+       Obeo - Initial API and implementation
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.1.0</version>
+    <relativePath />
+  </parent>
+
+  <groupId>fr.obeo.dsl.guesstimate</groupId>
+  <artifactId>fr.obeo.dsl.guesstimate.releng</artifactId>
+  <version>0.0.7-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <sirius.web.version>2026.7.3</sirius.web.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-core</artifactId>
+        <version>4.33.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <repositories>
+    <repository>
+      <id>Central</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>github-sirius-emfjson</id>
+      <url>https://maven.pkg.github.com/eclipse-sirius/sirius-emf-json</url>
+    </repository>
+    <repository>
+      <id>github-sirius-web</id>
+      <url>https://maven.pkg.github.com/eclipse-sirius/sirius-web</url>
+    </repository>
+  </repositories>
+
+  <modules>
+    <module>../fr.obeo.dsl.guesstimate</module>
+    <module>../fr.obeo.dsl.guesstimate.edit</module>
+    <module>../fr.obeo.dsl.guesstimate.views</module>
+    <module>../fr.obeo.dsl.guesstimate.configuration</module>
+    <module>../fr.obeo.dsl.guesstimate.app</module>
+    <module>../fr.obeo.dsl.guesstimate.doc</module>
+  </modules>
+</project>

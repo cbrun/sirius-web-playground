@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: fr.obeo.dsl.guesstimate;singleton:=true
+Automatic-Module-Name: fr.obeo.dsl.guesstimate
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Activator: fr.obeo.dsl.guesstimate.GuesstimateEMFPlugin$Implementation
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Export-Package: fr.obeo.dsl.guesstimate,
+ fr.obeo.dsl.guesstimate.impl,
+ fr.obeo.dsl.guesstimate.util
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;visibility:=reexport
+Bundle-ActivationPolicy: lazy

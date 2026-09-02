@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:tool="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0" xmlns:tool_1="http://www.eclipse.org/sirius/description/tool/1.1.0" name="guesstimate" version="12.0.0.2017041100">
+  <ownedViewpoints name="MyViewpoint" modelFileExtension="*.guesstimate">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" name="Guess Diagram" domainClass="guesstimate::Sheet" enablePopupBars="true">
+      <metamodel href="http://www.obeo.fr/guesstimate#/"/>
+      <defaultLayer name="Default">
+        <nodeMappings name="Distribution Node" labelDirectEdit="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@toolSections.0/@ownedTools[name='edit%20name%20or%20definition']" semanticCandidatesExpression="aql:self.eContents()" domainClass="guesstimate::Distribution">
+          <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="5" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/normal-dis.svg">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelFormat>bold</labelFormat>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+          </style>
+          <conditionnalStyles predicateExpression="aql:self.type = guesstimate::IntervalType::lognormal">
+            <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="5" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/poisson-dis2.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>bold</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="aql:self.type = guesstimate::IntervalType::normal">
+            <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="5" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/normal-dis.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>bold</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="aql:self.type = guesstimate::IntervalType::uniform">
+            <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="5" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/uniform-dis.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>bold</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="aql:self.type = guesstimate::IntervalType::proportion">
+            <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="5" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/poisson-dis2.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>bold</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </conditionnalStyles>
+        </nodeMappings>
+        <nodeMappings name="Operation Node" labelDirectEdit="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@toolSections.0/@ownedTools[name='edit%20formula']" semanticCandidatesExpression="aql:self.operations" domainClass="guesstimate::Operation" reusedBorderedNodeMappings="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@nodeMappings[name='Distribution%20Node']">
+          <borderedNodeMappings name="Out Distribution Node " labelDirectEdit="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@toolSections.0/@ownedTools[name='edit%20name%20or%20definition']" semanticCandidatesExpression="aql:self.eContents()" domainClass="guesstimate::Distribution">
+            <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="-1" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/normal-dis-border.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>bold</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <forbiddenSides>WEST</forbiddenSides>
+              <forbiddenSides>SOUTH</forbiddenSides>
+              <forbiddenSides>NORTH</forbiddenSides>
+            </style>
+            <conditionnalStyles predicateExpression="aql:self.eInverse('variables')->size() = 0">
+              <style xsi:type="style:WorkspaceImageDescription" labelSize="12" showIcon="false" labelExpression="aql:self.name + ' : ' + self.definition" sizeComputationExpression="-1" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/normal-dis-border-unused.svg">
+                <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+                <labelFormat>bold</labelFormat>
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+                <forbiddenSides>WEST</forbiddenSides>
+                <forbiddenSides>SOUTH</forbiddenSides>
+                <forbiddenSides>NORTH</forbiddenSides>
+              </style>
+            </conditionnalStyles>
+          </borderedNodeMappings>
+          <style xsi:type="style:WorkspaceImageDescription" labelSize="18" showIcon="false" labelExpression="aql:self.formula" labelAlignment="LEFT" sizeComputationExpression="-1" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/fx.svg">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelFormat>italic</labelFormat>
+            <labelFormat>underline</labelFormat>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+          </style>
+          <conditionnalStyles predicateExpression="aql:self.variables->size() ==0">
+            <style xsi:type="style:WorkspaceImageDescription" labelSize="14" showIcon="false" labelExpression="aql:self.formula" labelAlignment="LEFT" sizeComputationExpression="-1" labelPosition="node" workspacePath="/fr.obeo.dsl.guesstimate.views/images/fx-disabled.svg">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelFormat>italic</labelFormat>
+              <labelFormat>underline</labelFormat>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </style>
+          </conditionnalStyles>
+        </nodeMappings>
+        <edgeMappings name="used variables" sourceMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@nodeMappings[name='Operation%20Node']" targetMapping="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@nodeMappings[name='Distribution%20Node'] //@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@nodeMappings[name='Operation%20Node']/@borderedNodeMappings[name='Out%20Distribution%20Node%20']" targetFinderExpression="feature:variables">
+          <style lineStyle="dash" sourceArrow="InputArrow" targetArrow="NoDecoration">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <centerLabelStyleDescription showIcon="false">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <toolSections name="create">
+          <ownedTools xsi:type="tool:NodeCreationDescription" name="Function" nodeMappings="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@nodeMappings[name='Operation%20Node']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:CreateInstance" typeName="guesstimate::Operation" referenceName="operations"/>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:DirectEditLabel" name="edit name or definition">
+            <mask mask="{0}"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:self.smartEdit(arg0)"/>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:DirectEditLabel" name="edit formula">
+            <mask mask="{0}"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:SetValue" featureName="formula" valueExpression="var:arg0"/>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:NodeCreationDescription" name="Distribution" nodeMappings="//@ownedViewpoints[name='MyViewpoint']/@ownedRepresentations[name='Guess%20Diagram']/@defaultLayer/@nodeMappings[name='Distribution%20Node']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:CreateInstance" typeName="guesstimate::Distribution" referenceName="distributions">
+                <subModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="aql:container.getDefaultName()"/>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:DeleteElementDescription" name="delete out var">
+            <element name="element"/>
+            <elementView name="elementView"/>
+            <containerView name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="aql:element.eContainer()">
+                <subModelOperations xsi:type="tool_1:RemoveElement"/>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+        </toolSections>
+      </defaultLayer>
+    </ownedRepresentations>
+    <ownedJavaExtensions qualifiedClassName="fr.obeo.dsl.guesstimate.Services"/>
+  </ownedViewpoints>
+</description:Group>

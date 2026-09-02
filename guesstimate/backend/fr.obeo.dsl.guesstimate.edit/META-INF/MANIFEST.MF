@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: fr.obeo.dsl.guesstimate.edit;singleton:=true
+Automatic-Module-Name: fr.obeo.dsl.guesstimate.edit
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Activator: fr.obeo.dsl.guesstimate.provider.GuesstimateEditPlugin$Implementation
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Export-Package: fr.obeo.dsl.guesstimate.provider
+Require-Bundle: org.eclipse.core.runtime,
+ fr.obeo.dsl.guesstimate;visibility:=reexport,
+ org.eclipse.emf.edit;visibility:=reexport
+Bundle-ActivationPolicy: lazy

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated guesstimate -->
+      <package
+            uri="http://www.obeo.fr/guesstimate"
+            class="fr.obeo.dsl.guesstimate.GuesstimatePackage"
+            genModel="model/guesstimate.genmodel"/>
+   </extension>
+
+</plugin>
