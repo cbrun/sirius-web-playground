@@ -73,13 +73,19 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 * @generated
 	 */
 	protected void addNamePropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_Variable_name_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_Variable_name_feature",
-								"_UI_Variable_type"),
-						GuesstimatePackage.Literals.VARIABLE__NAME, true, false, false,
-						ItemPropertyDescriptor.GENERIC_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Variable_name_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Variable_name_feature", "_UI_Variable_type"),
+				 GuesstimatePackage.Literals.VARIABLE__NAME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -89,13 +95,19 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 * @generated
 	 */
 	protected void addDocumentationPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_Variable_documentation_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_Variable_documentation_feature",
-								"_UI_Variable_type"),
-						GuesstimatePackage.Literals.VARIABLE__DOCUMENTATION, true, false, false,
-						ItemPropertyDescriptor.GENERIC_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Variable_documentation_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Variable_documentation_feature", "_UI_Variable_type"),
+				 GuesstimatePackage.Literals.VARIABLE__DOCUMENTATION,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -105,13 +117,19 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 * @generated
 	 */
 	protected void addDefinitionPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_Variable_definition_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_Variable_definition_feature",
-								"_UI_Variable_type"),
-						GuesstimatePackage.Literals.VARIABLE__DEFINITION, true, false, false,
-						ItemPropertyDescriptor.GENERIC_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Variable_definition_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Variable_definition_feature", "_UI_Variable_type"),
+				 GuesstimatePackage.Literals.VARIABLE__DEFINITION,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -121,13 +139,19 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 * @generated
 	 */
 	protected void addTypePropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_Variable_type_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_Variable_type_feature",
-								"_UI_Variable_type"),
-						GuesstimatePackage.Literals.VARIABLE__TYPE, true, false, false,
-						ItemPropertyDescriptor.GENERIC_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Variable_type_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Variable_type_feature", "_UI_Variable_type"),
+				 GuesstimatePackage.Literals.VARIABLE__TYPE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -161,7 +185,7 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	/**
 	 * This returns Variable.gif. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -229,9 +253,10 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((Variable) object).getName();
-		return label == null || label.length() == 0 ? getString("_UI_Variable_type")
-				: getString("_UI_Variable_type") + " " + label;
+		String label = ((Variable)object).getName();
+		return label == null || label.length() == 0 ?
+			getString("_UI_Variable_type") :
+			getString("_UI_Variable_type") + " " + label;
 	}
 
 	/**
@@ -245,15 +270,15 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Variable.class)) {
-		case GuesstimatePackage.VARIABLE__NAME:
-		case GuesstimatePackage.VARIABLE__DOCUMENTATION:
-		case GuesstimatePackage.VARIABLE__DEFINITION:
-		case GuesstimatePackage.VARIABLE__TYPE:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
-		case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
-			return;
+			case GuesstimatePackage.VARIABLE__NAME:
+			case GuesstimatePackage.VARIABLE__DOCUMENTATION:
+			case GuesstimatePackage.VARIABLE__DEFINITION:
+			case GuesstimatePackage.VARIABLE__TYPE:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
+			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -269,35 +294,55 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	protected void collectNewChildDescriptors(Collection<Object> newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createNormalDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createNormalDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createLogNormalDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createLogNormalDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createUniformDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createUniformDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createBetaDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createBetaDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createTriangularDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createTriangularDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createBinomialDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createBinomialDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createFormulaSetting()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createFormulaSetting()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createPoissonDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createPoissonDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createExponentialDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createExponentialDistribution()));
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
-				GuesstimateFactory.eINSTANCE.createGammaDistribution()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.VARIABLE__DISTRIBUTION,
+				 GuesstimateFactory.eINSTANCE.createGammaDistribution()));
 	}
 
 	/**
@@ -308,7 +353,7 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

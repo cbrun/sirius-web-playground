@@ -54,7 +54,7 @@ public class GuesstimateAdapterFactory extends AdapterFactoryImpl {
 			return true;
 		}
 		if (object instanceof EObject) {
-			return ((EObject) object).eClass().getEPackage() == modelPackage;
+			return ((EObject)object).eClass().getEPackage() == modelPackage;
 		}
 		return false;
 	}
@@ -66,76 +66,63 @@ public class GuesstimateAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	protected GuesstimateSwitch<Adapter> modelSwitch = new GuesstimateSwitch<Adapter>() {
-		@Override
-		public Adapter caseVariable(Variable object) {
-			return createVariableAdapter();
-		}
-
-		@Override
-		public Adapter caseDistributionSetting(DistributionSetting object) {
-			return createDistributionSettingAdapter();
-		}
-
-		@Override
-		public Adapter caseNormalDistribution(NormalDistribution object) {
-			return createNormalDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseLogNormalDistribution(LogNormalDistribution object) {
-			return createLogNormalDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseUniformDistribution(UniformDistribution object) {
-			return createUniformDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseBetaDistribution(BetaDistribution object) {
-			return createBetaDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseTriangularDistribution(TriangularDistribution object) {
-			return createTriangularDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseBinomialDistribution(BinomialDistribution object) {
-			return createBinomialDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseFormulaSetting(FormulaSetting object) {
-			return createFormulaSettingAdapter();
-		}
-
-		@Override
-		public Adapter caseSheet(Sheet object) {
-			return createSheetAdapter();
-		}
-
-		@Override
-		public Adapter casePoissonDistribution(PoissonDistribution object) {
-			return createPoissonDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseExponentialDistribution(ExponentialDistribution object) {
-			return createExponentialDistributionAdapter();
-		}
-
-		@Override
-		public Adapter caseGammaDistribution(GammaDistribution object) {
-			return createGammaDistributionAdapter();
-		}
-
-		@Override
-		public Adapter defaultCase(EObject object) {
-			return createEObjectAdapter();
-		}
-	};
+			@Override
+			public Adapter caseVariable(Variable object) {
+				return createVariableAdapter();
+			}
+			@Override
+			public Adapter caseDistributionSetting(DistributionSetting object) {
+				return createDistributionSettingAdapter();
+			}
+			@Override
+			public Adapter caseNormalDistribution(NormalDistribution object) {
+				return createNormalDistributionAdapter();
+			}
+			@Override
+			public Adapter caseLogNormalDistribution(LogNormalDistribution object) {
+				return createLogNormalDistributionAdapter();
+			}
+			@Override
+			public Adapter caseUniformDistribution(UniformDistribution object) {
+				return createUniformDistributionAdapter();
+			}
+			@Override
+			public Adapter caseBetaDistribution(BetaDistribution object) {
+				return createBetaDistributionAdapter();
+			}
+			@Override
+			public Adapter caseTriangularDistribution(TriangularDistribution object) {
+				return createTriangularDistributionAdapter();
+			}
+			@Override
+			public Adapter caseBinomialDistribution(BinomialDistribution object) {
+				return createBinomialDistributionAdapter();
+			}
+			@Override
+			public Adapter caseFormulaSetting(FormulaSetting object) {
+				return createFormulaSettingAdapter();
+			}
+			@Override
+			public Adapter caseSheet(Sheet object) {
+				return createSheetAdapter();
+			}
+			@Override
+			public Adapter casePoissonDistribution(PoissonDistribution object) {
+				return createPoissonDistributionAdapter();
+			}
+			@Override
+			public Adapter caseExponentialDistribution(ExponentialDistribution object) {
+				return createExponentialDistributionAdapter();
+			}
+			@Override
+			public Adapter caseGammaDistribution(GammaDistribution object) {
+				return createGammaDistributionAdapter();
+			}
+			@Override
+			public Adapter defaultCase(EObject object) {
+				return createEObjectAdapter();
+			}
+		};
 
 	/**
 	 * Creates an adapter for the <code>target</code>.
@@ -147,7 +134,7 @@ public class GuesstimateAdapterFactory extends AdapterFactoryImpl {
 	 */
 	@Override
 	public Adapter createAdapter(Notifier target) {
-		return modelSwitch.doSwitch((EObject) target);
+		return modelSwitch.doSwitch((EObject)target);
 	}
 
 	/**

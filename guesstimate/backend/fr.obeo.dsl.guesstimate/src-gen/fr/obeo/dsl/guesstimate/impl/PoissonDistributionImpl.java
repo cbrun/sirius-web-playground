@@ -91,6 +91,7 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getP() {
 		return p;
 	}
@@ -100,6 +101,7 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setP(double newP) {
 		double oldP = p;
 		p = newP;
@@ -112,6 +114,7 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getEpsilon() {
 		return epsilon;
 	}
@@ -121,12 +124,12 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEpsilon(double newEpsilon) {
 		double oldEpsilon = epsilon;
 		epsilon = newEpsilon;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON,
-					oldEpsilon, epsilon));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON, oldEpsilon, epsilon));
 	}
 
 	/**
@@ -137,10 +140,10 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.POISSON_DISTRIBUTION__P:
-			return getP();
-		case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
-			return getEpsilon();
+			case GuesstimatePackage.POISSON_DISTRIBUTION__P:
+				return getP();
+			case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
+				return getEpsilon();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -153,12 +156,12 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.POISSON_DISTRIBUTION__P:
-			setP((Double) newValue);
-			return;
-		case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
-			setEpsilon((Double) newValue);
-			return;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__P:
+				setP((Double)newValue);
+				return;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
+				setEpsilon((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -171,12 +174,12 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.POISSON_DISTRIBUTION__P:
-			setP(P_EDEFAULT);
-			return;
-		case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
-			setEpsilon(EPSILON_EDEFAULT);
-			return;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__P:
+				setP(P_EDEFAULT);
+				return;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
+				setEpsilon(EPSILON_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -189,10 +192,10 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.POISSON_DISTRIBUTION__P:
-			return p != P_EDEFAULT;
-		case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
-			return epsilon != EPSILON_EDEFAULT;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__P:
+				return p != P_EDEFAULT;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
+				return epsilon != EPSILON_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -204,8 +207,7 @@ public class PoissonDistributionImpl extends MinimalEObjectImpl.Container implem
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (p: ");

@@ -62,8 +62,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected ChildCreationExtenderManager childCreationExtenderManager = new ChildCreationExtenderManager(
-			GuesstimateEditPlugin.INSTANCE, GuesstimatePackage.eNS_URI);
+	protected ChildCreationExtenderManager childCreationExtenderManager = new ChildCreationExtenderManager(GuesstimateEditPlugin.INSTANCE, GuesstimatePackage.eNS_URI);
 
 	/**
 	 * This keeps track of all the supported types checked by {@link #isFactoryForType isFactoryForType}.
@@ -369,6 +368,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ComposeableAdapterFactory getRootAdapterFactory() {
 		return parentAdapterFactory == null ? this : parentAdapterFactory.getRootAdapterFactory();
 	}
@@ -379,6 +379,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setParentAdapterFactory(ComposedAdapterFactory parentAdapterFactory) {
 		this.parentAdapterFactory = parentAdapterFactory;
 	}
@@ -413,7 +414,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	public Object adapt(Object object, Object type) {
 		if (isFactoryForType(type)) {
 			Object adapter = super.adapt(object, type);
-			if (!(type instanceof Class<?>) || (((Class<?>) type).isInstance(adapter))) {
+			if (!(type instanceof Class<?>) || (((Class<?>)type).isInstance(adapter))) {
 				return adapter;
 			}
 		}
@@ -454,6 +455,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void addListener(INotifyChangedListener notifyChangedListener) {
 		changeNotifier.addListener(notifyChangedListener);
 	}
@@ -464,6 +466,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void removeListener(INotifyChangedListener notifyChangedListener) {
 		changeNotifier.removeListener(notifyChangedListener);
 	}
@@ -474,6 +477,7 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void fireNotifyChanged(Notification notification) {
 		changeNotifier.fireNotifyChanged(notification);
 
@@ -488,31 +492,20 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void dispose() {
-		if (variableItemProvider != null)
-			variableItemProvider.dispose();
-		if (normalDistributionItemProvider != null)
-			normalDistributionItemProvider.dispose();
-		if (logNormalDistributionItemProvider != null)
-			logNormalDistributionItemProvider.dispose();
-		if (uniformDistributionItemProvider != null)
-			uniformDistributionItemProvider.dispose();
-		if (betaDistributionItemProvider != null)
-			betaDistributionItemProvider.dispose();
-		if (triangularDistributionItemProvider != null)
-			triangularDistributionItemProvider.dispose();
-		if (binomialDistributionItemProvider != null)
-			binomialDistributionItemProvider.dispose();
-		if (formulaSettingItemProvider != null)
-			formulaSettingItemProvider.dispose();
-		if (sheetItemProvider != null)
-			sheetItemProvider.dispose();
-		if (poissonDistributionItemProvider != null)
-			poissonDistributionItemProvider.dispose();
-		if (exponentialDistributionItemProvider != null)
-			exponentialDistributionItemProvider.dispose();
-		if (gammaDistributionItemProvider != null)
-			gammaDistributionItemProvider.dispose();
+		if (variableItemProvider != null) variableItemProvider.dispose();
+		if (normalDistributionItemProvider != null) normalDistributionItemProvider.dispose();
+		if (logNormalDistributionItemProvider != null) logNormalDistributionItemProvider.dispose();
+		if (uniformDistributionItemProvider != null) uniformDistributionItemProvider.dispose();
+		if (betaDistributionItemProvider != null) betaDistributionItemProvider.dispose();
+		if (triangularDistributionItemProvider != null) triangularDistributionItemProvider.dispose();
+		if (binomialDistributionItemProvider != null) binomialDistributionItemProvider.dispose();
+		if (formulaSettingItemProvider != null) formulaSettingItemProvider.dispose();
+		if (sheetItemProvider != null) sheetItemProvider.dispose();
+		if (poissonDistributionItemProvider != null) poissonDistributionItemProvider.dispose();
+		if (exponentialDistributionItemProvider != null) exponentialDistributionItemProvider.dispose();
+		if (gammaDistributionItemProvider != null) gammaDistributionItemProvider.dispose();
 	}
 
 }

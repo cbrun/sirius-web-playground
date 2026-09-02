@@ -88,6 +88,7 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFormula() {
 		return formula;
 	}
@@ -97,12 +98,12 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFormula(String newFormula) {
 		String oldFormula = formula;
 		formula = newFormula;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.FORMULA_SETTING__FORMULA,
-					oldFormula, formula));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.FORMULA_SETTING__FORMULA, oldFormula, formula));
 	}
 
 	/**
@@ -110,10 +111,10 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<Variable> getInputs() {
 		if (inputs == null) {
-			inputs = new EObjectResolvingEList<Variable>(Variable.class, this,
-					GuesstimatePackage.FORMULA_SETTING__INPUTS);
+			inputs = new EObjectResolvingEList<Variable>(Variable.class, this, GuesstimatePackage.FORMULA_SETTING__INPUTS);
 		}
 		return inputs;
 	}
@@ -126,10 +127,10 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.FORMULA_SETTING__FORMULA:
-			return getFormula();
-		case GuesstimatePackage.FORMULA_SETTING__INPUTS:
-			return getInputs();
+			case GuesstimatePackage.FORMULA_SETTING__FORMULA:
+				return getFormula();
+			case GuesstimatePackage.FORMULA_SETTING__INPUTS:
+				return getInputs();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -143,13 +144,13 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.FORMULA_SETTING__FORMULA:
-			setFormula((String) newValue);
-			return;
-		case GuesstimatePackage.FORMULA_SETTING__INPUTS:
-			getInputs().clear();
-			getInputs().addAll((Collection<? extends Variable>) newValue);
-			return;
+			case GuesstimatePackage.FORMULA_SETTING__FORMULA:
+				setFormula((String)newValue);
+				return;
+			case GuesstimatePackage.FORMULA_SETTING__INPUTS:
+				getInputs().clear();
+				getInputs().addAll((Collection<? extends Variable>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -162,12 +163,12 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.FORMULA_SETTING__FORMULA:
-			setFormula(FORMULA_EDEFAULT);
-			return;
-		case GuesstimatePackage.FORMULA_SETTING__INPUTS:
-			getInputs().clear();
-			return;
+			case GuesstimatePackage.FORMULA_SETTING__FORMULA:
+				setFormula(FORMULA_EDEFAULT);
+				return;
+			case GuesstimatePackage.FORMULA_SETTING__INPUTS:
+				getInputs().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -180,10 +181,10 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.FORMULA_SETTING__FORMULA:
-			return FORMULA_EDEFAULT == null ? formula != null : !FORMULA_EDEFAULT.equals(formula);
-		case GuesstimatePackage.FORMULA_SETTING__INPUTS:
-			return inputs != null && !inputs.isEmpty();
+			case GuesstimatePackage.FORMULA_SETTING__FORMULA:
+				return FORMULA_EDEFAULT == null ? formula != null : !FORMULA_EDEFAULT.equals(formula);
+			case GuesstimatePackage.FORMULA_SETTING__INPUTS:
+				return inputs != null && !inputs.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -195,8 +196,7 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (formula: ");

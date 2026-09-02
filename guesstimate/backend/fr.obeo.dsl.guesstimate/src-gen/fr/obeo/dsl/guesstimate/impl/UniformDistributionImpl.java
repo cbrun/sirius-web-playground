@@ -91,6 +91,7 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMin() {
 		return min;
 	}
@@ -100,12 +101,12 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMin(double newMin) {
 		double oldMin = min;
 		min = newMin;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN, oldMin,
-					min));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN, oldMin, min));
 	}
 
 	/**
@@ -113,6 +114,7 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMax() {
 		return max;
 	}
@@ -122,12 +124,12 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMax(double newMax) {
 		double oldMax = max;
 		max = newMax;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX, oldMax,
-					max));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX, oldMax, max));
 	}
 
 	/**
@@ -138,10 +140,10 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
-			return getMin();
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
-			return getMax();
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
+				return getMin();
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
+				return getMax();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -154,12 +156,12 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
-			setMin((Double) newValue);
-			return;
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
-			setMax((Double) newValue);
-			return;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
+				setMin((Double)newValue);
+				return;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
+				setMax((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -172,12 +174,12 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
-			setMin(MIN_EDEFAULT);
-			return;
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
-			setMax(MAX_EDEFAULT);
-			return;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
+				setMin(MIN_EDEFAULT);
+				return;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
+				setMax(MAX_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -190,10 +192,10 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
-			return min != MIN_EDEFAULT;
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
-			return max != MAX_EDEFAULT;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
+				return min != MIN_EDEFAULT;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
+				return max != MAX_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -205,8 +207,7 @@ public class UniformDistributionImpl extends MinimalEObjectImpl.Container implem
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (min: ");

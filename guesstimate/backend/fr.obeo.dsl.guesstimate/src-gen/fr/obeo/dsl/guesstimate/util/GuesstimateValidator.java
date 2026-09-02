@@ -15,6 +15,7 @@ import org.petitparser.parser.Parser;
 
 import com.google.common.base.Strings;
 
+import fr.obeo.dsl.guesstimate.*;
 import fr.obeo.dsl.guesstimate.BetaDistribution;
 import fr.obeo.dsl.guesstimate.BinomialDistribution;
 import fr.obeo.dsl.guesstimate.DistributionSetting;
@@ -43,17 +44,15 @@ import fr.obeo.dsl.guesstimate.formula.ArithParser;
  */
 public class GuesstimateValidator extends EObjectValidator {
 	/**
-	 * The cached model package <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached model package
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	public static final GuesstimateValidator INSTANCE = new GuesstimateValidator();
 
 	/**
-	 * A constant for the {@link org.eclipse.emf.common.util.Diagnostic#getSource()
-	 * source} of diagnostic {@link org.eclipse.emf.common.util.Diagnostic#getCode()
-	 * codes} from this package. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * A constant for the {@link org.eclipse.emf.common.util.Diagnostic#getSource() source} of diagnostic {@link org.eclipse.emf.common.util.Diagnostic#getCode() codes} from this package.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see org.eclipse.emf.common.util.Diagnostic#getSource()
 	 * @see org.eclipse.emf.common.util.Diagnostic#getCode()
 	 * @generated
@@ -70,10 +69,9 @@ public class GuesstimateValidator extends EObjectValidator {
 	private static final int GENERATED_DIAGNOSTIC_CODE_COUNT = 0;
 
 	/**
-	 * A constant with a fixed name that can be used as the base value for
-	 * additional hand written constants in a derived class. <!-- begin-user-doc -->
+	 * A constant with a fixed name that can be used as the base value for additional hand written constants in a derived class.
+	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	protected static final int DIAGNOSTIC_CODE_COUNT = GENERATED_DIAGNOSTIC_CODE_COUNT;
@@ -89,88 +87,76 @@ public class GuesstimateValidator extends EObjectValidator {
 	}
 
 	/**
-	 * Returns the package of this validator switch. <!-- begin-user-doc --> <!--
+	 * Returns the package of this validator switch.
+	 * <!-- begin-user-doc --> <!--
 	 * end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	protected EPackage getEPackage() {
-		return GuesstimatePackage.eINSTANCE;
+	  return GuesstimatePackage.eINSTANCE;
 	}
 
 	/**
 	 * Calls <code>validateXXX</code> for the corresponding classifier of the model.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	@Override
 	protected boolean validate(int classifierID, Object value, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
 		switch (classifierID) {
-		case GuesstimatePackage.VARIABLE:
-			return validateVariable((Variable) value, diagnostics, context);
-		case GuesstimatePackage.DISTRIBUTION_SETTING:
-			return validateDistributionSetting((DistributionSetting) value, diagnostics, context);
-		case GuesstimatePackage.NORMAL_DISTRIBUTION:
-			return validateNormalDistribution((NormalDistribution) value, diagnostics, context);
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION:
-			return validateLogNormalDistribution((LogNormalDistribution) value, diagnostics, context);
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION:
-			return validateUniformDistribution((UniformDistribution) value, diagnostics, context);
-		case GuesstimatePackage.BETA_DISTRIBUTION:
-			return validateBetaDistribution((BetaDistribution) value, diagnostics, context);
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION:
-			return validateTriangularDistribution((TriangularDistribution) value, diagnostics, context);
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION:
-			return validateBinomialDistribution((BinomialDistribution) value, diagnostics, context);
-		case GuesstimatePackage.FORMULA_SETTING:
-			return validateFormulaSetting((FormulaSetting) value, diagnostics, context);
-		case GuesstimatePackage.SHEET:
-			return validateSheet((Sheet) value, diagnostics, context);
-		case GuesstimatePackage.POISSON_DISTRIBUTION:
-			return validatePoissonDistribution((PoissonDistribution) value, diagnostics, context);
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION:
-			return validateExponentialDistribution((ExponentialDistribution) value, diagnostics, context);
-		case GuesstimatePackage.GAMMA_DISTRIBUTION:
-			return validateGammaDistribution((GammaDistribution) value, diagnostics, context);
-		case GuesstimatePackage.VARIABLE_TYPE:
-			return validateVariableType((VariableType) value, diagnostics, context);
-		case GuesstimatePackage.PERCENTAGE:
-			return validatePercentage((Double) value, diagnostics, context);
-		default:
-			return true;
+			case GuesstimatePackage.VARIABLE:
+				return validateVariable((Variable)value, diagnostics, context);
+			case GuesstimatePackage.DISTRIBUTION_SETTING:
+				return validateDistributionSetting((DistributionSetting)value, diagnostics, context);
+			case GuesstimatePackage.NORMAL_DISTRIBUTION:
+				return validateNormalDistribution((NormalDistribution)value, diagnostics, context);
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION:
+				return validateLogNormalDistribution((LogNormalDistribution)value, diagnostics, context);
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION:
+				return validateUniformDistribution((UniformDistribution)value, diagnostics, context);
+			case GuesstimatePackage.BETA_DISTRIBUTION:
+				return validateBetaDistribution((BetaDistribution)value, diagnostics, context);
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION:
+				return validateTriangularDistribution((TriangularDistribution)value, diagnostics, context);
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION:
+				return validateBinomialDistribution((BinomialDistribution)value, diagnostics, context);
+			case GuesstimatePackage.FORMULA_SETTING:
+				return validateFormulaSetting((FormulaSetting)value, diagnostics, context);
+			case GuesstimatePackage.SHEET:
+				return validateSheet((Sheet)value, diagnostics, context);
+			case GuesstimatePackage.POISSON_DISTRIBUTION:
+				return validatePoissonDistribution((PoissonDistribution)value, diagnostics, context);
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION:
+				return validateExponentialDistribution((ExponentialDistribution)value, diagnostics, context);
+			case GuesstimatePackage.GAMMA_DISTRIBUTION:
+				return validateGammaDistribution((GammaDistribution)value, diagnostics, context);
+			case GuesstimatePackage.VARIABLE_TYPE:
+				return validateVariableType((VariableType)value, diagnostics, context);
+			case GuesstimatePackage.PERCENTAGE:
+				return validatePercentage((Double)value, diagnostics, context);
+			default:
+				return true;
 		}
 	}
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateVariable(Variable variable, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		if (!validate_NoCircularContainment(variable, diagnostics, context))
-			return false;
+		if (!validate_NoCircularContainment(variable, diagnostics, context)) return false;
 		boolean result = validate_EveryMultiplicityConforms(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryDataValueConforms(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryReferenceIsContained(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryBidirectionalReferenceIsPaired(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryProxyResolves(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_UniqueID(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryKeyUnique(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryMapEntryUnique(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validateVariable_settingsAreValid(variable, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validateVariable_nameIsValid(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validateVariable_settingsAreValid(variable, diagnostics, context);
+		if (result || diagnostics != null) result &= validateVariable_nameIsValid(variable, diagnostics, context);
 		return result;
 	}
 
@@ -188,10 +174,15 @@ public class GuesstimateValidator extends EObjectValidator {
 		// Ensure that you remove @generated or mark it @generated NOT
 		if (false) {
 			if (diagnostics != null) {
-				diagnostics.add(
-						createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0, "_UI_GenericConstraint_diagnostic",
-								new Object[] { "settingsAreValid", getObjectLabel(variable, context) },
-								new Object[] { variable }, context));
+				diagnostics.add
+					(createDiagnostic
+						(Diagnostic.ERROR,
+						 DIAGNOSTIC_SOURCE,
+						 0,
+						 "_UI_GenericConstraint_diagnostic",
+						 new Object[] { "settingsAreValid", getObjectLabel(variable, context) },
+						 new Object[] { variable },
+						 context));
 			}
 			return false;
 		}
@@ -202,7 +193,7 @@ public class GuesstimateValidator extends EObjectValidator {
 	 * Validates the nameIsValid constraint of '<em>Variable</em>'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public boolean validateVariable_nameIsValid(Variable variable, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
@@ -230,7 +221,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateDistributionSetting(DistributionSetting distributionSetting, DiagnosticChain diagnostics,
@@ -240,7 +230,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateNormalDistribution(NormalDistribution normalDistribution, DiagnosticChain diagnostics,
@@ -250,7 +239,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateLogNormalDistribution(LogNormalDistribution logNormalDistribution,
@@ -260,30 +248,20 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateUniformDistribution(UniformDistribution uniformDistribution, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		if (!validate_NoCircularContainment(uniformDistribution, diagnostics, context))
-			return false;
+		if (!validate_NoCircularContainment(uniformDistribution, diagnostics, context)) return false;
 		boolean result = validate_EveryMultiplicityConforms(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryDataValueConforms(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryReferenceIsContained(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryBidirectionalReferenceIsPaired(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryProxyResolves(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_UniqueID(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryKeyUnique(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryMapEntryUnique(uniformDistribution, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validateUniformDistribution_minMaxAreConsistent(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(uniformDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateUniformDistribution_minMaxAreConsistent(uniformDistribution, diagnostics, context);
 		return result;
 	}
 
@@ -291,7 +269,7 @@ public class GuesstimateValidator extends EObjectValidator {
 	 * Validates the minMaxAreConsistent constraint of '<em>Uniform
 	 * Distribution</em>'. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public boolean validateUniformDistribution_minMaxAreConsistent(UniformDistribution uniformDistribution,
 			DiagnosticChain diagnostics, Map<Object, Object> context) {
@@ -310,7 +288,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateBetaDistribution(BetaDistribution betaDistribution, DiagnosticChain diagnostics,
@@ -320,7 +297,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateTriangularDistribution(TriangularDistribution triangularDistribution,
@@ -330,7 +306,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateBinomialDistribution(BinomialDistribution binomialDistribution, DiagnosticChain diagnostics,
@@ -340,32 +315,21 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateFormulaSetting(FormulaSetting formulaSetting, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		if (!validate_NoCircularContainment(formulaSetting, diagnostics, context))
-			return false;
+		if (!validate_NoCircularContainment(formulaSetting, diagnostics, context)) return false;
 		boolean result = validate_EveryMultiplicityConforms(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryDataValueConforms(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryReferenceIsContained(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryBidirectionalReferenceIsPaired(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryProxyResolves(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_UniqueID(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryKeyUnique(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validate_EveryMapEntryUnique(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validateFormulaSetting_unknownVariable(formulaSetting, diagnostics, context);
-		if (result || diagnostics != null)
-			result &= validateFormulaSetting_invalidSyntax(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validateFormulaSetting_unknownVariable(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validateFormulaSetting_invalidSyntax(formulaSetting, diagnostics, context);
 		return result;
 	}
 
@@ -373,7 +337,7 @@ public class GuesstimateValidator extends EObjectValidator {
 	 * Validates the unknownVariable constraint of '<em>Formula Setting</em>'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public boolean validateFormulaSetting_unknownVariable(FormulaSetting formulaSetting, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
@@ -398,7 +362,7 @@ public class GuesstimateValidator extends EObjectValidator {
 	 * Validates the invalidSyntax constraint of '<em>Formula Setting</em>'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public boolean validateFormulaSetting_invalidSyntax(FormulaSetting formulaSetting, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
@@ -425,7 +389,7 @@ public class GuesstimateValidator extends EObjectValidator {
 	 * Validates the settingsAreValid constraint of '<em>Variable</em>'. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public boolean validateDistribution_settingsAreValid(Variable d, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
@@ -441,7 +405,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateSheet(Sheet sheet, DiagnosticChain diagnostics, Map<Object, Object> context) {
@@ -450,7 +413,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validatePoissonDistribution(PoissonDistribution poissonDistribution, DiagnosticChain diagnostics,
@@ -460,7 +422,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateExponentialDistribution(ExponentialDistribution exponentialDistribution,
@@ -470,7 +431,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateGammaDistribution(GammaDistribution gammaDistribution, DiagnosticChain diagnostics,
@@ -480,7 +440,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validateVariableType(VariableType variableType, DiagnosticChain diagnostics,
@@ -490,7 +449,6 @@ public class GuesstimateValidator extends EObjectValidator {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
 	 * @generated
 	 */
 	public boolean validatePercentage(Double percentage, DiagnosticChain diagnostics, Map<Object, Object> context) {
@@ -498,9 +456,8 @@ public class GuesstimateValidator extends EObjectValidator {
 	}
 
 	/**
-	 * Returns the resource locator that will be used to fetch messages for this
-	 * validator's diagnostics. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * Returns the resource locator that will be used to fetch messages for this validator's diagnostics.
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override

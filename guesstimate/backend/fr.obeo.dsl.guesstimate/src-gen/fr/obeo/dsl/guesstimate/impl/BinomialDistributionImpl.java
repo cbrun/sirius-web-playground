@@ -55,7 +55,7 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Double P_EDEFAULT = new Double(0.5);
+	protected static final Double P_EDEFAULT = Double.valueOf(0.5);
 
 	/**
 	 * The cached value of the '{@link #getP() <em>P</em>}' attribute.
@@ -91,6 +91,7 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTrials() {
 		return trials;
 	}
@@ -100,12 +101,12 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTrials(int newTrials) {
 		int oldTrials = trials;
 		trials = newTrials;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS,
-					oldTrials, trials));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS, oldTrials, trials));
 	}
 
 	/**
@@ -113,6 +114,7 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getP() {
 		return p;
 	}
@@ -122,12 +124,12 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setP(Double newP) {
 		Double oldP = p;
 		p = newP;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BINOMIAL_DISTRIBUTION__P, oldP,
-					p));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BINOMIAL_DISTRIBUTION__P, oldP, p));
 	}
 
 	/**
@@ -138,10 +140,10 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
-			return getTrials();
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-			return getP();
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
+				return getTrials();
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
+				return getP();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -154,12 +156,12 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
-			setTrials((Integer) newValue);
-			return;
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-			setP((Double) newValue);
-			return;
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
+				setTrials((Integer)newValue);
+				return;
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
+				setP((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -172,12 +174,12 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
-			setTrials(TRIALS_EDEFAULT);
-			return;
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-			setP(P_EDEFAULT);
-			return;
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
+				setTrials(TRIALS_EDEFAULT);
+				return;
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
+				setP(P_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -190,10 +192,10 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
-			return trials != TRIALS_EDEFAULT;
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-			return P_EDEFAULT == null ? p != null : !P_EDEFAULT.equals(p);
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
+				return trials != TRIALS_EDEFAULT;
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
+				return P_EDEFAULT == null ? p != null : !P_EDEFAULT.equals(p);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -205,8 +207,7 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (trials: ");

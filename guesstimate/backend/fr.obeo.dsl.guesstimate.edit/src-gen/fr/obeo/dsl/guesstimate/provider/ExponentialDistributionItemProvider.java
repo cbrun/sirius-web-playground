@@ -66,20 +66,26 @@ public class ExponentialDistributionItemProvider extends ItemProviderAdapter imp
 	 * @generated
 	 */
 	protected void addMeanPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_ExponentialDistribution_mean_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_ExponentialDistribution_mean_feature",
-						"_UI_ExponentialDistribution_type"),
-				GuesstimatePackage.Literals.EXPONENTIAL_DISTRIBUTION__MEAN, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_ExponentialDistribution_mean_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ExponentialDistribution_mean_feature", "_UI_ExponentialDistribution_type"),
+				 GuesstimatePackage.Literals.EXPONENTIAL_DISTRIBUTION__MEAN,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns ExponentialDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -104,7 +110,7 @@ public class ExponentialDistributionItemProvider extends ItemProviderAdapter imp
 	 */
 	@Override
 	public String getText(Object object) {
-		ExponentialDistribution exponentialDistribution = (ExponentialDistribution) object;
+		ExponentialDistribution exponentialDistribution = (ExponentialDistribution)object;
 		return getString("_UI_ExponentialDistribution_type") + " " + exponentialDistribution.getMean();
 	}
 
@@ -120,9 +126,9 @@ public class ExponentialDistributionItemProvider extends ItemProviderAdapter imp
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(ExponentialDistribution.class)) {
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -147,7 +153,7 @@ public class ExponentialDistributionItemProvider extends ItemProviderAdapter imp
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

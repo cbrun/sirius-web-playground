@@ -68,13 +68,19 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	 * @generated
 	 */
 	protected void addMinPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_TriangularDistribution_min_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_TriangularDistribution_min_feature",
-						"_UI_TriangularDistribution_type"),
-				GuesstimatePackage.Literals.TRIANGULAR_DISTRIBUTION__MIN, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_TriangularDistribution_min_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_TriangularDistribution_min_feature", "_UI_TriangularDistribution_type"),
+				 GuesstimatePackage.Literals.TRIANGULAR_DISTRIBUTION__MIN,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -84,13 +90,19 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	 * @generated
 	 */
 	protected void addMaxPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_TriangularDistribution_max_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_TriangularDistribution_max_feature",
-						"_UI_TriangularDistribution_type"),
-				GuesstimatePackage.Literals.TRIANGULAR_DISTRIBUTION__MAX, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_TriangularDistribution_max_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_TriangularDistribution_max_feature", "_UI_TriangularDistribution_type"),
+				 GuesstimatePackage.Literals.TRIANGULAR_DISTRIBUTION__MAX,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -100,20 +112,26 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	 * @generated
 	 */
 	protected void addModePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_TriangularDistribution_mode_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_TriangularDistribution_mode_feature",
-						"_UI_TriangularDistribution_type"),
-				GuesstimatePackage.Literals.TRIANGULAR_DISTRIBUTION__MODE, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_TriangularDistribution_mode_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_TriangularDistribution_mode_feature", "_UI_TriangularDistribution_type"),
+				 GuesstimatePackage.Literals.TRIANGULAR_DISTRIBUTION__MODE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns TriangularDistribution.svg.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -138,7 +156,7 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	 */
 	@Override
 	public String getText(Object object) {
-		TriangularDistribution triangularDistribution = (TriangularDistribution) object;
+		TriangularDistribution triangularDistribution = (TriangularDistribution)object;
 		return getString("_UI_TriangularDistribution_type") + " " + triangularDistribution.getMin();
 	}
 
@@ -154,11 +172,11 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(TriangularDistribution.class)) {
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -183,7 +201,7 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

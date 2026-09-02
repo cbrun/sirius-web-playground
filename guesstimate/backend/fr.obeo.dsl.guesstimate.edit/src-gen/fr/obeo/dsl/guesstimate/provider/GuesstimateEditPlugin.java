@@ -39,7 +39,9 @@ public final class GuesstimateEditPlugin extends EMFPlugin {
 	 * @generated
 	 */
 	public GuesstimateEditPlugin() {
-		super(new ResourceLocator[] {});
+		super
+		  (new ResourceLocator [] {
+		   });
 	}
 
 	/**
@@ -66,7 +68,7 @@ public final class GuesstimateEditPlugin extends EMFPlugin {
 	}
 
 	/**
-	* @not-generated
+	* @generated NOT
 	*/
 	@Override
 	protected Object doGetImage(String key) throws IOException {
@@ -82,10 +84,10 @@ public final class GuesstimateEditPlugin extends EMFPlugin {
 	 * @param key
 	 *            the key for the imagine.
 	 * @return the file extension to be used with the key to specify an image resource.
-	 * @not-generated
+	 * @generated NOT
 	 */
 	protected static String extensionFor(String key) {
-		String result = ".gif";
+		String result = ".svg";
 		int index = key.lastIndexOf('.');
 		if (index != -1) {
 			String extension = key.substring(index + 1);

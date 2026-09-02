@@ -93,10 +93,10 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<Variable> getVariables() {
 		if (variables == null) {
-			variables = new EObjectContainmentEList<Variable>(Variable.class, this,
-					GuesstimatePackage.SHEET__VARIABLES);
+			variables = new EObjectContainmentEList<Variable>(Variable.class, this, GuesstimatePackage.SHEET__VARIABLES);
 		}
 		return variables;
 	}
@@ -106,6 +106,7 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getSampleSize() {
 		return sampleSize;
 	}
@@ -115,18 +116,18 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSampleSize(int newSampleSize) {
 		int oldSampleSize = sampleSize;
 		sampleSize = newSampleSize;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.SHEET__SAMPLE_SIZE, oldSampleSize,
-					sampleSize));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.SHEET__SAMPLE_SIZE, oldSampleSize, sampleSize));
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public void resample() {
 		new GuesstimateUtils().completeModel(this);
@@ -140,8 +141,8 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case GuesstimatePackage.SHEET__VARIABLES:
-			return ((InternalEList<?>) getVariables()).basicRemove(otherEnd, msgs);
+			case GuesstimatePackage.SHEET__VARIABLES:
+				return ((InternalEList<?>)getVariables()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -154,10 +155,10 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.SHEET__VARIABLES:
-			return getVariables();
-		case GuesstimatePackage.SHEET__SAMPLE_SIZE:
-			return getSampleSize();
+			case GuesstimatePackage.SHEET__VARIABLES:
+				return getVariables();
+			case GuesstimatePackage.SHEET__SAMPLE_SIZE:
+				return getSampleSize();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -171,13 +172,13 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.SHEET__VARIABLES:
-			getVariables().clear();
-			getVariables().addAll((Collection<? extends Variable>) newValue);
-			return;
-		case GuesstimatePackage.SHEET__SAMPLE_SIZE:
-			setSampleSize((Integer) newValue);
-			return;
+			case GuesstimatePackage.SHEET__VARIABLES:
+				getVariables().clear();
+				getVariables().addAll((Collection<? extends Variable>)newValue);
+				return;
+			case GuesstimatePackage.SHEET__SAMPLE_SIZE:
+				setSampleSize((Integer)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -190,12 +191,12 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.SHEET__VARIABLES:
-			getVariables().clear();
-			return;
-		case GuesstimatePackage.SHEET__SAMPLE_SIZE:
-			setSampleSize(SAMPLE_SIZE_EDEFAULT);
-			return;
+			case GuesstimatePackage.SHEET__VARIABLES:
+				getVariables().clear();
+				return;
+			case GuesstimatePackage.SHEET__SAMPLE_SIZE:
+				setSampleSize(SAMPLE_SIZE_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -208,10 +209,10 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.SHEET__VARIABLES:
-			return variables != null && !variables.isEmpty();
-		case GuesstimatePackage.SHEET__SAMPLE_SIZE:
-			return sampleSize != SAMPLE_SIZE_EDEFAULT;
+			case GuesstimatePackage.SHEET__VARIABLES:
+				return variables != null && !variables.isEmpty();
+			case GuesstimatePackage.SHEET__SAMPLE_SIZE:
+				return sampleSize != SAMPLE_SIZE_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -224,9 +225,9 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	@Override
 	public Object eInvoke(int operationID, EList<?> arguments) throws InvocationTargetException {
 		switch (operationID) {
-		case GuesstimatePackage.SHEET___RESAMPLE:
-			resample();
-			return null;
+			case GuesstimatePackage.SHEET___RESAMPLE:
+				resample();
+				return null;
 		}
 		return super.eInvoke(operationID, arguments);
 	}
@@ -238,8 +239,7 @@ public class SheetImpl extends MinimalEObjectImpl.Container implements Sheet {
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (sampleSize: ");

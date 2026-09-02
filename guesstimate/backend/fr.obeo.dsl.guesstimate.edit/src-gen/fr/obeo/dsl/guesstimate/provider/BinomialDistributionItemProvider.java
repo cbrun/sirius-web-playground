@@ -67,13 +67,19 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 	 * @generated
 	 */
 	protected void addTrialsPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_BinomialDistribution_trials_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_BinomialDistribution_trials_feature",
-						"_UI_BinomialDistribution_type"),
-				GuesstimatePackage.Literals.BINOMIAL_DISTRIBUTION__TRIALS, true, false, false,
-				ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_BinomialDistribution_trials_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_BinomialDistribution_trials_feature", "_UI_BinomialDistribution_type"),
+				 GuesstimatePackage.Literals.BINOMIAL_DISTRIBUTION__TRIALS,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,20 +89,26 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 	 * @generated
 	 */
 	protected void addPPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_BinomialDistribution_p_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_BinomialDistribution_p_feature",
-								"_UI_BinomialDistribution_type"),
-						GuesstimatePackage.Literals.BINOMIAL_DISTRIBUTION__P, true, false, false,
-						ItemPropertyDescriptor.GENERIC_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_BinomialDistribution_p_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_BinomialDistribution_p_feature", "_UI_BinomialDistribution_type"),
+				 GuesstimatePackage.Literals.BINOMIAL_DISTRIBUTION__P,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns BinomialDistribution.svg.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -121,7 +133,7 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 	 */
 	@Override
 	public String getText(Object object) {
-		BinomialDistribution binomialDistribution = (BinomialDistribution) object;
+		BinomialDistribution binomialDistribution = (BinomialDistribution)object;
 		return getString("_UI_BinomialDistribution_type") + " " + binomialDistribution.getTrials();
 	}
 
@@ -137,10 +149,10 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(BinomialDistribution.class)) {
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

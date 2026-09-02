@@ -91,6 +91,7 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getScale() {
 		return scale;
 	}
@@ -100,12 +101,12 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setScale(double newScale) {
 		double oldScale = scale;
 		scale = newScale;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE,
-					oldScale, scale));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE, oldScale, scale));
 	}
 
 	/**
@@ -113,6 +114,7 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getShape() {
 		return shape;
 	}
@@ -122,12 +124,12 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setShape(double newShape) {
 		double oldShape = shape;
 		shape = newShape;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE,
-					oldShape, shape));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE, oldShape, shape));
 	}
 
 	/**
@@ -138,10 +140,10 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-			return getScale();
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-			return getShape();
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
+				return getScale();
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
+				return getShape();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -154,12 +156,12 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-			setScale((Double) newValue);
-			return;
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-			setShape((Double) newValue);
-			return;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
+				setScale((Double)newValue);
+				return;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
+				setShape((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -172,12 +174,12 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-			setScale(SCALE_EDEFAULT);
-			return;
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-			setShape(SHAPE_EDEFAULT);
-			return;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
+				setScale(SCALE_EDEFAULT);
+				return;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
+				setShape(SHAPE_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -190,10 +192,10 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-			return scale != SCALE_EDEFAULT;
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-			return shape != SHAPE_EDEFAULT;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
+				return scale != SCALE_EDEFAULT;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
+				return shape != SHAPE_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -205,8 +207,7 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (scale: ");

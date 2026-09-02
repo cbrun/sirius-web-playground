@@ -147,6 +147,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -156,6 +157,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setName(String newName) {
 		String oldName = name;
 		name = newName;
@@ -168,6 +170,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDocumentation() {
 		return documentation;
 	}
@@ -177,12 +180,12 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDocumentation(String newDocumentation) {
 		String oldDocumentation = documentation;
 		documentation = newDocumentation;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DOCUMENTATION,
-					oldDocumentation, documentation));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DOCUMENTATION, oldDocumentation, documentation));
 	}
 
 	/**
@@ -190,6 +193,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDefinition() {
 		return definition;
 	}
@@ -199,12 +203,12 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDefinition(String newDefinition) {
 		String oldDefinition = definition;
 		definition = newDefinition;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DEFINITION,
-					oldDefinition, definition));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DEFINITION, oldDefinition, definition));
 	}
 
 	/**
@@ -212,6 +216,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public VariableType getType() {
 		return type;
 	}
@@ -221,6 +226,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(VariableType newType) {
 		VariableType oldType = type;
 		type = newType == null ? TYPE_EDEFAULT : newType;
@@ -233,6 +239,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DistributionSetting getDistribution() {
 		return distribution;
 	}
@@ -246,12 +253,8 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 		DistributionSetting oldDistribution = distribution;
 		distribution = newDistribution;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET,
-					GuesstimatePackage.VARIABLE__DISTRIBUTION, oldDistribution, newDistribution);
-			if (msgs == null)
-				msgs = notification;
-			else
-				msgs.add(notification);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DISTRIBUTION, oldDistribution, newDistribution);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
 	}
@@ -261,21 +264,19 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDistribution(DistributionSetting newDistribution) {
 		if (newDistribution != distribution) {
 			NotificationChain msgs = null;
 			if (distribution != null)
-				msgs = ((InternalEObject) distribution).eInverseRemove(this,
-						EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__DISTRIBUTION, null, msgs);
+				msgs = ((InternalEObject)distribution).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__DISTRIBUTION, null, msgs);
 			if (newDistribution != null)
-				msgs = ((InternalEObject) newDistribution).eInverseAdd(this,
-						EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__DISTRIBUTION, null, msgs);
+				msgs = ((InternalEObject)newDistribution).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__DISTRIBUTION, null, msgs);
 			msgs = basicSetDistribution(newDistribution, msgs);
-			if (msgs != null)
-				msgs.dispatch();
-		} else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DISTRIBUTION,
-					newDistribution, newDistribution));
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DISTRIBUTION, newDistribution, newDistribution));
 	}
 
 	/**
@@ -286,8 +287,8 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-		case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-			return basicSetDistribution(null, msgs);
+			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+				return basicSetDistribution(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -300,16 +301,16 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.VARIABLE__NAME:
-			return getName();
-		case GuesstimatePackage.VARIABLE__DOCUMENTATION:
-			return getDocumentation();
-		case GuesstimatePackage.VARIABLE__DEFINITION:
-			return getDefinition();
-		case GuesstimatePackage.VARIABLE__TYPE:
-			return getType();
-		case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-			return getDistribution();
+			case GuesstimatePackage.VARIABLE__NAME:
+				return getName();
+			case GuesstimatePackage.VARIABLE__DOCUMENTATION:
+				return getDocumentation();
+			case GuesstimatePackage.VARIABLE__DEFINITION:
+				return getDefinition();
+			case GuesstimatePackage.VARIABLE__TYPE:
+				return getType();
+			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+				return getDistribution();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -322,21 +323,21 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.VARIABLE__NAME:
-			setName((String) newValue);
-			return;
-		case GuesstimatePackage.VARIABLE__DOCUMENTATION:
-			setDocumentation((String) newValue);
-			return;
-		case GuesstimatePackage.VARIABLE__DEFINITION:
-			setDefinition((String) newValue);
-			return;
-		case GuesstimatePackage.VARIABLE__TYPE:
-			setType((VariableType) newValue);
-			return;
-		case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-			setDistribution((DistributionSetting) newValue);
-			return;
+			case GuesstimatePackage.VARIABLE__NAME:
+				setName((String)newValue);
+				return;
+			case GuesstimatePackage.VARIABLE__DOCUMENTATION:
+				setDocumentation((String)newValue);
+				return;
+			case GuesstimatePackage.VARIABLE__DEFINITION:
+				setDefinition((String)newValue);
+				return;
+			case GuesstimatePackage.VARIABLE__TYPE:
+				setType((VariableType)newValue);
+				return;
+			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+				setDistribution((DistributionSetting)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -349,21 +350,21 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.VARIABLE__NAME:
-			setName(NAME_EDEFAULT);
-			return;
-		case GuesstimatePackage.VARIABLE__DOCUMENTATION:
-			setDocumentation(DOCUMENTATION_EDEFAULT);
-			return;
-		case GuesstimatePackage.VARIABLE__DEFINITION:
-			setDefinition(DEFINITION_EDEFAULT);
-			return;
-		case GuesstimatePackage.VARIABLE__TYPE:
-			setType(TYPE_EDEFAULT);
-			return;
-		case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-			setDistribution((DistributionSetting) null);
-			return;
+			case GuesstimatePackage.VARIABLE__NAME:
+				setName(NAME_EDEFAULT);
+				return;
+			case GuesstimatePackage.VARIABLE__DOCUMENTATION:
+				setDocumentation(DOCUMENTATION_EDEFAULT);
+				return;
+			case GuesstimatePackage.VARIABLE__DEFINITION:
+				setDefinition(DEFINITION_EDEFAULT);
+				return;
+			case GuesstimatePackage.VARIABLE__TYPE:
+				setType(TYPE_EDEFAULT);
+				return;
+			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+				setDistribution((DistributionSetting)null);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -376,17 +377,16 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.VARIABLE__NAME:
-			return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
-		case GuesstimatePackage.VARIABLE__DOCUMENTATION:
-			return DOCUMENTATION_EDEFAULT == null ? documentation != null
-					: !DOCUMENTATION_EDEFAULT.equals(documentation);
-		case GuesstimatePackage.VARIABLE__DEFINITION:
-			return DEFINITION_EDEFAULT == null ? definition != null : !DEFINITION_EDEFAULT.equals(definition);
-		case GuesstimatePackage.VARIABLE__TYPE:
-			return type != TYPE_EDEFAULT;
-		case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-			return distribution != null;
+			case GuesstimatePackage.VARIABLE__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case GuesstimatePackage.VARIABLE__DOCUMENTATION:
+				return DOCUMENTATION_EDEFAULT == null ? documentation != null : !DOCUMENTATION_EDEFAULT.equals(documentation);
+			case GuesstimatePackage.VARIABLE__DEFINITION:
+				return DEFINITION_EDEFAULT == null ? definition != null : !DEFINITION_EDEFAULT.equals(definition);
+			case GuesstimatePackage.VARIABLE__TYPE:
+				return type != TYPE_EDEFAULT;
+			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+				return distribution != null;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -398,8 +398,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (name: ");

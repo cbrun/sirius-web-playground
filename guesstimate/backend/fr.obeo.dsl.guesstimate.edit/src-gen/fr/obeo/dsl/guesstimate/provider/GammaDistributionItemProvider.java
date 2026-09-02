@@ -67,13 +67,19 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 	 * @generated
 	 */
 	protected void addShapePropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_GammaDistribution_shape_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_GammaDistribution_shape_feature",
-								"_UI_GammaDistribution_type"),
-						GuesstimatePackage.Literals.GAMMA_DISTRIBUTION__SHAPE, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_GammaDistribution_shape_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_GammaDistribution_shape_feature", "_UI_GammaDistribution_type"),
+				 GuesstimatePackage.Literals.GAMMA_DISTRIBUTION__SHAPE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,20 +89,26 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 	 * @generated
 	 */
 	protected void addScalePropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_GammaDistribution_scale_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_GammaDistribution_scale_feature",
-								"_UI_GammaDistribution_type"),
-						GuesstimatePackage.Literals.GAMMA_DISTRIBUTION__SCALE, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_GammaDistribution_scale_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_GammaDistribution_scale_feature", "_UI_GammaDistribution_type"),
+				 GuesstimatePackage.Literals.GAMMA_DISTRIBUTION__SCALE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns GammaDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -121,7 +133,7 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 	 */
 	@Override
 	public String getText(Object object) {
-		GammaDistribution gammaDistribution = (GammaDistribution) object;
+		GammaDistribution gammaDistribution = (GammaDistribution)object;
 		return getString("_UI_GammaDistribution_type") + " " + gammaDistribution.getShape();
 	}
 
@@ -137,10 +149,10 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(GammaDistribution.class)) {
-		case GuesstimatePackage.GAMMA_DISTRIBUTION__SHAPE:
-		case GuesstimatePackage.GAMMA_DISTRIBUTION__SCALE:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.GAMMA_DISTRIBUTION__SHAPE:
+			case GuesstimatePackage.GAMMA_DISTRIBUTION__SCALE:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

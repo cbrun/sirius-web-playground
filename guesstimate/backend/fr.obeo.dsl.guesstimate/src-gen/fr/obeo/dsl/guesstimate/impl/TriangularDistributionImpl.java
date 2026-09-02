@@ -112,6 +112,7 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMin() {
 		return min;
 	}
@@ -121,12 +122,12 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMin(double newMin) {
 		double oldMin = min;
 		min = newMin;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN,
-					oldMin, min));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN, oldMin, min));
 	}
 
 	/**
@@ -134,6 +135,7 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMax() {
 		return max;
 	}
@@ -143,12 +145,12 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMax(double newMax) {
 		double oldMax = max;
 		max = newMax;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX,
-					oldMax, max));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX, oldMax, max));
 	}
 
 	/**
@@ -156,6 +158,7 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMode() {
 		return mode;
 	}
@@ -165,12 +168,12 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMode(double newMode) {
 		double oldMode = mode;
 		mode = newMode;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE,
-					oldMode, mode));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE, oldMode, mode));
 	}
 
 	/**
@@ -181,12 +184,12 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
-			return getMin();
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
-			return getMax();
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
-			return getMode();
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
+				return getMin();
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
+				return getMax();
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
+				return getMode();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -199,15 +202,15 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
-			setMin((Double) newValue);
-			return;
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
-			setMax((Double) newValue);
-			return;
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
-			setMode((Double) newValue);
-			return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
+				setMin((Double)newValue);
+				return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
+				setMax((Double)newValue);
+				return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
+				setMode((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -220,15 +223,15 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
-			setMin(MIN_EDEFAULT);
-			return;
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
-			setMax(MAX_EDEFAULT);
-			return;
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
-			setMode(MODE_EDEFAULT);
-			return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
+				setMin(MIN_EDEFAULT);
+				return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
+				setMax(MAX_EDEFAULT);
+				return;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
+				setMode(MODE_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -241,12 +244,12 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
-			return min != MIN_EDEFAULT;
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
-			return max != MAX_EDEFAULT;
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
-			return mode != MODE_EDEFAULT;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MIN:
+				return min != MIN_EDEFAULT;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MAX:
+				return max != MAX_EDEFAULT;
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION__MODE:
+				return mode != MODE_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -258,8 +261,7 @@ public class TriangularDistributionImpl extends MinimalEObjectImpl.Container imp
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (min: ");

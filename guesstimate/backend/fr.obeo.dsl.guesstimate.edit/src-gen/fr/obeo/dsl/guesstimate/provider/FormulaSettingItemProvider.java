@@ -67,13 +67,19 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 	 * @generated
 	 */
 	protected void addFormulaPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_FormulaSetting_formula_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_FormulaSetting_formula_feature",
-								"_UI_FormulaSetting_type"),
-						GuesstimatePackage.Literals.FORMULA_SETTING__FORMULA, true, false, false,
-						ItemPropertyDescriptor.GENERIC_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_FormulaSetting_formula_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_FormulaSetting_formula_feature", "_UI_FormulaSetting_type"),
+				 GuesstimatePackage.Literals.FORMULA_SETTING__FORMULA,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,12 +89,19 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 	 * @generated
 	 */
 	protected void addInputsPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_FormulaSetting_inputs_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_FormulaSetting_inputs_feature",
-								"_UI_FormulaSetting_type"),
-						GuesstimatePackage.Literals.FORMULA_SETTING__INPUTS, true, false, true, null, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_FormulaSetting_inputs_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_FormulaSetting_inputs_feature", "_UI_FormulaSetting_type"),
+				 GuesstimatePackage.Literals.FORMULA_SETTING__INPUTS,
+				 true,
+				 false,
+				 true,
+				 null,
+				 null,
+				 null));
 	}
 
 	/**
@@ -120,9 +133,10 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((FormulaSetting) object).getFormula();
-		return label == null || label.length() == 0 ? getString("_UI_FormulaSetting_type")
-				: getString("_UI_FormulaSetting_type") + " " + label;
+		String label = ((FormulaSetting)object).getFormula();
+		return label == null || label.length() == 0 ?
+			getString("_UI_FormulaSetting_type") :
+			getString("_UI_FormulaSetting_type") + " " + label;
 	}
 
 	/**
@@ -137,9 +151,9 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(FormulaSetting.class)) {
-		case GuesstimatePackage.FORMULA_SETTING__FORMULA:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.FORMULA_SETTING__FORMULA:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -164,7 +178,7 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

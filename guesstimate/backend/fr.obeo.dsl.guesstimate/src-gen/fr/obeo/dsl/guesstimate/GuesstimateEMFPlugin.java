@@ -36,7 +36,7 @@ public final class GuesstimateEMFPlugin extends EMFPlugin {
 	 * @generated
 	 */
 	public GuesstimateEMFPlugin() {
-		super(new ResourceLocator[] {});
+		super(new ResourceLocator [] {});
 	}
 
 	/**

@@ -67,13 +67,19 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 	 * @generated
 	 */
 	protected void addMinPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_UniformDistribution_min_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_UniformDistribution_min_feature",
-								"_UI_UniformDistribution_type"),
-						GuesstimatePackage.Literals.UNIFORM_DISTRIBUTION__MIN, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_UniformDistribution_min_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_UniformDistribution_min_feature", "_UI_UniformDistribution_type"),
+				 GuesstimatePackage.Literals.UNIFORM_DISTRIBUTION__MIN,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,20 +89,26 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 	 * @generated
 	 */
 	protected void addMaxPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_UniformDistribution_max_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_UniformDistribution_max_feature",
-								"_UI_UniformDistribution_type"),
-						GuesstimatePackage.Literals.UNIFORM_DISTRIBUTION__MAX, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_UniformDistribution_max_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_UniformDistribution_max_feature", "_UI_UniformDistribution_type"),
+				 GuesstimatePackage.Literals.UNIFORM_DISTRIBUTION__MAX,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns UniformDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -121,7 +133,7 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 	 */
 	@Override
 	public String getText(Object object) {
-		UniformDistribution uniformDistribution = (UniformDistribution) object;
+		UniformDistribution uniformDistribution = (UniformDistribution)object;
 		return getString("_UI_UniformDistribution_type") + " " + uniformDistribution.getMin();
 	}
 
@@ -137,10 +149,10 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(UniformDistribution.class)) {
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MIN:
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION__MAX:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

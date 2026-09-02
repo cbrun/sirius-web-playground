@@ -24,12 +24,12 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 */
 	public static GuesstimateFactory init() {
 		try {
-			GuesstimateFactory theGuesstimateFactory = (GuesstimateFactory) EPackage.Registry.INSTANCE
-					.getEFactory(GuesstimatePackage.eNS_URI);
+			GuesstimateFactory theGuesstimateFactory = (GuesstimateFactory)EPackage.Registry.INSTANCE.getEFactory(GuesstimatePackage.eNS_URI);
 			if (theGuesstimateFactory != null) {
 				return theGuesstimateFactory;
 			}
-		} catch (Exception exception) {
+		}
+		catch (Exception exception) {
 			EcorePlugin.INSTANCE.log(exception);
 		}
 		return new GuesstimateFactoryImpl();
@@ -52,32 +52,20 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
-		case GuesstimatePackage.VARIABLE:
-			return createVariable();
-		case GuesstimatePackage.NORMAL_DISTRIBUTION:
-			return createNormalDistribution();
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION:
-			return createLogNormalDistribution();
-		case GuesstimatePackage.UNIFORM_DISTRIBUTION:
-			return createUniformDistribution();
-		case GuesstimatePackage.BETA_DISTRIBUTION:
-			return createBetaDistribution();
-		case GuesstimatePackage.TRIANGULAR_DISTRIBUTION:
-			return createTriangularDistribution();
-		case GuesstimatePackage.BINOMIAL_DISTRIBUTION:
-			return createBinomialDistribution();
-		case GuesstimatePackage.FORMULA_SETTING:
-			return createFormulaSetting();
-		case GuesstimatePackage.SHEET:
-			return createSheet();
-		case GuesstimatePackage.POISSON_DISTRIBUTION:
-			return createPoissonDistribution();
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION:
-			return createExponentialDistribution();
-		case GuesstimatePackage.GAMMA_DISTRIBUTION:
-			return createGammaDistribution();
-		default:
-			throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
+			case GuesstimatePackage.VARIABLE: return createVariable();
+			case GuesstimatePackage.NORMAL_DISTRIBUTION: return createNormalDistribution();
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION: return createLogNormalDistribution();
+			case GuesstimatePackage.UNIFORM_DISTRIBUTION: return createUniformDistribution();
+			case GuesstimatePackage.BETA_DISTRIBUTION: return createBetaDistribution();
+			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION: return createTriangularDistribution();
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION: return createBinomialDistribution();
+			case GuesstimatePackage.FORMULA_SETTING: return createFormulaSetting();
+			case GuesstimatePackage.SHEET: return createSheet();
+			case GuesstimatePackage.POISSON_DISTRIBUTION: return createPoissonDistribution();
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION: return createExponentialDistribution();
+			case GuesstimatePackage.GAMMA_DISTRIBUTION: return createGammaDistribution();
+			default:
+				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
 	}
 
@@ -89,12 +77,12 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	@Override
 	public Object createFromString(EDataType eDataType, String initialValue) {
 		switch (eDataType.getClassifierID()) {
-		case GuesstimatePackage.VARIABLE_TYPE:
-			return createVariableTypeFromString(eDataType, initialValue);
-		case GuesstimatePackage.PERCENTAGE:
-			return createPercentageFromString(eDataType, initialValue);
-		default:
-			throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+			case GuesstimatePackage.VARIABLE_TYPE:
+				return createVariableTypeFromString(eDataType, initialValue);
+			case GuesstimatePackage.PERCENTAGE:
+				return createPercentageFromString(eDataType, initialValue);
+			default:
+				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
 	}
 
@@ -105,12 +93,12 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	@Override
 	public String convertToString(EDataType eDataType, Object instanceValue) {
 		switch (eDataType.getClassifierID()) {
-		case GuesstimatePackage.VARIABLE_TYPE:
-			return convertVariableTypeToString(eDataType, instanceValue);
-		case GuesstimatePackage.PERCENTAGE:
-			return convertPercentageToString(eDataType, instanceValue);
-		default:
-			throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
+			case GuesstimatePackage.VARIABLE_TYPE:
+				return convertVariableTypeToString(eDataType, instanceValue);
+			case GuesstimatePackage.PERCENTAGE:
+				return convertPercentageToString(eDataType, instanceValue);
+			default:
+				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
 	}
 
@@ -119,6 +107,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Variable createVariable() {
 		VariableImpl variable = new VariableImpl();
 		return variable;
@@ -129,6 +118,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NormalDistribution createNormalDistribution() {
 		NormalDistributionImpl normalDistribution = new NormalDistributionImpl();
 		return normalDistribution;
@@ -139,6 +129,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public LogNormalDistribution createLogNormalDistribution() {
 		LogNormalDistributionImpl logNormalDistribution = new LogNormalDistributionImpl();
 		return logNormalDistribution;
@@ -149,6 +140,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public UniformDistribution createUniformDistribution() {
 		UniformDistributionImpl uniformDistribution = new UniformDistributionImpl();
 		return uniformDistribution;
@@ -159,6 +151,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BetaDistribution createBetaDistribution() {
 		BetaDistributionImpl betaDistribution = new BetaDistributionImpl();
 		return betaDistribution;
@@ -169,6 +162,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TriangularDistribution createTriangularDistribution() {
 		TriangularDistributionImpl triangularDistribution = new TriangularDistributionImpl();
 		return triangularDistribution;
@@ -179,6 +173,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BinomialDistribution createBinomialDistribution() {
 		BinomialDistributionImpl binomialDistribution = new BinomialDistributionImpl();
 		return binomialDistribution;
@@ -189,6 +184,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FormulaSetting createFormulaSetting() {
 		FormulaSettingImpl formulaSetting = new FormulaSettingImpl();
 		return formulaSetting;
@@ -198,6 +194,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Sheet createSheet() {
 		SheetImpl sheet = new SheetImpl();
 		return sheet;
@@ -208,6 +205,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PoissonDistribution createPoissonDistribution() {
 		PoissonDistributionImpl poissonDistribution = new PoissonDistributionImpl();
 		return poissonDistribution;
@@ -218,6 +216,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExponentialDistribution createExponentialDistribution() {
 		ExponentialDistributionImpl exponentialDistribution = new ExponentialDistributionImpl();
 		return exponentialDistribution;
@@ -228,6 +227,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public GammaDistribution createGammaDistribution() {
 		GammaDistributionImpl gammaDistribution = new GammaDistributionImpl();
 		return gammaDistribution;
@@ -240,9 +240,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 */
 	public VariableType createVariableTypeFromString(EDataType eDataType, String initialValue) {
 		VariableType result = VariableType.get(initialValue);
-		if (result == null)
-			throw new IllegalArgumentException(
-					"The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
+		if (result == null) throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '" + eDataType.getName() + "'");
 		return result;
 	}
 
@@ -258,7 +256,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
-	 * @not-generated
+	 * @generated NOT
 	 */
 	public String convertThreePointsToString(EDataType eDataType, Object instanceValue) {
 		return instanceValue.toString();
@@ -270,7 +268,7 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * @generated
 	 */
 	public Double createPercentageFromString(EDataType eDataType, String initialValue) {
-		return (Double) super.createFromString(eDataType, initialValue);
+		return (Double)super.createFromString(eDataType, initialValue);
 	}
 
 	/**
@@ -286,8 +284,9 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public GuesstimatePackage getGuesstimatePackage() {
-		return (GuesstimatePackage) getEPackage();
+		return (GuesstimatePackage)getEPackage();
 	}
 
 	/**

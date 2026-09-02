@@ -91,6 +91,7 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMean() {
 		return mean;
 	}
@@ -100,12 +101,12 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMean(double newMean) {
 		double oldMean = mean;
 		mean = newMean;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN, oldMean,
-					mean));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN, oldMean, mean));
 	}
 
 	/**
@@ -113,6 +114,7 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getSd() {
 		return sd;
 	}
@@ -122,12 +124,12 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSd(double newSd) {
 		double oldSd = sd;
 		sd = newSd;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.NORMAL_DISTRIBUTION__SD, oldSd,
-					sd));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.NORMAL_DISTRIBUTION__SD, oldSd, sd));
 	}
 
 	/**
@@ -138,10 +140,10 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
-			return getMean();
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-			return getSd();
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
+				return getMean();
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
+				return getSd();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -154,12 +156,12 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
-			setMean((Double) newValue);
-			return;
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-			setSd((Double) newValue);
-			return;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
+				setMean((Double)newValue);
+				return;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
+				setSd((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -172,12 +174,12 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
-			setMean(MEAN_EDEFAULT);
-			return;
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-			setSd(SD_EDEFAULT);
-			return;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
+				setMean(MEAN_EDEFAULT);
+				return;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
+				setSd(SD_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -190,10 +192,10 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
-			return mean != MEAN_EDEFAULT;
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-			return sd != SD_EDEFAULT;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
+				return mean != MEAN_EDEFAULT;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
+				return sd != SD_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -205,8 +207,7 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (mean: ");

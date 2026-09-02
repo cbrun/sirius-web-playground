@@ -10,8 +10,7 @@
       <!-- @generated guesstimate -->
       <package
             uri="http://www.obeo.fr/guesstimate"
-            class="fr.obeo.dsl.guesstimate.GuesstimatePackage"
-            genModel="model/guesstimate.genmodel"/>
+            class="fr.obeo.dsl.guesstimate.GuesstimatePackage"/>
    </extension>
 
 </plugin>

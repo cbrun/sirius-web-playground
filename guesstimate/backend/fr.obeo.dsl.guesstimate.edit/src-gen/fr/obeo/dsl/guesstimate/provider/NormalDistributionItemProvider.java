@@ -67,13 +67,19 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 	 * @generated
 	 */
 	protected void addMeanPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_NormalDistribution_mean_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_NormalDistribution_mean_feature",
-								"_UI_NormalDistribution_type"),
-						GuesstimatePackage.Literals.NORMAL_DISTRIBUTION__MEAN, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_NormalDistribution_mean_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_NormalDistribution_mean_feature", "_UI_NormalDistribution_type"),
+				 GuesstimatePackage.Literals.NORMAL_DISTRIBUTION__MEAN,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,20 +89,26 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 	 * @generated
 	 */
 	protected void addSdPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_NormalDistribution_sd_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_NormalDistribution_sd_feature",
-								"_UI_NormalDistribution_type"),
-						GuesstimatePackage.Literals.NORMAL_DISTRIBUTION__SD, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_NormalDistribution_sd_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_NormalDistribution_sd_feature", "_UI_NormalDistribution_type"),
+				 GuesstimatePackage.Literals.NORMAL_DISTRIBUTION__SD,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns NormalDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -121,7 +133,7 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 	 */
 	@Override
 	public String getText(Object object) {
-		NormalDistribution normalDistribution = (NormalDistribution) object;
+		NormalDistribution normalDistribution = (NormalDistribution)object;
 		return getString("_UI_NormalDistribution_type") + " " + normalDistribution.getMean();
 	}
 
@@ -137,10 +149,10 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(NormalDistribution.class)) {
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
-		case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

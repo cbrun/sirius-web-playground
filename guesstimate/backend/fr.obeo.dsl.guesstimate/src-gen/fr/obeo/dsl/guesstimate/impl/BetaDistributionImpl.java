@@ -91,6 +91,7 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getAlpha() {
 		return alpha;
 	}
@@ -100,12 +101,12 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAlpha(double newAlpha) {
 		double oldAlpha = alpha;
 		alpha = newAlpha;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BETA_DISTRIBUTION__ALPHA, oldAlpha,
-					alpha));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BETA_DISTRIBUTION__ALPHA, oldAlpha, alpha));
 	}
 
 	/**
@@ -113,6 +114,7 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getBeta() {
 		return beta;
 	}
@@ -122,12 +124,12 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBeta(double newBeta) {
 		double oldBeta = beta;
 		beta = newBeta;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BETA_DISTRIBUTION__BETA, oldBeta,
-					beta));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BETA_DISTRIBUTION__BETA, oldBeta, beta));
 	}
 
 	/**
@@ -138,10 +140,10 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
-			return getAlpha();
-		case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
-			return getBeta();
+			case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
+				return getAlpha();
+			case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
+				return getBeta();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -154,12 +156,12 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
-			setAlpha((Double) newValue);
-			return;
-		case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
-			setBeta((Double) newValue);
-			return;
+			case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
+				setAlpha((Double)newValue);
+				return;
+			case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
+				setBeta((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -172,12 +174,12 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
-			setAlpha(ALPHA_EDEFAULT);
-			return;
-		case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
-			setBeta(BETA_EDEFAULT);
-			return;
+			case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
+				setAlpha(ALPHA_EDEFAULT);
+				return;
+			case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
+				setBeta(BETA_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -190,10 +192,10 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
-			return alpha != ALPHA_EDEFAULT;
-		case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
-			return beta != BETA_EDEFAULT;
+			case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
+				return alpha != ALPHA_EDEFAULT;
+			case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
+				return beta != BETA_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -205,8 +207,7 @@ public class BetaDistributionImpl extends MinimalEObjectImpl.Container implement
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (alpha: ");

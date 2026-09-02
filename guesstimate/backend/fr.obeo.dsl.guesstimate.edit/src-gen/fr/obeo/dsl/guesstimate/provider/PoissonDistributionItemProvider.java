@@ -67,13 +67,19 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	 * @generated
 	 */
 	protected void addPPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_PoissonDistribution_p_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_p_feature",
-								"_UI_PoissonDistribution_type"),
-						GuesstimatePackage.Literals.POISSON_DISTRIBUTION__P, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_PoissonDistribution_p_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_p_feature", "_UI_PoissonDistribution_type"),
+				 GuesstimatePackage.Literals.POISSON_DISTRIBUTION__P,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,13 +89,19 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	 * @generated
 	 */
 	protected void addEpsilonPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_PoissonDistribution_epsilon_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_epsilon_feature",
-						"_UI_PoissonDistribution_type"),
-				GuesstimatePackage.Literals.POISSON_DISTRIBUTION__EPSILON, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_PoissonDistribution_epsilon_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_epsilon_feature", "_UI_PoissonDistribution_type"),
+				 GuesstimatePackage.Literals.POISSON_DISTRIBUTION__EPSILON,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -121,7 +133,7 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	 */
 	@Override
 	public String getText(Object object) {
-		PoissonDistribution poissonDistribution = (PoissonDistribution) object;
+		PoissonDistribution poissonDistribution = (PoissonDistribution)object;
 		return getString("_UI_PoissonDistribution_type") + " " + poissonDistribution.getP();
 	}
 
@@ -137,10 +149,10 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(PoissonDistribution.class)) {
-		case GuesstimatePackage.POISSON_DISTRIBUTION__P:
-		case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.POISSON_DISTRIBUTION__P:
+			case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

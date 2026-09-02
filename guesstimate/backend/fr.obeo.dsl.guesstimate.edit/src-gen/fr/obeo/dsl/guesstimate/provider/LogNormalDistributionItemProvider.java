@@ -67,13 +67,19 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	 * @generated
 	 */
 	protected void addScalePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_LogNormalDistribution_scale_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_scale_feature",
-						"_UI_LogNormalDistribution_type"),
-				GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__SCALE, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_LogNormalDistribution_scale_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_scale_feature", "_UI_LogNormalDistribution_type"),
+				 GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__SCALE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,20 +89,26 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	 * @generated
 	 */
 	protected void addShapePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add(createItemPropertyDescriptor(
-				((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(), getResourceLocator(),
-				getString("_UI_LogNormalDistribution_shape_feature"),
-				getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_shape_feature",
-						"_UI_LogNormalDistribution_type"),
-				GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__SHAPE, true, false, false,
-				ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_LogNormalDistribution_shape_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_shape_feature", "_UI_LogNormalDistribution_type"),
+				 GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__SHAPE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
 	 * This returns LogNormalDistribution.svg.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -121,7 +133,7 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	 */
 	@Override
 	public String getText(Object object) {
-		LogNormalDistribution logNormalDistribution = (LogNormalDistribution) object;
+		LogNormalDistribution logNormalDistribution = (LogNormalDistribution)object;
 		return getString("_UI_LogNormalDistribution_type") + " " + logNormalDistribution.getScale();
 	}
 
@@ -137,10 +149,10 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(LogNormalDistribution.class)) {
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-		case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

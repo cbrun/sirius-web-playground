@@ -70,6 +70,7 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMean() {
 		return mean;
 	}
@@ -79,12 +80,12 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMean(double newMean) {
 		double oldMean = mean;
 		mean = newMean;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN,
-					oldMean, mean));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN, oldMean, mean));
 	}
 
 	/**
@@ -95,8 +96,8 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
-			return getMean();
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
+				return getMean();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -109,9 +110,9 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
-			setMean((Double) newValue);
-			return;
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
+				setMean((Double)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -124,9 +125,9 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
-			setMean(MEAN_EDEFAULT);
-			return;
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
+				setMean(MEAN_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -139,8 +140,8 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
-			return mean != MEAN_EDEFAULT;
+			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION__MEAN:
+				return mean != MEAN_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -152,8 +153,7 @@ public class ExponentialDistributionImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (mean: ");

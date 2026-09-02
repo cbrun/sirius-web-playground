@@ -67,13 +67,19 @@ public class BetaDistributionItemProvider extends ItemProviderAdapter implements
 	 * @generated
 	 */
 	protected void addAlphaPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_BetaDistribution_alpha_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_BetaDistribution_alpha_feature",
-								"_UI_BetaDistribution_type"),
-						GuesstimatePackage.Literals.BETA_DISTRIBUTION__ALPHA, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_BetaDistribution_alpha_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_BetaDistribution_alpha_feature", "_UI_BetaDistribution_type"),
+				 GuesstimatePackage.Literals.BETA_DISTRIBUTION__ALPHA,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -83,13 +89,19 @@ public class BetaDistributionItemProvider extends ItemProviderAdapter implements
 	 * @generated
 	 */
 	protected void addBetaPropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_BetaDistribution_beta_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_BetaDistribution_beta_feature",
-								"_UI_BetaDistribution_type"),
-						GuesstimatePackage.Literals.BETA_DISTRIBUTION__BETA, true, false, false,
-						ItemPropertyDescriptor.REAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_BetaDistribution_beta_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_BetaDistribution_beta_feature", "_UI_BetaDistribution_type"),
+				 GuesstimatePackage.Literals.BETA_DISTRIBUTION__BETA,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -121,7 +133,7 @@ public class BetaDistributionItemProvider extends ItemProviderAdapter implements
 	 */
 	@Override
 	public String getText(Object object) {
-		BetaDistribution betaDistribution = (BetaDistribution) object;
+		BetaDistribution betaDistribution = (BetaDistribution)object;
 		return getString("_UI_BetaDistribution_type") + " " + betaDistribution.getAlpha();
 	}
 
@@ -137,10 +149,10 @@ public class BetaDistributionItemProvider extends ItemProviderAdapter implements
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(BetaDistribution.class)) {
-		case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
-		case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
+			case GuesstimatePackage.BETA_DISTRIBUTION__ALPHA:
+			case GuesstimatePackage.BETA_DISTRIBUTION__BETA:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -165,7 +177,7 @@ public class BetaDistributionItemProvider extends ItemProviderAdapter implements
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }

@@ -245,8 +245,19 @@ public enum VariableType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private static final VariableType[] VALUES_ARRAY = new VariableType[] { COMPUTED, FORMULA, NORMAL, UNIFORM,
-			LOGNORMAL, BETA, TRIANGULAR, BINOMIAL, POISSON, EXPONENTIAL, GAMMA, };
+	private static final VariableType[] VALUES_ARRAY = new VariableType[] {
+			COMPUTED,
+			FORMULA,
+			NORMAL,
+			UNIFORM,
+			LOGNORMAL,
+			BETA,
+			TRIANGULAR,
+			BINOMIAL,
+			POISSON,
+			EXPONENTIAL,
+			GAMMA,
+		};
 
 	/**
 	 * A public read-only list of all the '<em><b>Variable Type</b></em>' enumerators.
@@ -302,28 +313,17 @@ public enum VariableType implements Enumerator {
 	 */
 	public static VariableType get(int value) {
 		switch (value) {
-		case COMPUTED_VALUE:
-			return COMPUTED;
-		case FORMULA_VALUE:
-			return FORMULA;
-		case NORMAL_VALUE:
-			return NORMAL;
-		case UNIFORM_VALUE:
-			return UNIFORM;
-		case LOGNORMAL_VALUE:
-			return LOGNORMAL;
-		case BETA_VALUE:
-			return BETA;
-		case TRIANGULAR_VALUE:
-			return TRIANGULAR;
-		case BINOMIAL_VALUE:
-			return BINOMIAL;
-		case POISSON_VALUE:
-			return POISSON;
-		case EXPONENTIAL_VALUE:
-			return EXPONENTIAL;
-		case GAMMA_VALUE:
-			return GAMMA;
+			case COMPUTED_VALUE: return COMPUTED;
+			case FORMULA_VALUE: return FORMULA;
+			case NORMAL_VALUE: return NORMAL;
+			case UNIFORM_VALUE: return UNIFORM;
+			case LOGNORMAL_VALUE: return LOGNORMAL;
+			case BETA_VALUE: return BETA;
+			case TRIANGULAR_VALUE: return TRIANGULAR;
+			case BINOMIAL_VALUE: return BINOMIAL;
+			case POISSON_VALUE: return POISSON;
+			case EXPONENTIAL_VALUE: return EXPONENTIAL;
+			case GAMMA_VALUE: return GAMMA;
 		}
 		return null;
 	}
@@ -366,8 +366,9 @@ public enum VariableType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getValue() {
-		return value;
+	  return value;
 	}
 
 	/**
@@ -375,8 +376,9 @@ public enum VariableType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
-		return name;
+	  return name;
 	}
 
 	/**
@@ -384,8 +386,9 @@ public enum VariableType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLiteral() {
-		return literal;
+	  return literal;
 	}
 
 	/**

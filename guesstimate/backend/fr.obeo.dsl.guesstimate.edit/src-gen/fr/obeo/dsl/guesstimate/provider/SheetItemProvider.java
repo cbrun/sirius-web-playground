@@ -67,13 +67,19 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	 * @generated
 	 */
 	protected void addSampleSizePropertyDescriptor(Object object) {
-		itemPropertyDescriptors
-				.add(createItemPropertyDescriptor(((ComposeableAdapterFactory) adapterFactory).getRootAdapterFactory(),
-						getResourceLocator(), getString("_UI_Sheet_sampleSize_feature"),
-						getString("_UI_PropertyDescriptor_description", "_UI_Sheet_sampleSize_feature",
-								"_UI_Sheet_type"),
-						GuesstimatePackage.Literals.SHEET__SAMPLE_SIZE, true, false, false,
-						ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE, null, null));
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sheet_sampleSize_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sheet_sampleSize_feature", "_UI_Sheet_type"),
+				 GuesstimatePackage.Literals.SHEET__SAMPLE_SIZE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -107,7 +113,7 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	/**
 	 * This returns Sheet.gif.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * @not-generated
+	 * @generated NOT
 	 */
 	@Override
 	public Object getImage(Object object) {
@@ -131,7 +137,7 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	 */
 	@Override
 	public String getText(Object object) {
-		Sheet sheet = (Sheet) object;
+		Sheet sheet = (Sheet)object;
 		return getString("_UI_Sheet_type") + " " + sheet.getSampleSize();
 	}
 
@@ -146,12 +152,12 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Sheet.class)) {
-		case GuesstimatePackage.SHEET__SAMPLE_SIZE:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-			return;
-		case GuesstimatePackage.SHEET__VARIABLES:
-			fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
-			return;
+			case GuesstimatePackage.SHEET__SAMPLE_SIZE:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
+			case GuesstimatePackage.SHEET__VARIABLES:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
+				return;
 		}
 		super.notifyChanged(notification);
 	}
@@ -167,8 +173,10 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	protected void collectNewChildDescriptors(Collection<Object> newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
 
-		newChildDescriptors.add(createChildParameter(GuesstimatePackage.Literals.SHEET__VARIABLES,
-				GuesstimateFactory.eINSTANCE.createVariable()));
+		newChildDescriptors.add
+			(createChildParameter
+				(GuesstimatePackage.Literals.SHEET__VARIABLES,
+				 GuesstimateFactory.eINSTANCE.createVariable()));
 	}
 
 	/**
@@ -179,7 +187,7 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender) adapterFactory).getResourceLocator();
+		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
 	}
 
 }
