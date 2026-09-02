@@ -7,10 +7,10 @@
     <groupId>fr.obeo.dsl.guesstimate</groupId>
     <artifactId>fr.obeo.dsl.guesstimate.releng</artifactId>
     <version>0.0.7-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <relativePath>../fr.obeo.dsl.guesstimate.releng/pom.xml</relativePath>
   </parent>
 
-  <artifactId>fr.obeo.dsl.guesstimate.codegen</artifactId>
+  <artifactId>fr.obeo.dsl.guesstimate.releng.codegen</artifactId>
 
   <dependencies>
     <dependency>
@@ -74,7 +74,7 @@
           <mainClass>fr.obeo.dsl.guesstimate.codegen.GuesstimateEMFGenerator</mainClass>
           <cleanupDaemonThreads>false</cleanupDaemonThreads>
           <arguments>
-            <argument>${project.basedir}/../..</argument>
+            <argument>${project.basedir}/..</argument>
           </arguments>
         </configuration>
       </plugin>

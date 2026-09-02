@@ -3,7 +3,7 @@
 Run the generator explicitly from the repository root:
 
 ```text
-mvn process-classes -f guesstimate/backend/fr.obeo.dsl.guesstimate.releng/codegen/pom.xml
+mvn process-classes -f guesstimate/backend/fr.obeo.dsl.guesstimate.releng.codegen/pom.xml
 ```
 
 The command validates `guesstimate.genmodel`, regenerates the model and edit
