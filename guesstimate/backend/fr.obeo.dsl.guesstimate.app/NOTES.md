@@ -39,7 +39,8 @@ Q: what is that variable name again for the new string value ?
 ####  How to write typesafe calls to Java service from AQL queries and avoid most java Strings when building the model.
  
 
-The validation rules and how it translate into the UI.
+### The validation rules and how it translate into the UI.
+
 ARI :  https://github.com/eclipse-sirius/sirius-web/commit/0129cae68d866e8576b443fcf5713d2386c601ba
 validation is disabled by default, need to change the application.properties ??: 
 
@@ -71,54 +72,55 @@ or
 		</dependency> 
 ??
 
-Details View:
- - Form editor with charts
+### Details View Form editor with charts
+to display the variables distributions.
+ - the charts in the form editor.
+
+### Details View : EEnum
  - EEnum are kinda painful to use in queries and I'm not sure I'm doing it right. => when you want to create option lists or option groups.
- - edit properties of children objects.
- - How to customize the property views
- - how to prevent some sections for some of my model elements
+ 
+### Details View edit properties of children objects as if it was the current object
 
-How to add buttons in property views depending on the model state.
 
-How to leverage the metamodel documentation into the tool.
+### Details View - How to customize the property views
+
+### Details View   how to prevent some sections for some of my model elements
+
+### Details View - How to add buttons in property views depending on the model state.
+
+### Details View - How to leverage the metamodel documentation into the tool.
  - within the property views.
 
-How to add Java services and use them into the model description.
+### How to add Java services and use them into the model description.
 
 
-How to design and implement a "smart" edit:
+### How to design and implement a "smart" direct edit:
  - we have variables, which have names, a description, and a definition.
  I want to be able to edit each one independently
  "A" => no space, so it must be the variable name
  " the something thing" => spaces, so it must be the description
  " : from 10 to 100" => have ':' so it must be the definition.
 
-How to define the graphical modeler decription through Java API.
+## How to define the graphical modeler decription through Java API.
 
-How to integrate a mini textual language into the model.
+### How to integrate a mini textual language into the model.
  - the use of petitparser for that
  - the use of Adapters
 
-How to display the variables distributions.
- - the charts in the form editor.
  
-How to use conditional styles to help the user
+### How to use conditional styles to help the user
  - grey for unused variables (and use of einverse & co)
  - change style based on validation status (!?)
  
-How to work on ease label editing
- - smarter service with syntax choices
  
- 
-How to improve the style:
+### How to improve the style:
  - consistent colors
  - alignment
  - contrast
  - repetition (aka size)
  
  
- 
-How did I implement the behavior/simulation coordination.
+### How did I implement the behavior/simulation coordination.
  - how to prevent/manage cycles
  - how to update series which are depending on an updated one.
  
