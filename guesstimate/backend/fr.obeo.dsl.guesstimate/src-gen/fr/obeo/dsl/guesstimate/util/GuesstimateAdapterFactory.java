@@ -71,8 +71,8 @@ public class GuesstimateAdapterFactory extends AdapterFactoryImpl {
 				return createVariableAdapter();
 			}
 			@Override
-			public Adapter caseDistributionSetting(DistributionSetting object) {
-				return createDistributionSettingAdapter();
+			public Adapter caseVariableSettings(VariableSettings object) {
+				return createVariableSettingsAdapter();
 			}
 			@Override
 			public Adapter caseNormalDistribution(NormalDistribution object) {
@@ -152,16 +152,16 @@ public class GuesstimateAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link fr.obeo.dsl.guesstimate.DistributionSetting <em>Distribution Setting</em>}'.
+	 * Creates a new adapter for an object of class '{@link fr.obeo.dsl.guesstimate.VariableSettings <em>Variable Settings</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see fr.obeo.dsl.guesstimate.DistributionSetting
+	 * @see fr.obeo.dsl.guesstimate.VariableSettings
 	 * @generated
 	 */
-	public Adapter createDistributionSettingAdapter() {
+	public Adapter createVariableSettingsAdapter() {
 		return null;
 	}
 

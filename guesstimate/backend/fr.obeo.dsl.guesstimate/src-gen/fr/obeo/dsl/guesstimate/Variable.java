@@ -17,11 +17,11 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link fr.obeo.dsl.guesstimate.Variable#getDocumentation <em>Documentation</em>}</li>
  *   <li>{@link fr.obeo.dsl.guesstimate.Variable#getDefinition <em>Definition</em>}</li>
  *   <li>{@link fr.obeo.dsl.guesstimate.Variable#getType <em>Type</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.Variable#getDistribution <em>Distribution</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.Variable#getSettings <em>Settings</em>}</li>
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getVariable()
- * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='settingsAreValid nameIsValid'"
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='nameIsValid'"
  * @generated
  */
 public interface Variable extends EObject {
@@ -102,7 +102,6 @@ public interface Variable extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Type</b></em>' attribute.
-	 * The default value is <code>"normal"</code>.
 	 * The literals are from the enumeration {@link fr.obeo.dsl.guesstimate.VariableType}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -110,7 +109,7 @@ public interface Variable extends EObject {
 	 * @see fr.obeo.dsl.guesstimate.VariableType
 	 * @see #setType(VariableType)
 	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getVariable_Type()
-	 * @model default="normal"
+	 * @model required="true" transient="true" volatile="true" derived="true"
 	 * @generated
 	 */
 	VariableType getType();
@@ -127,25 +126,25 @@ public interface Variable extends EObject {
 	void setType(VariableType value);
 
 	/**
-	 * Returns the value of the '<em><b>Distribution</b></em>' containment reference.
+	 * Returns the value of the '<em><b>Settings</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Distribution</em>' containment reference.
-	 * @see #setDistribution(DistributionSetting)
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getVariable_Distribution()
-	 * @model containment="true"
+	 * @return the value of the '<em>Settings</em>' containment reference.
+	 * @see #setSettings(VariableSettings)
+	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getVariable_Settings()
+	 * @model containment="true" required="true"
 	 * @generated
 	 */
-	DistributionSetting getDistribution();
+	VariableSettings getSettings();
 
 	/**
-	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.Variable#getDistribution <em>Distribution</em>}' containment reference.
+	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.Variable#getSettings <em>Settings</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Distribution</em>' containment reference.
-	 * @see #getDistribution()
+	 * @param value the new value of the '<em>Settings</em>' containment reference.
+	 * @see #getSettings()
 	 * @generated
 	 */
-	void setDistribution(DistributionSetting value);
+	void setSettings(VariableSettings value);
 
 } // Variable

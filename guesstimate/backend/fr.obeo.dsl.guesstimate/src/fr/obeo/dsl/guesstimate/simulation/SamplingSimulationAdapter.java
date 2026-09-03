@@ -20,18 +20,18 @@ import com.google.common.collect.Iterators;
 import fr.obeo.dsl.guesstimate.BetaDistribution;
 import fr.obeo.dsl.guesstimate.BinomialDistribution;
 import fr.obeo.dsl.guesstimate.ExponentialDistribution;
+import fr.obeo.dsl.guesstimate.FormulaSetting;
 import fr.obeo.dsl.guesstimate.FormulaVariableComputer;
 import fr.obeo.dsl.guesstimate.GammaDistribution;
 import fr.obeo.dsl.guesstimate.GuesstimatePackage;
 import fr.obeo.dsl.guesstimate.GuesstimateQueries;
 import fr.obeo.dsl.guesstimate.LogNormalDistribution;
 import fr.obeo.dsl.guesstimate.NormalDistribution;
-import fr.obeo.dsl.guesstimate.OperationServices;
 import fr.obeo.dsl.guesstimate.PoissonDistribution;
 import fr.obeo.dsl.guesstimate.Sheet;
 import fr.obeo.dsl.guesstimate.UniformDistribution;
 import fr.obeo.dsl.guesstimate.Variable;
-import fr.obeo.dsl.guesstimate.VariableType;
+import fr.obeo.dsl.guesstimate.VariableServices;
 import fr.obeo.dsl.guesstimate.util.GuesstimateSwitch;
 import fr.obeo.dsl.guesstimate.util.GuesstimateValidator;
 
@@ -51,9 +51,9 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 
 	@Override
 	public void notifyChanged(Notification msg) {
-		if (!msg.isTouch() && msg.getFeature() == GuesstimatePackage.eINSTANCE.getVariable_Distribution()) {
+		if (!msg.isTouch() && msg.getFeature() == GuesstimatePackage.eINSTANCE.getVariable_Settings()) {
 			resetApacheStateFromSettings();
-		} else {
+		} else if (msg.getFeature() != GuesstimatePackage.eINSTANCE.getVariable_Type()) {
 			resample();
 		}
 	}
@@ -72,7 +72,7 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 			} else if (distributionSimulator instanceof IntegerDistribution) {
 				sample = ((IntegerDistribution) distributionSimulator).sample(parentSheet.getSampleSize());
 			} else if (distributionSimulator instanceof FormulaVariableComputer) {
-				OperationServices service = new OperationServices();
+				VariableServices service = new VariableServices();
 				var available = service.collectAccessibleVariables(parentSheet);
 				((FormulaVariableComputer) distributionSimulator).compute(parentSheet, available, (Variable) target);
 			}
@@ -142,14 +142,16 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 				return apacheDist;
 			}
 
+			@Override
+			public Object caseFormulaSetting(FormulaSetting object) {
+				return new FormulaVariableComputer();
+			}
+
 		};
-		if (d.getType() == VariableType.FORMULA) {
-			Object formulaImplementation = new FormulaVariableComputer();
-			this.setDistributionSimulator(formulaImplementation);
-		} else if (d.getDistribution() != null
-				&& GuesstimateValidator.INSTANCE.validate(d.getDistribution(), null, new HashMap<>())) {
+		if (d.getSettings() != null
+				&& GuesstimateValidator.INSTANCE.validate(d.getSettings(), null, new HashMap<>())) {
 			try {
-				Object apacheImplementation = dispatcherForApacheDistributions.doSwitch(d.getDistribution());
+				Object apacheImplementation = dispatcherForApacheDistributions.doSwitch(d.getSettings());
 				this.setDistributionSimulator(apacheImplementation);
 			} catch (MathIllegalArgumentException exception) {
 				this.logger.atDebug()

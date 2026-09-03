@@ -23,7 +23,7 @@ package fr.obeo.dsl.guesstimate;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='minMaxAreConsistent'"
  * @generated
  */
-public interface UniformDistribution extends DistributionSetting {
+public interface UniformDistribution extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Min</b></em>' attribute.
 	 * <!-- begin-user-doc -->

@@ -23,7 +23,7 @@ public class GuesstimateUtils {
 		Stopwatch sampling = Stopwatch.createStarted();
 
 		for (final Variable d : Iterables.filter(s.getVariables(), Variable.class)) {
-			if (d.getDistribution() != null) {
+			if (d.getSettings() != null) {
 				SamplingSimulationAdapter apacheBridge = SamplingSimulationAdapter.getOrCreate(d);
 				apacheBridge.resetApacheStateFromSettings();
 			}

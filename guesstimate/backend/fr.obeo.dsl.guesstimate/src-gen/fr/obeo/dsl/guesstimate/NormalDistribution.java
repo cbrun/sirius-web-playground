@@ -23,7 +23,7 @@ package fr.obeo.dsl.guesstimate;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='parametersAreValid'"
  * @generated
  */
-public interface NormalDistribution extends DistributionSetting {
+public interface NormalDistribution extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Mean</b></em>' attribute.
 	 * <!-- begin-user-doc -->

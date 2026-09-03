@@ -23,7 +23,7 @@ package fr.obeo.dsl.guesstimate;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='parametersAreValid'"
  * @generated
  */
-public interface GammaDistribution extends DistributionSetting {
+public interface GammaDistribution extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Shape</b></em>' attribute.
 	 * The default value is <code>"2"</code>.

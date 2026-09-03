@@ -41,6 +41,7 @@ public class DistributionValidationTests {
                 this.factory.createBetaDistribution(),
                 this.factory.createTriangularDistribution(),
                 this.factory.createBinomialDistribution(),
+                this.factory.createFormulaSetting(),
                 this.factory.createPoissonDistribution(),
                 this.factory.createExponentialDistribution(),
                 this.factory.createGammaDistribution(),
@@ -112,10 +113,9 @@ public class DistributionValidationTests {
     public void givenExistingSampleWhenParametersBecomeInvalidThenStaleSampleIsCleared() {
         Sheet sheet = this.factory.createSheet();
         sheet.setSampleSize(4);
-        Variable variable = this.factory.createVariable();
-        variable.setType(VariableType.BETA);
-        BetaDistribution beta = this.factory.createBetaDistribution();
-        variable.setDistribution(beta);
+		Variable variable = this.factory.createVariable();
+		variable.setType(VariableType.BETA);
+		BetaDistribution beta = (BetaDistribution) variable.getSettings();
         sheet.getVariables().add(variable);
 
         SamplingSimulationAdapter adapter = SamplingSimulationAdapter.getOrCreate(variable);
@@ -132,9 +132,8 @@ public class DistributionValidationTests {
     public void givenExistingSampleWhenSampleSizeChangesThenSamplingSafelyRecovers() {
         Sheet sheet = this.factory.createSheet();
         sheet.setSampleSize(4);
-        Variable variable = this.factory.createVariable();
-        variable.setType(VariableType.NORMAL);
-        variable.setDistribution(this.factory.createNormalDistribution());
+		Variable variable = this.factory.createVariable();
+		variable.setType(VariableType.NORMAL);
         sheet.getVariables().add(variable);
 
         SamplingSimulationAdapter adapter = SamplingSimulationAdapter.getOrCreate(variable);

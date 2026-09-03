@@ -18,8 +18,8 @@ public class FormulaVariableComputer {
 	private List<String> errors = new ArrayList<>();
 
 	public void compute(Sheet s, Map<String, Variable> variables, Variable var) {
-		if (var.getDistribution() instanceof FormulaSetting) {
-			FormulaSetting data = (FormulaSetting) var.getDistribution();
+		if (var.getSettings() instanceof FormulaSetting) {
+			FormulaSetting data = (FormulaSetting) var.getSettings();
 			System.out.println("Computing  op " + data.getFormula() + " " + var.getName());
 
 			if (data.getFormula() != null) {

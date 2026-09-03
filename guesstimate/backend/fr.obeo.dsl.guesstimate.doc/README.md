@@ -51,3 +51,5 @@ Open <http://localhost:8080>. PostgreSQL is exposed on port 5433 for local devel
 From `backend/fr.obeo.dsl.guesstimate.releng`, start only the database with `docker compose up database`, then run `GuesstimateApplication` with the `dev` Spring profile.
 
 The modeler demonstrates programmatic diagram and details-view descriptions, AQL Java services, EMF validation, conditional styles, formula parsing, and probability-distribution sampling.
+
+`Variable.settings` is the persistent source of truth for a variable's kind and parameters. `Variable.type` is a derived, writable convenience feature: selecting another type replaces the settings object with the matching subtype and its defaults, intentionally discarding the previous parameters.

@@ -19,15 +19,6 @@ import org.eclipse.emf.common.util.Enumerator;
  */
 public enum VariableType implements Enumerator {
 	/**
-	 * The '<em><b>Computed</b></em>' literal object.
-	 * <!-- begin-user-doc -->
-	* <!-- end-user-doc -->
-	 * @see #COMPUTED_VALUE
-	 * @generated
-	 * @ordered
-	 */
-	COMPUTED(0, "computed", "computed"),
-	/**
 	 * The '<em><b>Formula</b></em>' literal object.
 	 * <!-- begin-user-doc -->
 	* <!-- end-user-doc -->
@@ -117,17 +108,6 @@ public enum VariableType implements Enumerator {
 	 * @ordered
 	 */
 	GAMMA(18, "gamma", "gamma");
-
-	/**
-	 * The '<em><b>Computed</b></em>' literal value.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #COMPUTED
-	 * @model name="computed"
-	 * @generated
-	 * @ordered
-	 */
-	public static final int COMPUTED_VALUE = 0;
 
 	/**
 	 * The '<em><b>Formula</b></em>' literal value.
@@ -246,7 +226,6 @@ public enum VariableType implements Enumerator {
 	 * @generated
 	 */
 	private static final VariableType[] VALUES_ARRAY = new VariableType[] {
-			COMPUTED,
 			FORMULA,
 			NORMAL,
 			UNIFORM,
@@ -313,7 +292,6 @@ public enum VariableType implements Enumerator {
 	 */
 	public static VariableType get(int value) {
 		switch (value) {
-			case COMPUTED_VALUE: return COMPUTED;
 			case FORMULA_VALUE: return FORMULA;
 			case NORMAL_VALUE: return NORMAL;
 			case UNIFORM_VALUE: return UNIFORM;

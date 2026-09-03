@@ -195,20 +195,16 @@ public class GuesstimateViews {
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
-                        f.newFormElementIf()
-                            .predicateExpression("aql:self.type <> guesstimate::VariableType::computed")
-                            .children(f.newRadioDescription()
-                                    .labelExpression("Type of variable")
-                                    .candidateLabelExpression("aql:candidate.name")
-                                    .candidatesExpression(ServiceMethod.of0(VariableServices::getTypeEnumCandidates).aqlSelf())
-                                    .valueExpression(ServiceMethod.of0(VariableServices::getTypeEnumValue).aqlSelf())
-                                    .body(v.newSetValue()
-                                            .featureName("type")
-                                            .valueExpression(ServiceMethod.of1(VariableServices::setTypeEnumValue).aqlSelf("newValue"))
-                                            .build())
-                                    .build())
-                            .build()
-                       )
+                        f.newRadioDescription()
+                                .labelExpression("Type of variable")
+                                .candidateLabelExpression("aql:candidate.name")
+                                .candidatesExpression(ServiceMethod.of0(VariableServices::getTypeEnumCandidates).aqlSelf())
+                                .valueExpression(ServiceMethod.of0(VariableServices::getTypeEnumValue).aqlSelf())
+                                .body(v.newSetValue()
+                                        .featureName("type")
+                                        .valueExpression(ServiceMethod.of1(VariableServices::setTypeEnumValue).aqlSelf("newValue"))
+                                        .build())
+                                .build())
 
                 .build();
 
@@ -267,16 +263,16 @@ public class GuesstimateViews {
 
 
         var childrenFeaturesEditors = new ArrayList<FormElementDescription>();
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getBetaDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getBinomialDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getExponentialDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getGammaDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getLogNormalDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getNormalDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getPoissonDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getTriangularDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getUniformDistribution(), "distribution"));
-        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getFormulaSetting(), "distribution"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getBetaDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getBinomialDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getExponentialDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getGammaDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getLogNormalDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getNormalDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getPoissonDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getTriangularDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getUniformDistribution(), "settings"));
+        childrenFeaturesEditors.add(buildFeatureEditorsForChildBasedOnType(v, f, GuesstimatePackage.eINSTANCE.getFormulaSetting(), "settings"));
 
 
         GroupDescription settings = f.newGroupDescription()
@@ -319,7 +315,7 @@ public class GuesstimateViews {
 	private FormElementDescription buildFeatureEditorsForChildBasedOnType(ViewBuilders v, FormBuilders f,
 			EClass childType, String childReferenceName) {
 		FormElementIf enclosingIf = f.newFormElementIf()
-				.predicateExpression("aql:self.distribution.oclIsKindOf(" + typeName(childType) + ")").build();
+				.predicateExpression("aql:self.settings.oclIsKindOf(" + typeName(childType) + ")").build();
 		for (EAttribute childParameter : childType.getEAllAttributes()) {
 
 			if (childParameter == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
@@ -466,7 +462,11 @@ public class GuesstimateViews {
                                                                 .featureName("name")
                                                                 .valueExpression(ServiceMethod.of0(Services::getDefaultName)
                                                                         .aql("created.eContainer(" + this.typeName(domain.getSheet()) + ")"))
-                                                                .build())
+                                                                .build(),
+                                                                v.newSetValue()
+                                                                        .featureName("type")
+                                                                        .valueExpression("aql:guesstimate::VariableType::normal")
+                                                                        .build())
                                                         .build())
                                 				.build()
 

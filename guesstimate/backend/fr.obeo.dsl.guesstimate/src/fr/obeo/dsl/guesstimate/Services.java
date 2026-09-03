@@ -9,8 +9,6 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.ecore.EObject;
 
-import com.google.common.base.Strings;
-
 import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
 
 /**
@@ -42,11 +40,6 @@ public class Services {
 	}
 
 	public EObject smartEdit(EObject cur, String input) {
-		if (cur instanceof Operation) {
-			Operation o = (Operation) cur;
-			o.setFormula(Strings.emptyToNull(input));
-		}
-
 		String regex = "(?i)\\bfrom\\b\\s*(\\d+(\\.\\d+)?)\\s*\\bto\\b\\s*(\\d+(\\.\\d+)?)";
 
 		if (cur instanceof Variable) {
@@ -57,8 +50,8 @@ public class Services {
 				input = input.substring("=".length());
 				// Check if the input is a number (integer or float)
 				if (input.matches("^\\d+(\\.\\d+)?$")) {
-					service.setTypeOfDistribution(var, VariableType.FORMULA);
-					service.setFormula((FormulaSetting) var.getDistribution(), input);
+					var.setType(VariableType.FORMULA);
+					service.setFormula((FormulaSetting) var.getSettings(), input);
 				}
 				// Check if the input is a confidence interval (e.g., "40 to 70" or "from 50 to
 				// 60")
@@ -71,9 +64,9 @@ public class Services {
 					double max = Double.parseDouble(parts[2]);
 					double mean = (max + min) / 2;
 					double stdDev = (max - mean) / 1.645;
-					service.setTypeOfDistribution(var, VariableType.NORMAL);
-					((NormalDistribution) var.getDistribution()).setMean(mean);
-					((NormalDistribution) var.getDistribution()).setStandardDeviation(stdDev);
+					var.setType(VariableType.NORMAL);
+					((NormalDistribution) var.getSettings()).setMean(mean);
+					((NormalDistribution) var.getSettings()).setStandardDeviation(stdDev);
 
 				}
 				// Check if the input is a proportion (e.g., "1 of 5" or "1 over 5")
@@ -81,14 +74,14 @@ public class Services {
 					String[] parts = input.split("\\s*(of|out of|over)\\s*");
 					double hits = Double.parseDouble(parts[0]);
 					double total = Double.parseDouble(parts[1]);
-					service.setTypeOfDistribution(var, VariableType.BETA);
+					var.setType(VariableType.BETA);
 					// simulate(`beta(${2 * hits},${2 * (total - hits)})`, [], n);
-					((BetaDistribution) var.getDistribution()).setAlpha(2 * hits);
-					((BetaDistribution) var.getDistribution()).setBeta(2 * (total - hits));
+					((BetaDistribution) var.getSettings()).setAlpha(2 * hits);
+					((BetaDistribution) var.getSettings()).setBeta(2 * (total - hits));
 
 				} else {
-					service.setTypeOfDistribution(var, VariableType.FORMULA);
-					((FormulaSetting) var.getDistribution()).setFormula(input);
+					var.setType(VariableType.FORMULA);
+					((FormulaSetting) var.getSettings()).setFormula(input);
 
 				}
 			}

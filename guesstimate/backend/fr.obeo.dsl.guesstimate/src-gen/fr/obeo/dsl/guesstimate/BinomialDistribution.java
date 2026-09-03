@@ -23,7 +23,7 @@ package fr.obeo.dsl.guesstimate;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='trialsAreValid'"
  * @generated
  */
-public interface BinomialDistribution extends DistributionSetting {
+public interface BinomialDistribution extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Trials</b></em>' attribute.
 	 * The default value is <code>"10"</code>.

@@ -12,15 +12,12 @@
  *******************************************************************************/
 package fr.obeo.dsl.guesstimate.configuration;
 
-import fr.obeo.dsl.guesstimate.DistributionSetting;
 import fr.obeo.dsl.guesstimate.FormulaSetting;
 import fr.obeo.dsl.guesstimate.GuesstimatePackage;
-import fr.obeo.dsl.guesstimate.GuesstimateUtils;
-import fr.obeo.dsl.guesstimate.Operation;
 import fr.obeo.dsl.guesstimate.Sheet;
 import fr.obeo.dsl.guesstimate.Variable;
 import fr.obeo.dsl.guesstimate.VariableServices;
-import fr.obeo.dsl.guesstimate.VariableType;
+import fr.obeo.dsl.guesstimate.VariableSettings;
 import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -69,10 +66,6 @@ class GuesstimateUpdateModelAdapter extends EContentAdapter {
          */
         if (!notification.isTouch()) {
 
-            if (notification.getFeature() == GuesstimatePackage.eINSTANCE.getVariable_Type() && notification.getNotifier() instanceof Variable) {
-                // this is most likely temporary, as I would like to call this behavior directly from the property view.
-                new VariableServices().setTypeOfDistribution((Variable) notification.getNotifier(), (VariableType) notification.getNewValue());
-            }
             // if (notification.getNotifier() instanceof EObject) {
             // objectsToValidat.add((EObject) notification.getNotifier());
             // }
@@ -85,7 +78,7 @@ class GuesstimateUpdateModelAdapter extends EContentAdapter {
             // System.out.println("Validation ERROR : " + diag.getMessage() + " " + diag.getSource());
             // }
             // }
-            if (notification.getNotifier() instanceof DistributionSetting) {
+            if (notification.getNotifier() instanceof VariableSettings) {
                 EObject container = ((EObject) notification.getNotifier()).eContainer();
                 if (notification.getNotifier() instanceof FormulaSetting && notification.getFeature() == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
                     new VariableServices().setFormula((FormulaSetting) notification.getNotifier(), (String) notification.getNewValue());
@@ -98,21 +91,6 @@ class GuesstimateUpdateModelAdapter extends EContentAdapter {
                 ((Sheet) notification.getNotifier()).resample();
             }
 
-            Sheet sheetToUpdate = null;
-            if (notification.getNotifier() instanceof Variable) {
-                Variable changed = (Variable) notification.getNotifier();
-                sheetToUpdate = this.getContainingSheet(changed);
-            } else if (notification.getNotifier() instanceof Operation) {
-                Operation changed = (Operation) notification.getNotifier();
-                sheetToUpdate = this.getContainingSheet(changed);
-                new GuesstimateUtils().completeModel(sheetToUpdate);
-            } else if (notification.getNotifier() instanceof Sheet) {
-                sheetToUpdate = (Sheet) notification.getNotifier();
-            }
-            if (sheetToUpdate != null) {
-                // new GuesstimateUtils().completeModel(sheetToUpdate);
-            }
-
         }
 
     }
@@ -123,17 +101,5 @@ class GuesstimateUpdateModelAdapter extends EContentAdapter {
         if (notifier instanceof Sheet) {
             ((Sheet) notifier).resample();
         }
-    }
-
-    /**
-     * @param changed
-     * @return
-     */
-    private Sheet getContainingSheet(EObject changed) {
-        EObject cur = changed.eContainer();
-        while (!(cur instanceof Sheet)) {
-            cur = cur.eContainer();
-        }
-        return (Sheet) cur;
     }
 }

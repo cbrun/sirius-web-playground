@@ -13,7 +13,6 @@
   <genPackages prefix="Guesstimate" basePackage="fr.obeo.dsl" disposableProviderFactory="true"
       ecorePackage="guesstimate.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="guesstimate.ecore#//VariableType">
-      <genEnumLiterals ecoreEnumLiteral="guesstimate.ecore#//VariableType/computed"/>
       <genEnumLiterals ecoreEnumLiteral="guesstimate.ecore#//VariableType/formula"/>
       <genEnumLiterals ecoreEnumLiteral="guesstimate.ecore#//VariableType/normal"/>
       <genEnumLiterals ecoreEnumLiteral="guesstimate.ecore#//VariableType/uniform"/>
@@ -31,9 +30,9 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//Variable/documentation"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//Variable/definition"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//Variable/type"/>
-      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EReference guesstimate.ecore#//Variable/distribution"/>
+      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EReference guesstimate.ecore#//Variable/settings"/>
     </genClasses>
-    <genClasses image="false" ecoreClass="guesstimate.ecore#//DistributionSetting"/>
+    <genClasses image="false" ecoreClass="guesstimate.ecore#//VariableSettings"/>
     <genClasses ecoreClass="guesstimate.ecore#//NormalDistribution">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//NormalDistribution/mean"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//NormalDistribution/standardDeviation"/>

@@ -4,11 +4,11 @@ package fr.obeo.dsl.guesstimate.impl;
 
 import fr.obeo.dsl.guesstimate.BetaDistribution;
 import fr.obeo.dsl.guesstimate.BinomialDistribution;
-import fr.obeo.dsl.guesstimate.DistributionSetting;
 import fr.obeo.dsl.guesstimate.ExponentialDistribution;
 import fr.obeo.dsl.guesstimate.FormulaSetting;
 import fr.obeo.dsl.guesstimate.GammaDistribution;
 import fr.obeo.dsl.guesstimate.Variable;
+import fr.obeo.dsl.guesstimate.VariableSettings;
 import fr.obeo.dsl.guesstimate.GuesstimateFactory;
 import fr.obeo.dsl.guesstimate.GuesstimatePackage;
 import fr.obeo.dsl.guesstimate.VariableType;
@@ -49,7 +49,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EClass distributionSettingEClass = null;
+	private EClass variableSettingsEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -269,7 +269,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EReference getVariable_Distribution() {
+	public EReference getVariable_Settings() {
 		return (EReference)variableEClass.getEStructuralFeatures().get(4);
 	}
 
@@ -279,8 +279,8 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EClass getDistributionSetting() {
-		return distributionSettingEClass;
+	public EClass getVariableSettings() {
+		return variableSettingsEClass;
 	}
 
 	/**
@@ -667,9 +667,9 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		createEAttribute(variableEClass, VARIABLE__DOCUMENTATION);
 		createEAttribute(variableEClass, VARIABLE__DEFINITION);
 		createEAttribute(variableEClass, VARIABLE__TYPE);
-		createEReference(variableEClass, VARIABLE__DISTRIBUTION);
+		createEReference(variableEClass, VARIABLE__SETTINGS);
 
-		distributionSettingEClass = createEClass(DISTRIBUTION_SETTING);
+		variableSettingsEClass = createEClass(VARIABLE_SETTINGS);
 
 		normalDistributionEClass = createEClass(NORMAL_DISTRIBUTION);
 		createEAttribute(normalDistributionEClass, NORMAL_DISTRIBUTION__MEAN);
@@ -750,26 +750,26 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
-		normalDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		logNormalDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		uniformDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		betaDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		triangularDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		binomialDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		formulaSettingEClass.getESuperTypes().add(this.getDistributionSetting());
-		poissonDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		exponentialDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
-		gammaDistributionEClass.getESuperTypes().add(this.getDistributionSetting());
+		normalDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		logNormalDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		uniformDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		betaDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		triangularDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		binomialDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		formulaSettingEClass.getESuperTypes().add(this.getVariableSettings());
+		poissonDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		exponentialDistributionEClass.getESuperTypes().add(this.getVariableSettings());
+		gammaDistributionEClass.getESuperTypes().add(this.getVariableSettings());
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(variableEClass, Variable.class, "Variable", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getVariable_Name(), ecorePackage.getEString(), "name", null, 1, 1, Variable.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getVariable_Documentation(), ecorePackage.getEString(), "documentation", null, 0, 1, Variable.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getVariable_Definition(), ecorePackage.getEString(), "definition", null, 0, 1, Variable.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getVariable_Type(), this.getVariableType(), "type", "normal", 0, 1, Variable.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getVariable_Distribution(), this.getDistributionSetting(), null, "distribution", null, 0, 1, Variable.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getVariable_Type(), this.getVariableType(), "type", null, 1, 1, Variable.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEReference(getVariable_Settings(), this.getVariableSettings(), null, "settings", null, 1, 1, Variable.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
-		initEClass(distributionSettingEClass, DistributionSetting.class, "DistributionSetting", IS_ABSTRACT, IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEClass(variableSettingsEClass, VariableSettings.class, "VariableSettings", IS_ABSTRACT, IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
 		initEClass(normalDistributionEClass, NormalDistribution.class, "NormalDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getNormalDistribution_Mean(), ecorePackage.getEDouble(), "mean", null, 0, 1, NormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -797,7 +797,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		initEAttribute(getBinomialDistribution_ProbabilityOfSuccess(), this.getProbability(), "probabilityOfSuccess", "0.5", 1, 1, BinomialDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(formulaSettingEClass, FormulaSetting.class, "FormulaSetting", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getFormulaSetting_Formula(), ecorePackage.getEString(), "formula", null, 1, 1, FormulaSetting.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFormulaSetting_Formula(), ecorePackage.getEString(), "formula", "0", 1, 1, FormulaSetting.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getFormulaSetting_Inputs(), this.getVariable(), null, "inputs", null, 0, -1, FormulaSetting.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		getFormulaSetting_Inputs().getEKeys().add(this.getVariable_Name());
 
@@ -819,7 +819,6 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		// Initialize enums and add enum literals
 		initEEnum(variableTypeEEnum, VariableType.class, "VariableType");
-		addEEnumLiteral(variableTypeEEnum, VariableType.COMPUTED);
 		addEEnumLiteral(variableTypeEEnum, VariableType.FORMULA);
 		addEEnumLiteral(variableTypeEEnum, VariableType.NORMAL);
 		addEEnumLiteral(variableTypeEEnum, VariableType.UNIFORM);
@@ -856,7 +855,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		  (variableEClass,
 		   source,
 		   new String[] {
-			   "constraints", "settingsAreValid nameIsValid"
+			   "constraints", "nameIsValid"
 		   });
 		addAnnotation
 		  (normalDistributionEClass,

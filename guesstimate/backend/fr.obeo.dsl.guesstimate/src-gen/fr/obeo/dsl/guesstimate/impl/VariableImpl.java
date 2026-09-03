@@ -2,8 +2,19 @@
  */
 package fr.obeo.dsl.guesstimate.impl;
 
-import fr.obeo.dsl.guesstimate.DistributionSetting;
+import fr.obeo.dsl.guesstimate.BetaDistribution;
+import fr.obeo.dsl.guesstimate.BinomialDistribution;
+import fr.obeo.dsl.guesstimate.ExponentialDistribution;
+import fr.obeo.dsl.guesstimate.FormulaSetting;
+import fr.obeo.dsl.guesstimate.GammaDistribution;
+import fr.obeo.dsl.guesstimate.GuesstimateFactory;
+import fr.obeo.dsl.guesstimate.LogNormalDistribution;
+import fr.obeo.dsl.guesstimate.NormalDistribution;
+import fr.obeo.dsl.guesstimate.PoissonDistribution;
+import fr.obeo.dsl.guesstimate.TriangularDistribution;
+import fr.obeo.dsl.guesstimate.UniformDistribution;
 import fr.obeo.dsl.guesstimate.Variable;
+import fr.obeo.dsl.guesstimate.VariableSettings;
 import fr.obeo.dsl.guesstimate.GuesstimatePackage;
 import fr.obeo.dsl.guesstimate.VariableType;
 import org.eclipse.emf.common.notify.Notification;
@@ -27,7 +38,7 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  *   <li>{@link fr.obeo.dsl.guesstimate.impl.VariableImpl#getDocumentation <em>Documentation</em>}</li>
  *   <li>{@link fr.obeo.dsl.guesstimate.impl.VariableImpl#getDefinition <em>Definition</em>}</li>
  *   <li>{@link fr.obeo.dsl.guesstimate.impl.VariableImpl#getType <em>Type</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.impl.VariableImpl#getDistribution <em>Distribution</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.impl.VariableImpl#getSettings <em>Settings</em>}</li>
  * </ul>
  *
  * @generated
@@ -101,27 +112,17 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * @generated
 	 * @ordered
 	 */
-	protected static final VariableType TYPE_EDEFAULT = VariableType.NORMAL;
+	protected static final VariableType TYPE_EDEFAULT = VariableType.FORMULA;
 
 	/**
-	 * The cached value of the '{@link #getType() <em>Type</em>}' attribute.
+	 * The cached value of the '{@link #getSettings() <em>Settings</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getType()
+	 * @see #getSettings()
 	 * @generated
 	 * @ordered
 	 */
-	protected VariableType type = TYPE_EDEFAULT;
-
-	/**
-	 * The cached value of the '{@link #getDistribution() <em>Distribution</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDistribution()
-	 * @generated
-	 * @ordered
-	 */
-	protected DistributionSetting distribution;
+	protected VariableSettings settings;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -214,24 +215,51 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public VariableType getType() {
-		return type;
+		return getType(settings);
+	}
+
+	private static VariableType getType(VariableSettings value) {
+		if (value instanceof FormulaSetting) return VariableType.FORMULA;
+		if (value instanceof NormalDistribution) return VariableType.NORMAL;
+		if (value instanceof UniformDistribution) return VariableType.UNIFORM;
+		if (value instanceof LogNormalDistribution) return VariableType.LOGNORMAL;
+		if (value instanceof BetaDistribution) return VariableType.BETA;
+		if (value instanceof TriangularDistribution) return VariableType.TRIANGULAR;
+		if (value instanceof BinomialDistribution) return VariableType.BINOMIAL;
+		if (value instanceof PoissonDistribution) return VariableType.POISSON;
+		if (value instanceof ExponentialDistribution) return VariableType.EXPONENTIAL;
+		if (value instanceof GammaDistribution) return VariableType.GAMMA;
+		return null;
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public void setType(VariableType newType) {
-		VariableType oldType = type;
-		type = newType == null ? TYPE_EDEFAULT : newType;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__TYPE, oldType, type));
+		if (newType == getType()) return;
+		if (newType == null) {
+			setSettings(null);
+			return;
+		}
+		setSettings(switch (newType) {
+			case FORMULA -> GuesstimateFactory.eINSTANCE.createFormulaSetting();
+			case NORMAL -> GuesstimateFactory.eINSTANCE.createNormalDistribution();
+			case UNIFORM -> GuesstimateFactory.eINSTANCE.createUniformDistribution();
+			case LOGNORMAL -> GuesstimateFactory.eINSTANCE.createLogNormalDistribution();
+			case BETA -> GuesstimateFactory.eINSTANCE.createBetaDistribution();
+			case TRIANGULAR -> GuesstimateFactory.eINSTANCE.createTriangularDistribution();
+			case BINOMIAL -> GuesstimateFactory.eINSTANCE.createBinomialDistribution();
+			case POISSON -> GuesstimateFactory.eINSTANCE.createPoissonDistribution();
+			case EXPONENTIAL -> GuesstimateFactory.eINSTANCE.createExponentialDistribution();
+			case GAMMA -> GuesstimateFactory.eINSTANCE.createGammaDistribution();
+		});
 	}
 
 	/**
@@ -240,21 +268,24 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * @generated
 	 */
 	@Override
-	public DistributionSetting getDistribution() {
-		return distribution;
+	public VariableSettings getSettings() {
+		return settings;
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
-	public NotificationChain basicSetDistribution(DistributionSetting newDistribution, NotificationChain msgs) {
-		DistributionSetting oldDistribution = distribution;
-		distribution = newDistribution;
+	public NotificationChain basicSetSettings(VariableSettings newSettings, NotificationChain msgs) {
+		VariableSettings oldSettings = settings;
+		VariableType oldType = getType(oldSettings);
+		settings = newSettings;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DISTRIBUTION, oldDistribution, newDistribution);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__SETTINGS, oldSettings, newSettings);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
+			VariableType newType = getType(newSettings);
+			if (oldType != newType) msgs.add(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__TYPE, oldType, newType));
 		}
 		return msgs;
 	}
@@ -265,18 +296,18 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	 * @generated
 	 */
 	@Override
-	public void setDistribution(DistributionSetting newDistribution) {
-		if (newDistribution != distribution) {
+	public void setSettings(VariableSettings newSettings) {
+		if (newSettings != settings) {
 			NotificationChain msgs = null;
-			if (distribution != null)
-				msgs = ((InternalEObject)distribution).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__DISTRIBUTION, null, msgs);
-			if (newDistribution != null)
-				msgs = ((InternalEObject)newDistribution).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__DISTRIBUTION, null, msgs);
-			msgs = basicSetDistribution(newDistribution, msgs);
+			if (settings != null)
+				msgs = ((InternalEObject)settings).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__SETTINGS, null, msgs);
+			if (newSettings != null)
+				msgs = ((InternalEObject)newSettings).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - GuesstimatePackage.VARIABLE__SETTINGS, null, msgs);
+			msgs = basicSetSettings(newSettings, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
 		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__DISTRIBUTION, newDistribution, newDistribution));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.VARIABLE__SETTINGS, newSettings, newSettings));
 	}
 
 	/**
@@ -287,8 +318,8 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-				return basicSetDistribution(null, msgs);
+			case GuesstimatePackage.VARIABLE__SETTINGS:
+				return basicSetSettings(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -309,8 +340,8 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 				return getDefinition();
 			case GuesstimatePackage.VARIABLE__TYPE:
 				return getType();
-			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-				return getDistribution();
+			case GuesstimatePackage.VARIABLE__SETTINGS:
+				return getSettings();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -335,8 +366,8 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 			case GuesstimatePackage.VARIABLE__TYPE:
 				setType((VariableType)newValue);
 				return;
-			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-				setDistribution((DistributionSetting)newValue);
+			case GuesstimatePackage.VARIABLE__SETTINGS:
+				setSettings((VariableSettings)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -362,8 +393,8 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 			case GuesstimatePackage.VARIABLE__TYPE:
 				setType(TYPE_EDEFAULT);
 				return;
-			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-				setDistribution((DistributionSetting)null);
+			case GuesstimatePackage.VARIABLE__SETTINGS:
+				setSettings((VariableSettings)null);
 				return;
 		}
 		super.eUnset(featureID);
@@ -372,7 +403,7 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
@@ -384,9 +415,9 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 			case GuesstimatePackage.VARIABLE__DEFINITION:
 				return DEFINITION_EDEFAULT == null ? definition != null : !DEFINITION_EDEFAULT.equals(definition);
 			case GuesstimatePackage.VARIABLE__TYPE:
-				return type != TYPE_EDEFAULT;
-			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
-				return distribution != null;
+				return getType() != null;
+			case GuesstimatePackage.VARIABLE__SETTINGS:
+				return settings != null;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -407,8 +438,6 @@ public class VariableImpl extends MinimalEObjectImpl.Container implements Variab
 		result.append(documentation);
 		result.append(", definition: ");
 		result.append(definition);
-		result.append(", type: ");
-		result.append(type);
 		result.append(')');
 		return result.toString();
 	}

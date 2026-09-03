@@ -106,13 +106,13 @@ public interface GuesstimatePackage extends EPackage {
 	int VARIABLE__TYPE = 3;
 
 	/**
-	 * The feature id for the '<em><b>Distribution</b></em>' containment reference.
+	 * The feature id for the '<em><b>Settings</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int VARIABLE__DISTRIBUTION = 4;
+	int VARIABLE__SETTINGS = 4;
 
 	/**
 	 * The number of structural features of the '<em>Variable</em>' class.
@@ -133,32 +133,32 @@ public interface GuesstimatePackage extends EPackage {
 	int VARIABLE_OPERATION_COUNT = 0;
 
 	/**
-	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.DistributionSetting <em>Distribution Setting</em>}' class.
+	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.VariableSettings <em>Variable Settings</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see fr.obeo.dsl.guesstimate.DistributionSetting
-	 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getDistributionSetting()
+	 * @see fr.obeo.dsl.guesstimate.VariableSettings
+	 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getVariableSettings()
 	 * @generated
 	 */
-	int DISTRIBUTION_SETTING = 1;
+	int VARIABLE_SETTINGS = 1;
 
 	/**
-	 * The number of structural features of the '<em>Distribution Setting</em>' class.
+	 * The number of structural features of the '<em>Variable Settings</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int DISTRIBUTION_SETTING_FEATURE_COUNT = 0;
+	int VARIABLE_SETTINGS_FEATURE_COUNT = 0;
 
 	/**
-	 * The number of operations of the '<em>Distribution Setting</em>' class.
+	 * The number of operations of the '<em>Variable Settings</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int DISTRIBUTION_SETTING_OPERATION_COUNT = 0;
+	int VARIABLE_SETTINGS_OPERATION_COUNT = 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.NormalDistributionImpl <em>Normal Distribution</em>}' class.
@@ -177,7 +177,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NORMAL_DISTRIBUTION__MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int NORMAL_DISTRIBUTION__MEAN = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Standard Deviation</b></em>' attribute.
@@ -186,7 +186,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NORMAL_DISTRIBUTION__STANDARD_DEVIATION = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int NORMAL_DISTRIBUTION__STANDARD_DEVIATION = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Normal Distribution</em>' class.
@@ -195,7 +195,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NORMAL_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int NORMAL_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Normal Distribution</em>' class.
@@ -204,7 +204,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int NORMAL_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int NORMAL_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.LogNormalDistributionImpl <em>Log Normal Distribution</em>}' class.
@@ -223,7 +223,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int LOG_NORMAL_DISTRIBUTION__LOG_MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int LOG_NORMAL_DISTRIBUTION__LOG_MEAN = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Log Standard Deviation</b></em>' attribute.
@@ -232,7 +232,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Log Normal Distribution</em>' class.
@@ -241,7 +241,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int LOG_NORMAL_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int LOG_NORMAL_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Log Normal Distribution</em>' class.
@@ -250,7 +250,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int LOG_NORMAL_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int LOG_NORMAL_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.UniformDistributionImpl <em>Uniform Distribution</em>}' class.
@@ -269,7 +269,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int UNIFORM_DISTRIBUTION__MIN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int UNIFORM_DISTRIBUTION__MIN = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Max</b></em>' attribute.
@@ -278,7 +278,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int UNIFORM_DISTRIBUTION__MAX = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int UNIFORM_DISTRIBUTION__MAX = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Uniform Distribution</em>' class.
@@ -287,7 +287,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int UNIFORM_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int UNIFORM_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Uniform Distribution</em>' class.
@@ -296,7 +296,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int UNIFORM_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int UNIFORM_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.BetaDistributionImpl <em>Beta Distribution</em>}' class.
@@ -315,7 +315,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BETA_DISTRIBUTION__ALPHA = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int BETA_DISTRIBUTION__ALPHA = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Beta</b></em>' attribute.
@@ -324,7 +324,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BETA_DISTRIBUTION__BETA = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int BETA_DISTRIBUTION__BETA = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Beta Distribution</em>' class.
@@ -333,7 +333,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BETA_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int BETA_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Beta Distribution</em>' class.
@@ -342,7 +342,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BETA_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int BETA_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.TriangularDistributionImpl <em>Triangular Distribution</em>}' class.
@@ -361,7 +361,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TRIANGULAR_DISTRIBUTION__MIN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int TRIANGULAR_DISTRIBUTION__MIN = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Max</b></em>' attribute.
@@ -370,7 +370,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TRIANGULAR_DISTRIBUTION__MAX = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int TRIANGULAR_DISTRIBUTION__MAX = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The feature id for the '<em><b>Mode</b></em>' attribute.
@@ -379,7 +379,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TRIANGULAR_DISTRIBUTION__MODE = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int TRIANGULAR_DISTRIBUTION__MODE = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of structural features of the '<em>Triangular Distribution</em>' class.
@@ -388,7 +388,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TRIANGULAR_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 3;
+	int TRIANGULAR_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 3;
 
 	/**
 	 * The number of operations of the '<em>Triangular Distribution</em>' class.
@@ -397,7 +397,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int TRIANGULAR_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int TRIANGULAR_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.BinomialDistributionImpl <em>Binomial Distribution</em>}' class.
@@ -416,7 +416,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BINOMIAL_DISTRIBUTION__TRIALS = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int BINOMIAL_DISTRIBUTION__TRIALS = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Probability Of Success</b></em>' attribute.
@@ -425,7 +425,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Binomial Distribution</em>' class.
@@ -434,7 +434,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BINOMIAL_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int BINOMIAL_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Binomial Distribution</em>' class.
@@ -443,7 +443,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int BINOMIAL_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int BINOMIAL_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.FormulaSettingImpl <em>Formula Setting</em>}' class.
@@ -462,7 +462,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int FORMULA_SETTING__FORMULA = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int FORMULA_SETTING__FORMULA = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Inputs</b></em>' reference list.
@@ -471,7 +471,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int FORMULA_SETTING__INPUTS = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int FORMULA_SETTING__INPUTS = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Formula Setting</em>' class.
@@ -480,7 +480,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int FORMULA_SETTING_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int FORMULA_SETTING_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Formula Setting</em>' class.
@@ -489,7 +489,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int FORMULA_SETTING_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int FORMULA_SETTING_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.SheetImpl <em>Sheet</em>}' class.
@@ -563,7 +563,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POISSON_DISTRIBUTION__MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int POISSON_DISTRIBUTION__MEAN = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The number of structural features of the '<em>Poisson Distribution</em>' class.
@@ -572,7 +572,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POISSON_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int POISSON_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of operations of the '<em>Poisson Distribution</em>' class.
@@ -581,7 +581,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POISSON_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int POISSON_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.ExponentialDistributionImpl <em>Exponential Distribution</em>}' class.
@@ -600,7 +600,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int EXPONENTIAL_DISTRIBUTION__MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int EXPONENTIAL_DISTRIBUTION__MEAN = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The number of structural features of the '<em>Exponential Distribution</em>' class.
@@ -609,7 +609,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int EXPONENTIAL_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int EXPONENTIAL_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of operations of the '<em>Exponential Distribution</em>' class.
@@ -618,7 +618,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int EXPONENTIAL_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int EXPONENTIAL_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.impl.GammaDistributionImpl <em>Gamma Distribution</em>}' class.
@@ -637,7 +637,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int GAMMA_DISTRIBUTION__SHAPE = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int GAMMA_DISTRIBUTION__SHAPE = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
 	 * The feature id for the '<em><b>Scale</b></em>' attribute.
@@ -646,7 +646,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int GAMMA_DISTRIBUTION__SCALE = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int GAMMA_DISTRIBUTION__SCALE = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Gamma Distribution</em>' class.
@@ -655,7 +655,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int GAMMA_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int GAMMA_DISTRIBUTION_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of operations of the '<em>Gamma Distribution</em>' class.
@@ -664,7 +664,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int GAMMA_DISTRIBUTION_OPERATION_COUNT = DISTRIBUTION_SETTING_OPERATION_COUNT + 0;
+	int GAMMA_DISTRIBUTION_OPERATION_COUNT = VARIABLE_SETTINGS_OPERATION_COUNT + 0;
 
 	/**
 	 * The meta object id for the '{@link fr.obeo.dsl.guesstimate.VariableType <em>Variable Type</em>}' enum.
@@ -741,25 +741,25 @@ public interface GuesstimatePackage extends EPackage {
 	EAttribute getVariable_Type();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link fr.obeo.dsl.guesstimate.Variable#getDistribution <em>Distribution</em>}'.
+	 * Returns the meta object for the containment reference '{@link fr.obeo.dsl.guesstimate.Variable#getSettings <em>Settings</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Distribution</em>'.
-	 * @see fr.obeo.dsl.guesstimate.Variable#getDistribution()
+	 * @return the meta object for the containment reference '<em>Settings</em>'.
+	 * @see fr.obeo.dsl.guesstimate.Variable#getSettings()
 	 * @see #getVariable()
 	 * @generated
 	 */
-	EReference getVariable_Distribution();
+	EReference getVariable_Settings();
 
 	/**
-	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.DistributionSetting <em>Distribution Setting</em>}'.
+	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.VariableSettings <em>Variable Settings</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Distribution Setting</em>'.
-	 * @see fr.obeo.dsl.guesstimate.DistributionSetting
+	 * @return the meta object for class '<em>Variable Settings</em>'.
+	 * @see fr.obeo.dsl.guesstimate.VariableSettings
 	 * @generated
 	 */
-	EClass getDistributionSetting();
+	EClass getVariableSettings();
 
 	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.NormalDistribution <em>Normal Distribution</em>}'.
@@ -1203,22 +1203,22 @@ public interface GuesstimatePackage extends EPackage {
 		EAttribute VARIABLE__TYPE = eINSTANCE.getVariable_Type();
 
 		/**
-		 * The meta object literal for the '<em><b>Distribution</b></em>' containment reference feature.
+		 * The meta object literal for the '<em><b>Settings</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EReference VARIABLE__DISTRIBUTION = eINSTANCE.getVariable_Distribution();
+		EReference VARIABLE__SETTINGS = eINSTANCE.getVariable_Settings();
 
 		/**
-		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.DistributionSetting <em>Distribution Setting</em>}' class.
+		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.VariableSettings <em>Variable Settings</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @see fr.obeo.dsl.guesstimate.DistributionSetting
-		 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getDistributionSetting()
+		 * @see fr.obeo.dsl.guesstimate.VariableSettings
+		 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getVariableSettings()
 		 * @generated
 		 */
-		EClass DISTRIBUTION_SETTING = eINSTANCE.getDistributionSetting();
+		EClass VARIABLE_SETTINGS = eINSTANCE.getVariableSettings();
 
 		/**
 		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.impl.NormalDistributionImpl <em>Normal Distribution</em>}' class.

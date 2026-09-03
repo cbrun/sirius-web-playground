@@ -18,7 +18,6 @@ import com.google.common.base.Strings;
 import fr.obeo.dsl.guesstimate.*;
 import fr.obeo.dsl.guesstimate.BetaDistribution;
 import fr.obeo.dsl.guesstimate.BinomialDistribution;
-import fr.obeo.dsl.guesstimate.DistributionSetting;
 import fr.obeo.dsl.guesstimate.ExponentialDistribution;
 import fr.obeo.dsl.guesstimate.FormulaSetting;
 import fr.obeo.dsl.guesstimate.GammaDistribution;
@@ -108,8 +107,8 @@ public class GuesstimateValidator extends EObjectValidator {
 		switch (classifierID) {
 			case GuesstimatePackage.VARIABLE:
 				return validateVariable((Variable)value, diagnostics, context);
-			case GuesstimatePackage.DISTRIBUTION_SETTING:
-				return validateDistributionSetting((DistributionSetting)value, diagnostics, context);
+			case GuesstimatePackage.VARIABLE_SETTINGS:
+				return validateVariableSettings((VariableSettings)value, diagnostics, context);
 			case GuesstimatePackage.NORMAL_DISTRIBUTION:
 				return validateNormalDistribution((NormalDistribution)value, diagnostics, context);
 			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION:
@@ -155,38 +154,8 @@ public class GuesstimateValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_UniqueID(variable, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(variable, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(variable, diagnostics, context);
-		if (result || diagnostics != null) result &= validateVariable_settingsAreValid(variable, diagnostics, context);
 		if (result || diagnostics != null) result &= validateVariable_nameIsValid(variable, diagnostics, context);
 		return result;
-	}
-
-	/**
-	 * Validates the settingsAreValid constraint of '<em>Variable</em>'. <!--
-	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @generated
-	 */
-	public boolean validateVariable_settingsAreValid(Variable variable, DiagnosticChain diagnostics,
-			Map<Object, Object> context) {
-		// TODO implement the constraint
-		// -> specify the condition that violates the constraint
-		// -> verify the diagnostic details, including severity, code, and message
-		// Ensure that you remove @generated or mark it @generated NOT
-		if (false) {
-			if (diagnostics != null) {
-				diagnostics.add
-					(createDiagnostic
-						(Diagnostic.ERROR,
-						 DIAGNOSTIC_SOURCE,
-						 0,
-						 "_UI_GenericConstraint_diagnostic",
-						 new Object[] { "settingsAreValid", getObjectLabel(variable, context) },
-						 new Object[] { variable },
-						 context));
-			}
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -220,12 +189,12 @@ public class GuesstimateValidator extends EObjectValidator {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateDistributionSetting(DistributionSetting distributionSetting, DiagnosticChain diagnostics,
-			Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(distributionSetting, diagnostics, context);
+	public boolean validateVariableSettings(VariableSettings variableSettings, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		return validate_EveryDefaultConstraint(variableSettings, diagnostics, context);
 	}
 
 	/**
@@ -544,24 +513,6 @@ public class GuesstimateValidator extends EObjectValidator {
 				return false;
 			}
 		}
-		return true;
-	}
-
-	/**
-	 * Validates the settingsAreValid constraint of '<em>Variable</em>'. <!--
-	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @generated NOT
-	 */
-	public boolean validateDistribution_settingsAreValid(Variable d, DiagnosticChain diagnostics,
-			Map<Object, Object> context) {
-		// if (diagnostics != null) {
-		// diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
-		// "_UI_GenericConstraint_diagnostic",
-		// new Object[] { "settingsAreValid", getObjectLabel(d, context) }, new Object[]
-		// { d }, context));
-		// }
-		// return false;
 		return true;
 	}
 

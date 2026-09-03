@@ -42,7 +42,7 @@ public class FormulaSettingImpl extends MinimalEObjectImpl.Container implements 
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String FORMULA_EDEFAULT = null;
+	protected static final String FORMULA_EDEFAULT = "0";
 
 	/**
 	 * The cached value of the '{@link #getFormula() <em>Formula</em>}' attribute.

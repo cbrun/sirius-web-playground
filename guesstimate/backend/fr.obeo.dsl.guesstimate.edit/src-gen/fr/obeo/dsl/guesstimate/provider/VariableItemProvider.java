@@ -4,6 +4,7 @@ package fr.obeo.dsl.guesstimate.provider;
 
 import fr.obeo.dsl.guesstimate.GuesstimateFactory;
 import fr.obeo.dsl.guesstimate.Variable;
+import fr.obeo.dsl.guesstimate.VariableType;
 import fr.obeo.dsl.guesstimate.GuesstimatePackage;
 
 import java.util.ArrayList;
@@ -174,7 +175,10 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 		List<Object> images = new ArrayList<Object>(2);
 
 		if (object instanceof Variable) {
-			switch (((Variable) object).getType()) {
+			VariableType type = ((Variable) object).getType();
+			if (type == null) {
+				images.add(getResourceLocator().getImage("full/obj16/Variable.svg"));
+			} else switch (type) {
 			case EXPONENTIAL:
 				images.add(getResourceLocator().getImage("full/obj16/Variable_overlay.svg"));
 				images.add(getResourceLocator().getImage("full/obj16/ExponentialDistribution.svg"));
@@ -199,6 +203,14 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 				images.add(getResourceLocator().getImage("full/obj16/Variable_overlay.svg"));
 				images.add(getResourceLocator().getImage("full/obj16/BinomialDistribution.svg"));
 				break;
+			case BETA:
+				images.add(getResourceLocator().getImage("full/obj16/Variable_overlay.svg"));
+				images.add(getResourceLocator().getImage("full/obj16/BetaDistribution.svg"));
+				break;
+			case POISSON:
+				images.add(getResourceLocator().getImage("full/obj16/Variable_overlay.svg"));
+				images.add(getResourceLocator().getImage("full/obj16/PoissonDistribution.svg"));
+				break;
 			case UNIFORM:
 				images.add(getResourceLocator().getImage("full/obj16/Variable_overlay.svg"));
 				images.add(getResourceLocator().getImage("full/obj16/UniformDistribution.svg"));
@@ -206,9 +218,6 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 			case TRIANGULAR:
 				images.add(getResourceLocator().getImage("full/obj16/Variable_overlay.svg"));
 				images.add(getResourceLocator().getImage("full/obj16/TriangularDistribution.svg"));
-				break;
-			default:
-				images.add(getResourceLocator().getImage("full/obj16/Variable.svg"));
 				break;
 			}
 
@@ -256,7 +265,7 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 			case GuesstimatePackage.VARIABLE__DOCUMENTATION:
 			case GuesstimatePackage.VARIABLE__DEFINITION:
 			case GuesstimatePackage.VARIABLE__TYPE:
-			case GuesstimatePackage.VARIABLE__DISTRIBUTION:
+			case GuesstimatePackage.VARIABLE__SETTINGS:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

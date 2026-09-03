@@ -1,6 +1,5 @@
 package fr.obeo.dsl.guesstimate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,7 +63,7 @@ public class VariableServices {
 	 * @param sheet
 	 * @return
 	 */
-	private Map<String, Variable> collectAccessibleVariables(Sheet s) {
+	public Map<String, Variable> collectAccessibleVariables(Sheet s) {
 		Map<String, Variable> available = Maps.newLinkedHashMap();
 		for (Variable d : s.getVariables()) {
 			if (d.getName() != null) {
@@ -94,71 +93,21 @@ public class VariableServices {
 		return varNames;
 	}
 
-	public Variable setTypeOfDistribution(Variable v, VariableType type) {
-		DistributionSetting setting = v.getDistribution();
-		switch (type) {
-		case BETA:
-			setting = GuesstimateFactory.eINSTANCE.createBetaDistribution();
-			break;
-		case BINOMIAL:
-			setting = GuesstimateFactory.eINSTANCE.createBinomialDistribution();
-			break;
-		case COMPUTED:
-			setting = null;
-			break;
-		case EXPONENTIAL:
-			setting = GuesstimateFactory.eINSTANCE.createExponentialDistribution();
-			break;
-		case GAMMA:
-			setting = GuesstimateFactory.eINSTANCE.createGammaDistribution();
-			break;
-		case LOGNORMAL:
-			setting = GuesstimateFactory.eINSTANCE.createLogNormalDistribution();
-			break;
-		case NORMAL:
-			setting = GuesstimateFactory.eINSTANCE.createNormalDistribution();
-			break;
-		case POISSON:
-			setting = GuesstimateFactory.eINSTANCE.createPoissonDistribution();
-			break;
-		case TRIANGULAR:
-			setting = GuesstimateFactory.eINSTANCE.createTriangularDistribution();
-			break;
-		case UNIFORM:
-			setting = GuesstimateFactory.eINSTANCE.createUniformDistribution();
-			break;
-		case FORMULA:
-			setting = GuesstimateFactory.eINSTANCE.createFormulaSetting();
-			break;
-		default:
-			break;
-		}
-		v.setType(type);
-		v.setDistribution(setting);
-		return v;
-	}
-
 	public String getGuideDocumentation(Variable v) {
 		String doc = "No doc.";
-		if (v.getDistribution() != null) {
-			doc = EcoreUtil.getDocumentation(v.getDistribution().eClass());
+		if (v.getSettings() != null) {
+			doc = EcoreUtil.getDocumentation(v.getSettings().eClass());
 		}
 		return doc;
 	}
 
 	// we should be able to avoid that and just use AQL...
 	public List<EEnumLiteral> getTypeEnumCandidates(Variable v) {
-		List<EEnumLiteral> result = new ArrayList<>();
-		for (EEnumLiteral eEnumLiteral : GuesstimatePackage.eINSTANCE.getVariableType().getELiterals()) {
-			if (!eEnumLiteral.getLiteral().equals("computed")) {
-				result.add(eEnumLiteral);
-			}
-		}
-		return result;
+		return GuesstimatePackage.eINSTANCE.getVariableType().getELiterals();
 	}
 
 	public EEnumLiteral getTypeEnumValue(Variable v) {
-		return GuesstimatePackage.eINSTANCE.getVariableType().getEEnumLiteralByLiteral(v.getType().getLiteral());
+		return v.getType() == null ? null : GuesstimatePackage.eINSTANCE.getVariableType().getEEnumLiteralByLiteral(v.getType().getLiteral());
 	}
 
 	public VariableType setTypeEnumValue(Variable v, EEnumLiteral value) {

@@ -23,7 +23,7 @@ package fr.obeo.dsl.guesstimate;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='parametersAreValid'"
  * @generated
  */
-public interface LogNormalDistribution extends DistributionSetting {
+public interface LogNormalDistribution extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Log Mean</b></em>' attribute.
 	 * <!-- begin-user-doc -->

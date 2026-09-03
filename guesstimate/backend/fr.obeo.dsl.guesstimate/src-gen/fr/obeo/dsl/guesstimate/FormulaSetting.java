@@ -25,15 +25,16 @@ import org.eclipse.emf.common.util.EList;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='unknownVariable invalidSyntax'"
  * @generated
  */
-public interface FormulaSetting extends DistributionSetting {
+public interface FormulaSetting extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Formula</b></em>' attribute.
+	 * The default value is <code>"0"</code>.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Formula</em>' attribute.
 	 * @see #setFormula(String)
 	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getFormulaSetting_Formula()
-	 * @model required="true"
+	 * @model default="0" required="true"
 	 * @generated
 	 */
 	String getFormula();

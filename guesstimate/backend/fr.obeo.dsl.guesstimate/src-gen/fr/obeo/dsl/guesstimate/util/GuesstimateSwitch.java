@@ -72,58 +72,58 @@ public class GuesstimateSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case GuesstimatePackage.DISTRIBUTION_SETTING: {
-				DistributionSetting distributionSetting = (DistributionSetting)theEObject;
-				T result = caseDistributionSetting(distributionSetting);
+			case GuesstimatePackage.VARIABLE_SETTINGS: {
+				VariableSettings variableSettings = (VariableSettings)theEObject;
+				T result = caseVariableSettings(variableSettings);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.NORMAL_DISTRIBUTION: {
 				NormalDistribution normalDistribution = (NormalDistribution)theEObject;
 				T result = caseNormalDistribution(normalDistribution);
-				if (result == null) result = caseDistributionSetting(normalDistribution);
+				if (result == null) result = caseVariableSettings(normalDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION: {
 				LogNormalDistribution logNormalDistribution = (LogNormalDistribution)theEObject;
 				T result = caseLogNormalDistribution(logNormalDistribution);
-				if (result == null) result = caseDistributionSetting(logNormalDistribution);
+				if (result == null) result = caseVariableSettings(logNormalDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.UNIFORM_DISTRIBUTION: {
 				UniformDistribution uniformDistribution = (UniformDistribution)theEObject;
 				T result = caseUniformDistribution(uniformDistribution);
-				if (result == null) result = caseDistributionSetting(uniformDistribution);
+				if (result == null) result = caseVariableSettings(uniformDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.BETA_DISTRIBUTION: {
 				BetaDistribution betaDistribution = (BetaDistribution)theEObject;
 				T result = caseBetaDistribution(betaDistribution);
-				if (result == null) result = caseDistributionSetting(betaDistribution);
+				if (result == null) result = caseVariableSettings(betaDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.TRIANGULAR_DISTRIBUTION: {
 				TriangularDistribution triangularDistribution = (TriangularDistribution)theEObject;
 				T result = caseTriangularDistribution(triangularDistribution);
-				if (result == null) result = caseDistributionSetting(triangularDistribution);
+				if (result == null) result = caseVariableSettings(triangularDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.BINOMIAL_DISTRIBUTION: {
 				BinomialDistribution binomialDistribution = (BinomialDistribution)theEObject;
 				T result = caseBinomialDistribution(binomialDistribution);
-				if (result == null) result = caseDistributionSetting(binomialDistribution);
+				if (result == null) result = caseVariableSettings(binomialDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.FORMULA_SETTING: {
 				FormulaSetting formulaSetting = (FormulaSetting)theEObject;
 				T result = caseFormulaSetting(formulaSetting);
-				if (result == null) result = caseDistributionSetting(formulaSetting);
+				if (result == null) result = caseVariableSettings(formulaSetting);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -136,21 +136,21 @@ public class GuesstimateSwitch<T> extends Switch<T> {
 			case GuesstimatePackage.POISSON_DISTRIBUTION: {
 				PoissonDistribution poissonDistribution = (PoissonDistribution)theEObject;
 				T result = casePoissonDistribution(poissonDistribution);
-				if (result == null) result = caseDistributionSetting(poissonDistribution);
+				if (result == null) result = caseVariableSettings(poissonDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.EXPONENTIAL_DISTRIBUTION: {
 				ExponentialDistribution exponentialDistribution = (ExponentialDistribution)theEObject;
 				T result = caseExponentialDistribution(exponentialDistribution);
-				if (result == null) result = caseDistributionSetting(exponentialDistribution);
+				if (result == null) result = caseVariableSettings(exponentialDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case GuesstimatePackage.GAMMA_DISTRIBUTION: {
 				GammaDistribution gammaDistribution = (GammaDistribution)theEObject;
 				T result = caseGammaDistribution(gammaDistribution);
-				if (result == null) result = caseDistributionSetting(gammaDistribution);
+				if (result == null) result = caseVariableSettings(gammaDistribution);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -174,17 +174,17 @@ public class GuesstimateSwitch<T> extends Switch<T> {
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Distribution Setting</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Variable Settings</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Distribution Setting</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Variable Settings</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseDistributionSetting(DistributionSetting object) {
+	public T caseVariableSettings(VariableSettings object) {
 		return null;
 	}
 

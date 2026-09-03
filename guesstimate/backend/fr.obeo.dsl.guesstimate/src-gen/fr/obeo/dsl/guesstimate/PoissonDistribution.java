@@ -22,7 +22,7 @@ package fr.obeo.dsl.guesstimate;
  * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='meanIsPositive'"
  * @generated
  */
-public interface PoissonDistribution extends DistributionSetting {
+public interface PoissonDistribution extends VariableSettings {
 	/**
 	 * Returns the value of the '<em><b>Mean</b></em>' attribute.
 	 * The default value is <code>"1"</code>.
