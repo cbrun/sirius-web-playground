@@ -334,14 +334,14 @@ public class GuesstimateViews {
 												.build())
 										.build())
 								.style(f.newTextfieldDescriptionStyle().build()).build());
-			} else if (childParameter.getEType() == GuesstimatePackage.eINSTANCE.getPercentage()) {
+			} else if (childParameter.getEType() == GuesstimatePackage.eINSTANCE.getProbability()) {
 				enclosingIf.getChildren().add(f.newTextfieldDescription().labelExpression(childParameter.getName())
 						.valueExpression(
 								"aql:self." + childReferenceName + "." + childParameter.getName() + " * 100.0 +'%'")
 						.helpExpression(EcoreUtil.getDocumentation(childParameter))
 						.body(v.newChangeContext().expression("aql:self." + childReferenceName)
 								.children(v.newSetValue().featureName(childParameter.getName())
-										.valueExpression(ServiceMethod.of1(Services::percentFloat).aqlSelf("newValue"))
+										.valueExpression(ServiceMethod.of1(Services::parseProbability).aqlSelf("newValue"))
 										.build())
 								.build())
 						.style(f.newTextfieldDescriptionStyle().build()).build());

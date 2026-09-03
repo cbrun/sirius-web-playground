@@ -776,9 +776,9 @@
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
       </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_b62n8XXKEe-Ja6DHQZDurA" name="sd : EDouble = 1" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/sd"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/sd"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_b62n8XXKEe-Ja6DHQZDurA" name="standardDeviation : EDouble = 1" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/standardDeviation"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/standardDeviation"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_b63PAHXKEe-Ja6DHQZDurA" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
@@ -804,17 +804,17 @@
         <description xmi:type="style:FlatContainerStyleDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@style"/>
       </ownedStyle>
       <actualMapping xmi:type="description_1:ContainerMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']"/>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_cXaBEnXKEe-Ja6DHQZDurA" name="scale : EDouble = 1" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/scale"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/scale"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_cXaBEnXKEe-Ja6DHQZDurA" name="logMean : EDouble = 0.0" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logMean"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logMean"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_cXaoIHXKEe-Ja6DHQZDurA" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
       </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_cXaoIXXKEe-Ja6DHQZDurA" name="shape : EDouble = 0" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/shape"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/shape"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_cXaoIXXKEe-Ja6DHQZDurA" name="logStandardDeviation : EDouble = 1" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_cXaoInXKEe-Ja6DHQZDurA" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
@@ -964,9 +964,9 @@
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
       </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_iVGuknXKEe-Ja6DHQZDurA" name="p : Percentage = 0.5" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/p"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/p"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_iVGuknXKEe-Ja6DHQZDurA" name="probabilityOfSuccess : Probability = 0.5" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_iVHVoHXKEe-Ja6DHQZDurA" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
@@ -1580,9 +1580,9 @@
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
       </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bctEEUWEe-Em7KKoPPppQ" name="sd : EDouble = 1" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/sd"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/sd"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bctEEUWEe-Em7KKoPPppQ" name="standardDeviation : EDouble = 1" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/standardDeviation"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/standardDeviation"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_4bctEUUWEe-Em7KKoPPppQ" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
@@ -1596,17 +1596,17 @@
         <description xmi:type="style:FlatContainerStyleDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@style"/>
       </ownedStyle>
       <actualMapping xmi:type="description_1:ContainerMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']"/>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bdUIEUWEe-Em7KKoPPppQ" name="scale : EDouble = 1" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/scale"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/scale"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bdUIEUWEe-Em7KKoPPppQ" name="logMean : EDouble = 0.0" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logMean"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logMean"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_4bdUIUUWEe-Em7KKoPPppQ" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
       </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bdUIkUWEe-Em7KKoPPppQ" name="shape : EDouble = 0" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/shape"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/shape"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bdUIkUWEe-Em7KKoPPppQ" name="logStandardDeviation : EDouble = 1" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_4bd7MEUWEe-Em7KKoPPppQ" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
@@ -1708,9 +1708,9 @@
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
       </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bhlkkUWEe-Em7KKoPPppQ" name="p : Percentage = 0.5" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/p"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/p"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_4bhlkkUWEe-Em7KKoPPppQ" name="probabilityOfSuccess : Probability = 0.5" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_4biMoEUWEe-Em7KKoPPppQ" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
@@ -1916,18 +1916,10 @@
         <description xmi:type="style:FlatContainerStyleDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@style"/>
       </ownedStyle>
       <actualMapping xmi:type="description_1:ContainerMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']"/>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_Q6v4FkUYEe-Em7KKoPPppQ" name="p : EDouble = 1" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/p"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/p"/>
+      <ownedElements xmi:type="diagram:DNodeListElement" uid="_Q6v4FkUYEe-Em7KKoPPppQ" name="mean : EDouble = 1" tooltipText="">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/mean"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/mean"/>
         <ownedStyle xmi:type="diagram:BundledImage" uid="_Q6wfIEUYEe-Em7KKoPPppQ" labelAlignment="LEFT">
-          <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
-        </ownedStyle>
-        <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
-      </ownedElements>
-      <ownedElements xmi:type="diagram:DNodeListElement" uid="_SXXnFUUYEe-Em7KKoPPppQ" name="epsilon : EDouble = 0.0" tooltipText="">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/epsilon"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/epsilon"/>
-        <ownedStyle xmi:type="diagram:BundledImage" uid="_SXXnFkUYEe-Em7KKoPPppQ" labelAlignment="LEFT">
           <description xmi:type="style:BundledImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']/@style"/>
         </ownedStyle>
         <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@containerMappings[name='EC%20EClass']/@subNodeMappings[name='EC%20EAttribute']"/>
@@ -2117,13 +2109,13 @@
           <intersectionMapping xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
         </cells>
       </lines>
-      <lines xmi:type="table:DLine" uid="_hPv7JEUZEe-Em7KKoPPppQ" label="EAttribute : sd">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/sd"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/sd"/>
+      <lines xmi:type="table:DLine" uid="_hPv7JEUZEe-Em7KKoPPppQ" label="EAttribute : standardDeviation">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/standardDeviation"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//NormalDistribution/standardDeviation"/>
         <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
         <cells xmi:type="table:DCell" uid="_ayJJEUUaEe-Em7KKoPPppQ" label="The standard deviation (σ) measures the spread or dispersion of the distribution. It indicates how much the individual data points deviate from the mean. A smaller σ means the data points are closer to the mean, while a larger σ means they are more spread out. In the context of heights, a smaller standard deviation indicates that most people have heights close to the average, whereas a larger standard deviation indicates more variability in heights." column="_hP1asEUZEe-Em7KKoPPppQ">
-          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//NormalDistribution/sd/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
-          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//NormalDistribution/sd/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//NormalDistribution/standardDeviation/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//NormalDistribution/standardDeviation/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
           <currentStyle xmi:type="table:DCellStyle" uid="_ayJJEkUaEe-Em7KKoPPppQ" defaultBackgroundStyle="true" backgroundColor="220,234,183">
             <backgroundStyleOrigin xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
           </currentStyle>
@@ -2143,26 +2135,26 @@
     </lines>
     <lines xmi:type="table:DLine" uid="_hPuF9kUZEe-Em7KKoPPppQ" label="EClass : LogNormalDistribution">
       <target xmi:type="ecore:EClass" href="guesstimate.ecore#//LogNormalDistribution"/>
-      <lines xmi:type="table:DLine" uid="_hPv7JkUZEe-Em7KKoPPppQ" label="EAttribute : scale">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/scale"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/scale"/>
+      <lines xmi:type="table:DLine" uid="_hPv7JkUZEe-Em7KKoPPppQ" label="EAttribute : logMean">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logMean"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logMean"/>
         <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
-        <cells xmi:type="table:DCell" uid="_NOy40EUaEe-Em7KKoPPppQ" label="The scale parameter (σ) is the standard deviation of the natural logarithm of the variable. It measures the spread or dispersion of the distribution in the log-transformed scale. A higher σ indicates more variability in the data. Using the stock prices example, calculating the standard deviation of the logarithms of the prices gives you the scale.." column="_hP1asEUZEe-Em7KKoPPppQ">
-          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/scale/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
-          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/scale/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+        <cells xmi:type="table:DCell" uid="_NOy40EUaEe-Em7KKoPPppQ" label="The mean of the natural logarithm of the variable. It determines the location of the distribution on the logarithmic scale." column="_hP1asEUZEe-Em7KKoPPppQ">
+          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/logMean/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/logMean/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
           <currentStyle xmi:type="table:DCellStyle" uid="_NOy40UUaEe-Em7KKoPPppQ" defaultBackgroundStyle="true" backgroundColor="220,234,183">
             <backgroundStyleOrigin xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
           </currentStyle>
           <intersectionMapping xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
         </cells>
       </lines>
-      <lines xmi:type="table:DLine" uid="_hPv7KEUZEe-Em7KKoPPppQ" label="EAttribute : shape">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/shape"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/shape"/>
+      <lines xmi:type="table:DLine" uid="_hPv7KEUZEe-Em7KKoPPppQ" label="EAttribute : logStandardDeviation">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation"/>
         <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
-        <cells xmi:type="table:DCell" uid="_Q5TbsEUaEe-Em7KKoPPppQ" label="The location parameter is the mean of the natural logarithm of the variable. It represents the central tendency of the distribution in the log-transformed scale. For instance, if you have data on the prices of stocks, taking the natural logarithm of these prices and finding the average will give you the shape." column="_hP1asEUZEe-Em7KKoPPppQ">
-          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/shape/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
-          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/shape/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+        <cells xmi:type="table:DCell" uid="_Q5TbsEUaEe-Em7KKoPPppQ" label="The strictly positive standard deviation of the natural logarithm of the variable. It controls the spread of the distribution on the logarithmic scale." column="_hP1asEUZEe-Em7KKoPPppQ">
+          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//LogNormalDistribution/logStandardDeviation/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
           <currentStyle xmi:type="table:DCellStyle" uid="_Q5UCwEUaEe-Em7KKoPPppQ" defaultBackgroundStyle="true" backgroundColor="220,234,183">
             <backgroundStyleOrigin xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
           </currentStyle>
@@ -2325,13 +2317,13 @@
           <intersectionMapping xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
         </cells>
       </lines>
-      <lines xmi:type="table:DLine" uid="_hPwiPEUZEe-Em7KKoPPppQ" label="EAttribute : p">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/p"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/p"/>
+      <lines xmi:type="table:DLine" uid="_hPwiPEUZEe-Em7KKoPPppQ" label="EAttribute : probabilityOfSuccess">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess"/>
         <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
         <cells xmi:type="table:DCell" uid="_kdIdIEUZEe-Em7KKoPPppQ" label="The probability of success (p) is a value between 0 and 1, representing the likelihood of achieving a success in each individual trial. This probability remains constant across all trials. For instance, if you are rolling a die and interested in the probability of rolling a 4, the probability of success (p) would be 1/6. In the context of a coin flip, if you define heads as a success, the probability of success (p) would be 0.5 (assuming a fair coin)." column="_hP1asEUZEe-Em7KKoPPppQ">
-          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//BinomialDistribution/p/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
-          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//BinomialDistribution/p/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+          <target xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
+          <semanticElements xmi:type="ecore:EStringToStringMapEntry" href="guesstimate.ecore#//BinomialDistribution/probabilityOfSuccess/%http:%2F%2Fwww.eclipse.org%2Femf%2F2002%2FGenModel%/@details.0"/>
           <currentStyle xmi:type="table:DCellStyle" uid="_kdIdIUUZEe-Em7KKoPPppQ" defaultBackgroundStyle="true" backgroundColor="220,234,183">
             <backgroundStyleOrigin xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
           </currentStyle>
@@ -2394,14 +2386,9 @@
     </lines>
     <lines xmi:type="table:DLine" uid="_hPutDUUZEe-Em7KKoPPppQ" label="EClass : PoissonDistribution">
       <target xmi:type="ecore:EClass" href="guesstimate.ecore#//PoissonDistribution"/>
-      <lines xmi:type="table:DLine" uid="_hPxJREUZEe-Em7KKoPPppQ" label="EAttribute : p">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/p"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/p"/>
-        <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
-      </lines>
-      <lines xmi:type="table:DLine" uid="_hPxJRkUZEe-Em7KKoPPppQ" label="EAttribute : epsilon">
-        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/epsilon"/>
-        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/epsilon"/>
+      <lines xmi:type="table:DLine" uid="_hPxJREUZEe-Em7KKoPPppQ" label="EAttribute : mean">
+        <target xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/mean"/>
+        <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//PoissonDistribution/mean"/>
         <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
       </lines>
       <semanticElements xmi:type="ecore:EClass" href="guesstimate.ecore#//PoissonDistribution"/>
@@ -2456,9 +2443,9 @@
         <intersectionMapping xmi:type="description_2:IntersectionMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@intersection.0"/>
       </cells>
     </lines>
-    <lines xmi:type="table:DLine" uid="_NVx083XKEe-Ja6DHQZDurA" label="EDataType : Percentage">
-      <target xmi:type="ecore:EDataType" href="guesstimate.ecore#//Percentage"/>
-      <semanticElements xmi:type="ecore:EDataType" href="guesstimate.ecore#//Percentage"/>
+    <lines xmi:type="table:DLine" uid="_NVx083XKEe-Ja6DHQZDurA" label="EDataType : Probability">
+      <target xmi:type="ecore:EDataType" href="guesstimate.ecore#//Probability"/>
+      <semanticElements xmi:type="ecore:EDataType" href="guesstimate.ecore#//Probability"/>
       <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']"/>
     </lines>
     <columns xmi:type="table:DTargetColumn" uid="_hP1asEUZEe-Em7KKoPPppQ" label="Domain Documentation" cells="_hP8IYEUZEe-Em7KKoPPppQ _hQBn8UUZEe-Em7KKoPPppQ _hQBn80UZEe-Em7KKoPPppQ _hQBn9UUZEe-Em7KKoPPppQ _hQBn90UZEe-Em7KKoPPppQ _hQBn-UUZEe-Em7KKoPPppQ _hQCPAUUZEe-Em7KKoPPppQ _hQCPA0UZEe-Em7KKoPPppQ _hQCPBUUZEe-Em7KKoPPppQ _jJOlQEUZEe-Em7KKoPPppQ _kdIdIEUZEe-Em7KKoPPppQ _pp0kcEUZEe-Em7KKoPPppQ _q9ZFIEUZEe-Em7KKoPPppQ _sXFb8EUZEe-Em7KKoPPppQ _x0YyIEUZEe-Em7KKoPPppQ _zOZSA0UZEe-Em7KKoPPppQ _96iEkEUZEe-Em7KKoPPppQ __H_9QEUZEe-Em7KKoPPppQ _NOy40EUaEe-Em7KKoPPppQ _Q5TbsEUaEe-Em7KKoPPppQ _Vi1yoUUaEe-Em7KKoPPppQ _ayJJEUUaEe-Em7KKoPPppQ _NWK2gHXKEe-Ja6DHQZDurA _NWNSwHXKEe-Ja6DHQZDurA _NWNSwnXKEe-Ja6DHQZDurA _NWN50HXKEe-Ja6DHQZDurA">

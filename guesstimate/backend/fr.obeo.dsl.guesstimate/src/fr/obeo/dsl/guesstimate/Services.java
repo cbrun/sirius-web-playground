@@ -26,14 +26,8 @@ public class Services {
 		return false;
 	}
 
-	public double percentFloat(EObject any, String typed) {
-		typed = typed.replace("%", "");
-		Double parsed = Double.valueOf(typed);
-		if (parsed <= 100) {
-			return Math.abs(parsed / 100);
-		} else {
-			return 1d;
-		}
+	public double parseProbability(EObject any, String typed) {
+		return Double.parseDouble(typed.replace("%", "")) / 100;
 	}
 
 	/**
@@ -79,7 +73,7 @@ public class Services {
 					double stdDev = (max - mean) / 1.645;
 					service.setTypeOfDistribution(var, VariableType.NORMAL);
 					((NormalDistribution) var.getDistribution()).setMean(mean);
-					((NormalDistribution) var.getDistribution()).setSd(stdDev);
+					((NormalDistribution) var.getDistribution()).setStandardDeviation(stdDev);
 
 				}
 				// Check if the input is a proportion (e.g., "1 of 5" or "1 over 5")

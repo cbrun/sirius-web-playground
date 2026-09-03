@@ -105,6 +105,16 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns FormulaSetting.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -178,7 +188,7 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

@@ -39,7 +39,7 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
  * @generated
  */
 public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFactory
-		implements ComposeableAdapterFactory, IChangeNotifier, IDisposable, IChildCreationExtender {
+		implements ComposeableAdapterFactory, IChangeNotifier, IDisposable {
 	/**
 	 * This keeps track of the root adapter factory that delegates to this adapter factory.
 	 * <!-- begin-user-doc -->
@@ -55,14 +55,6 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 	 * @generated
 	 */
 	protected IChangeNotifier changeNotifier = new ChangeNotifier();
-
-	/**
-	 * This helps manage the child creation extenders.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected ChildCreationExtenderManager childCreationExtenderManager = new ChildCreationExtenderManager(GuesstimateEditPlugin.INSTANCE, GuesstimatePackage.eNS_URI);
 
 	/**
 	 * This keeps track of all the supported types checked by {@link #isFactoryForType isFactoryForType}.
@@ -420,33 +412,6 @@ public class GuesstimateItemProviderAdapterFactory extends GuesstimateAdapterFac
 		}
 
 		return null;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public List<IChildCreationExtender> getChildCreationExtenders() {
-		return childCreationExtenderManager.getChildCreationExtenders();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Collection<?> getNewChildDescriptors(Object object, EditingDomain editingDomain) {
-		return childCreationExtenderManager.getNewChildDescriptors(object, editingDomain);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public ResourceLocator getResourceLocator() {
-		return childCreationExtenderManager;
 	}
 
 	/**

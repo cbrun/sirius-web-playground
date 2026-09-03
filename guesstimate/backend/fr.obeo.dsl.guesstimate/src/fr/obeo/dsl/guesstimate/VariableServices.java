@@ -16,8 +16,6 @@ import com.google.common.collect.Sets;
 
 import fr.obeo.dsl.guesstimate.formula.ArithParser;
 import fr.obeo.dsl.guesstimate.formula.ArithmeticVisitor;
-import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
-
 public class VariableServices {
 
 	public Set<String> collectUnknownVariables(FormulaSetting op) {
@@ -57,11 +55,6 @@ public class VariableServices {
 			}
 			op.getInputs().removeAll(toRemove);
 			op.getInputs().addAll(toAdd);
-		}
-		if (op.eContainer() instanceof Variable) {
-			SamplingSimulationAdapter simulatorBridge = SamplingSimulationAdapter.getOrCreate(op.eContainer());
-			simulatorBridge.resetApacheStateFromSettings();
-			simulatorBridge.resample();
 		}
 		s.resample();
 		return newValue;

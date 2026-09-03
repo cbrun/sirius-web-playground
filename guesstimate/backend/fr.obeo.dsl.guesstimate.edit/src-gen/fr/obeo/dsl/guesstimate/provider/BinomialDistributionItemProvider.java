@@ -55,7 +55,7 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 			super.getPropertyDescriptors(object);
 
 			addTrialsPropertyDescriptor(object);
-			addPPropertyDescriptor(object);
+			addProbabilityOfSuccessPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -83,25 +83,35 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 	}
 
 	/**
-	 * This adds a property descriptor for the P feature.
+	 * This adds a property descriptor for the Probability Of Success feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addPPropertyDescriptor(Object object) {
+	protected void addProbabilityOfSuccessPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_BinomialDistribution_p_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_BinomialDistribution_p_feature", "_UI_BinomialDistribution_type"),
-				 GuesstimatePackage.Literals.BINOMIAL_DISTRIBUTION__P,
+				 getString("_UI_BinomialDistribution_probabilityOfSuccess_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_BinomialDistribution_probabilityOfSuccess_feature", "_UI_BinomialDistribution_type"),
+				 GuesstimatePackage.Literals.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
 	}
 
 	/**
@@ -150,7 +160,7 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 
 		switch (notification.getFeatureID(BinomialDistribution.class)) {
 			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
-			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
@@ -177,7 +187,7 @@ public class BinomialDistributionItemProvider extends ItemProviderAdapter implem
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

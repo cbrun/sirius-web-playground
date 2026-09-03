@@ -55,7 +55,7 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 			super.getPropertyDescriptors(object);
 
 			addMeanPropertyDescriptor(object);
-			addSdPropertyDescriptor(object);
+			addStandardDeviationPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -83,25 +83,35 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 	}
 
 	/**
-	 * This adds a property descriptor for the Sd feature.
+	 * This adds a property descriptor for the Standard Deviation feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addSdPropertyDescriptor(Object object) {
+	protected void addStandardDeviationPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_NormalDistribution_sd_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_NormalDistribution_sd_feature", "_UI_NormalDistribution_type"),
-				 GuesstimatePackage.Literals.NORMAL_DISTRIBUTION__SD,
+				 getString("_UI_NormalDistribution_standardDeviation_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_NormalDistribution_standardDeviation_feature", "_UI_NormalDistribution_type"),
+				 GuesstimatePackage.Literals.NORMAL_DISTRIBUTION__STANDARD_DEVIATION,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
 				 null,
 				 null));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
 	}
 
 	/**
@@ -150,7 +160,7 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 
 		switch (notification.getFeatureID(NormalDistribution.class)) {
 			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
-			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__STANDARD_DEVIATION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
@@ -177,7 +187,7 @@ public class NormalDistributionItemProvider extends ItemProviderAdapter implemen
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

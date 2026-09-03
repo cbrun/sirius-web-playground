@@ -87,12 +87,15 @@ class GuesstimateUpdateModelAdapter extends EContentAdapter {
             // }
             if (notification.getNotifier() instanceof DistributionSetting) {
                 EObject container = ((EObject) notification.getNotifier()).eContainer();
-                if (container instanceof Variable) {
-                    SamplingSimulationAdapter.getOrCreate(container).resetApacheStateFromSettings();
-                }
                 if (notification.getNotifier() instanceof FormulaSetting && notification.getFeature() == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
                     new VariableServices().setFormula((FormulaSetting) notification.getNotifier(), (String) notification.getNewValue());
+                } else if (container instanceof Variable) {
+                    SamplingSimulationAdapter.getOrCreate(container).resetApacheStateFromSettings();
                 }
+            }
+
+            if (notification.getNotifier() instanceof Sheet && notification.getFeature() == GuesstimatePackage.eINSTANCE.getSheet_SampleSize()) {
+                ((Sheet) notification.getNotifier()).resample();
             }
 
             Sheet sheetToUpdate = null;

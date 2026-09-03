@@ -20,52 +20,52 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link fr.obeo.dsl.guesstimate.impl.LogNormalDistributionImpl#getScale <em>Scale</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.impl.LogNormalDistributionImpl#getShape <em>Shape</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.impl.LogNormalDistributionImpl#getLogMean <em>Log Mean</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.impl.LogNormalDistributionImpl#getLogStandardDeviation <em>Log Standard Deviation</em>}</li>
  * </ul>
  *
  * @generated
  */
 public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container implements LogNormalDistribution {
 	/**
-	 * The default value of the '{@link #getScale() <em>Scale</em>}' attribute.
+	 * The default value of the '{@link #getLogMean() <em>Log Mean</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getScale()
+	 * @see #getLogMean()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double SCALE_EDEFAULT = 1.0;
+	protected static final double LOG_MEAN_EDEFAULT = 0.0;
 
 	/**
-	 * The cached value of the '{@link #getScale() <em>Scale</em>}' attribute.
+	 * The cached value of the '{@link #getLogMean() <em>Log Mean</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getScale()
+	 * @see #getLogMean()
 	 * @generated
 	 * @ordered
 	 */
-	protected double scale = SCALE_EDEFAULT;
+	protected double logMean = LOG_MEAN_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getShape() <em>Shape</em>}' attribute.
+	 * The default value of the '{@link #getLogStandardDeviation() <em>Log Standard Deviation</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getShape()
+	 * @see #getLogStandardDeviation()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double SHAPE_EDEFAULT = 0.0;
+	protected static final double LOG_STANDARD_DEVIATION_EDEFAULT = 1.0;
 
 	/**
-	 * The cached value of the '{@link #getShape() <em>Shape</em>}' attribute.
+	 * The cached value of the '{@link #getLogStandardDeviation() <em>Log Standard Deviation</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getShape()
+	 * @see #getLogStandardDeviation()
 	 * @generated
 	 * @ordered
 	 */
-	protected double shape = SHAPE_EDEFAULT;
+	protected double logStandardDeviation = LOG_STANDARD_DEVIATION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -92,8 +92,8 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * @generated
 	 */
 	@Override
-	public double getScale() {
-		return scale;
+	public double getLogMean() {
+		return logMean;
 	}
 
 	/**
@@ -102,11 +102,11 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * @generated
 	 */
 	@Override
-	public void setScale(double newScale) {
-		double oldScale = scale;
-		scale = newScale;
+	public void setLogMean(double newLogMean) {
+		double oldLogMean = logMean;
+		logMean = newLogMean;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE, oldScale, scale));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_MEAN, oldLogMean, logMean));
 	}
 
 	/**
@@ -115,8 +115,8 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * @generated
 	 */
 	@Override
-	public double getShape() {
-		return shape;
+	public double getLogStandardDeviation() {
+		return logStandardDeviation;
 	}
 
 	/**
@@ -125,11 +125,11 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	 * @generated
 	 */
 	@Override
-	public void setShape(double newShape) {
-		double oldShape = shape;
-		shape = newShape;
+	public void setLogStandardDeviation(double newLogStandardDeviation) {
+		double oldLogStandardDeviation = logStandardDeviation;
+		logStandardDeviation = newLogStandardDeviation;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE, oldShape, shape));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION, oldLogStandardDeviation, logStandardDeviation));
 	}
 
 	/**
@@ -140,10 +140,10 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-				return getScale();
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-				return getShape();
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_MEAN:
+				return getLogMean();
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION:
+				return getLogStandardDeviation();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -156,11 +156,11 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-				setScale((Double)newValue);
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_MEAN:
+				setLogMean((Double)newValue);
 				return;
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-				setShape((Double)newValue);
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION:
+				setLogStandardDeviation((Double)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -174,11 +174,11 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-				setScale(SCALE_EDEFAULT);
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_MEAN:
+				setLogMean(LOG_MEAN_EDEFAULT);
 				return;
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-				setShape(SHAPE_EDEFAULT);
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION:
+				setLogStandardDeviation(LOG_STANDARD_DEVIATION_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -192,10 +192,10 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-				return scale != SCALE_EDEFAULT;
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
-				return shape != SHAPE_EDEFAULT;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_MEAN:
+				return logMean != LOG_MEAN_EDEFAULT;
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION:
+				return logStandardDeviation != LOG_STANDARD_DEVIATION_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -210,10 +210,10 @@ public class LogNormalDistributionImpl extends MinimalEObjectImpl.Container impl
 		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
-		result.append(" (scale: ");
-		result.append(scale);
-		result.append(", shape: ");
-		result.append(shape);
+		result.append(" (logMean: ");
+		result.append(logMean);
+		result.append(", logStandardDeviation: ");
+		result.append(logStandardDeviation);
 		result.append(')');
 		return result.toString();
 	}

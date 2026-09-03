@@ -111,6 +111,16 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns Sheet.gif.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated NOT
@@ -187,7 +197,7 @@ public class SheetItemProvider extends ItemProviderAdapter implements IEditingDo
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

@@ -26,7 +26,6 @@ public class GuesstimateUtils {
 			if (d.getDistribution() != null) {
 				SamplingSimulationAdapter apacheBridge = SamplingSimulationAdapter.getOrCreate(d);
 				apacheBridge.resetApacheStateFromSettings();
-				apacheBridge.resample();
 			}
 		}
 

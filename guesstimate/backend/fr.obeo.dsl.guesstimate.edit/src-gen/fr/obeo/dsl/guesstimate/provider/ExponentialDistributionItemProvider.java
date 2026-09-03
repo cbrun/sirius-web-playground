@@ -82,6 +82,16 @@ public class ExponentialDistributionItemProvider extends ItemProviderAdapter imp
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns ExponentialDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -153,7 +163,7 @@ public class ExponentialDistributionItemProvider extends ItemProviderAdapter imp
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

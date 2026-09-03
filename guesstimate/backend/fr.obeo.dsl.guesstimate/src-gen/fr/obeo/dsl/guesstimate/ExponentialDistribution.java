@@ -8,7 +8,7 @@ package fr.obeo.dsl.guesstimate;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * The exponential distribution is a continuous probability distribution often used to model the time between events in a Poisson process. Characterized by the rate parameter (λ), it has a peak at zero and a long tail extending to the right. Common applications include modeling waiting times, such as the time between arrivals in a queue or the lifespan of products.
+ * The exponential distribution is a continuous probability distribution often used to model the time between events in a Poisson process. It is characterized here by its strictly positive mean and has a peak at zero with a long tail extending to the right.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -19,7 +19,7 @@ package fr.obeo.dsl.guesstimate;
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getExponentialDistribution()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='meanIsPositive'"
  * @generated
  */
 public interface ExponentialDistribution extends DistributionSetting {

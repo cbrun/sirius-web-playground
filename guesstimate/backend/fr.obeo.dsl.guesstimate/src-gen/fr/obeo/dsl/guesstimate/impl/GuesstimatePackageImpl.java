@@ -140,7 +140,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EDataType percentageEDataType = null;
+	private EDataType probabilityEDataType = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -309,7 +309,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EAttribute getNormalDistribution_Sd() {
+	public EAttribute getNormalDistribution_StandardDeviation() {
 		return (EAttribute)normalDistributionEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -329,7 +329,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EAttribute getLogNormalDistribution_Scale() {
+	public EAttribute getLogNormalDistribution_LogMean() {
 		return (EAttribute)logNormalDistributionEClass.getEStructuralFeatures().get(0);
 	}
 
@@ -339,7 +339,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EAttribute getLogNormalDistribution_Shape() {
+	public EAttribute getLogNormalDistribution_LogStandardDeviation() {
 		return (EAttribute)logNormalDistributionEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -469,7 +469,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EAttribute getBinomialDistribution_P() {
+	public EAttribute getBinomialDistribution_ProbabilityOfSuccess() {
 		return (EAttribute)binomialDistributionEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -559,18 +559,8 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EAttribute getPoissonDistribution_P() {
+	public EAttribute getPoissonDistribution_Mean() {
 		return (EAttribute)poissonDistributionEClass.getEStructuralFeatures().get(0);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public EAttribute getPoissonDistribution_Epsilon() {
-		return (EAttribute)poissonDistributionEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -639,8 +629,8 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EDataType getPercentage() {
-		return percentageEDataType;
+	public EDataType getProbability() {
+		return probabilityEDataType;
 	}
 
 	/**
@@ -683,11 +673,11 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		normalDistributionEClass = createEClass(NORMAL_DISTRIBUTION);
 		createEAttribute(normalDistributionEClass, NORMAL_DISTRIBUTION__MEAN);
-		createEAttribute(normalDistributionEClass, NORMAL_DISTRIBUTION__SD);
+		createEAttribute(normalDistributionEClass, NORMAL_DISTRIBUTION__STANDARD_DEVIATION);
 
 		logNormalDistributionEClass = createEClass(LOG_NORMAL_DISTRIBUTION);
-		createEAttribute(logNormalDistributionEClass, LOG_NORMAL_DISTRIBUTION__SCALE);
-		createEAttribute(logNormalDistributionEClass, LOG_NORMAL_DISTRIBUTION__SHAPE);
+		createEAttribute(logNormalDistributionEClass, LOG_NORMAL_DISTRIBUTION__LOG_MEAN);
+		createEAttribute(logNormalDistributionEClass, LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION);
 
 		uniformDistributionEClass = createEClass(UNIFORM_DISTRIBUTION);
 		createEAttribute(uniformDistributionEClass, UNIFORM_DISTRIBUTION__MIN);
@@ -704,7 +694,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		binomialDistributionEClass = createEClass(BINOMIAL_DISTRIBUTION);
 		createEAttribute(binomialDistributionEClass, BINOMIAL_DISTRIBUTION__TRIALS);
-		createEAttribute(binomialDistributionEClass, BINOMIAL_DISTRIBUTION__P);
+		createEAttribute(binomialDistributionEClass, BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS);
 
 		formulaSettingEClass = createEClass(FORMULA_SETTING);
 		createEAttribute(formulaSettingEClass, FORMULA_SETTING__FORMULA);
@@ -716,8 +706,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		createEOperation(sheetEClass, SHEET___RESAMPLE);
 
 		poissonDistributionEClass = createEClass(POISSON_DISTRIBUTION);
-		createEAttribute(poissonDistributionEClass, POISSON_DISTRIBUTION__P);
-		createEAttribute(poissonDistributionEClass, POISSON_DISTRIBUTION__EPSILON);
+		createEAttribute(poissonDistributionEClass, POISSON_DISTRIBUTION__MEAN);
 
 		exponentialDistributionEClass = createEClass(EXPONENTIAL_DISTRIBUTION);
 		createEAttribute(exponentialDistributionEClass, EXPONENTIAL_DISTRIBUTION__MEAN);
@@ -730,7 +719,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		variableTypeEEnum = createEEnum(VARIABLE_TYPE);
 
 		// Create data types
-		percentageEDataType = createEDataType(PERCENTAGE);
+		probabilityEDataType = createEDataType(PROBABILITY);
 	}
 
 	/**
@@ -784,11 +773,11 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		initEClass(normalDistributionEClass, NormalDistribution.class, "NormalDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getNormalDistribution_Mean(), ecorePackage.getEDouble(), "mean", null, 0, 1, NormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getNormalDistribution_Sd(), ecorePackage.getEDouble(), "sd", "1", 0, 1, NormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getNormalDistribution_StandardDeviation(), ecorePackage.getEDouble(), "standardDeviation", "1", 0, 1, NormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(logNormalDistributionEClass, LogNormalDistribution.class, "LogNormalDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getLogNormalDistribution_Scale(), ecorePackage.getEDouble(), "scale", "1", 0, 1, LogNormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getLogNormalDistribution_Shape(), ecorePackage.getEDouble(), "shape", "0", 0, 1, LogNormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLogNormalDistribution_LogMean(), ecorePackage.getEDouble(), "logMean", null, 0, 1, LogNormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getLogNormalDistribution_LogStandardDeviation(), ecorePackage.getEDouble(), "logStandardDeviation", "1", 0, 1, LogNormalDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(uniformDistributionEClass, UniformDistribution.class, "UniformDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getUniformDistribution_Min(), ecorePackage.getEDouble(), "min", null, 0, 1, UniformDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -805,7 +794,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		initEClass(binomialDistributionEClass, BinomialDistribution.class, "BinomialDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getBinomialDistribution_Trials(), ecorePackage.getEInt(), "trials", "10", 0, 1, BinomialDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getBinomialDistribution_P(), this.getPercentage(), "p", "0.5", 0, 1, BinomialDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getBinomialDistribution_ProbabilityOfSuccess(), this.getProbability(), "probabilityOfSuccess", "0.5", 1, 1, BinomialDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(formulaSettingEClass, FormulaSetting.class, "FormulaSetting", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getFormulaSetting_Formula(), ecorePackage.getEString(), "formula", null, 1, 1, FormulaSetting.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -819,8 +808,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		initEOperation(getSheet__Resample(), null, "resample", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(poissonDistributionEClass, PoissonDistribution.class, "PoissonDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getPoissonDistribution_P(), ecorePackage.getEDouble(), "p", "1", 0, 1, PoissonDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getPoissonDistribution_Epsilon(), ecorePackage.getEDouble(), "epsilon", null, 0, 1, PoissonDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getPoissonDistribution_Mean(), ecorePackage.getEDouble(), "mean", "1", 0, 1, PoissonDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(exponentialDistributionEClass, ExponentialDistribution.class, "ExponentialDistribution", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getExponentialDistribution_Mean(), ecorePackage.getEDouble(), "mean", "1", 0, 1, ExponentialDistribution.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -844,7 +832,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		addEEnumLiteral(variableTypeEEnum, VariableType.GAMMA);
 
 		// Initialize data types
-		initEDataType(percentageEDataType, Double.class, "Percentage", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
+		initEDataType(probabilityEDataType, Double.class, "Probability", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -871,16 +859,76 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 			   "constraints", "settingsAreValid nameIsValid"
 		   });
 		addAnnotation
+		  (normalDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "parametersAreValid"
+		   });
+		addAnnotation
+		  (logNormalDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "parametersAreValid"
+		   });
+		addAnnotation
 		  (uniformDistributionEClass,
 		   source,
 		   new String[] {
 			   "constraints", "minMaxAreConsistent"
 		   });
 		addAnnotation
+		  (betaDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "parametersAreValid"
+		   });
+		addAnnotation
+		  (triangularDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "parametersAreValid"
+		   });
+		addAnnotation
+		  (binomialDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "trialsAreValid"
+		   });
+		addAnnotation
 		  (formulaSettingEClass,
 		   source,
 		   new String[] {
 			   "constraints", "unknownVariable invalidSyntax"
+		   });
+		addAnnotation
+		  (sheetEClass,
+		   source,
+		   new String[] {
+			   "constraints", "sampleSizeIsPositive"
+		   });
+		addAnnotation
+		  (poissonDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "meanIsPositive"
+		   });
+		addAnnotation
+		  (exponentialDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "meanIsPositive"
+		   });
+		addAnnotation
+		  (gammaDistributionEClass,
+		   source,
+		   new String[] {
+			   "constraints", "parametersAreValid"
+		   });
+		addAnnotation
+		  (probabilityEDataType,
+		   source,
+		   new String[] {
+			   "constraints", "valueIsValid"
 		   });
 	}
 
@@ -923,7 +971,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 			   "documentation", "The mean is the central value of the normal distribution, representing the average or expected value. It is the point around which the data is symmetrically distributed. In a dataset of people\'s heights, for example, the mean height is the average height of all individuals in the dataset."
 		   });
 		addAnnotation
-		  (getNormalDistribution_Sd(),
+		  (getNormalDistribution_StandardDeviation(),
 		   source,
 		   new String[] {
 			   "documentation", "The standard deviation (\u03c3) measures the spread or dispersion of the distribution. It indicates how much the individual data points deviate from the mean. A smaller \u03c3 means the data points are closer to the mean, while a larger \u03c3 means they are more spread out. In the context of heights, a smaller standard deviation indicates that most people have heights close to the average, whereas a larger standard deviation indicates more variability in heights."
@@ -935,16 +983,16 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 			   "documentation", "The lognormal distribution is a continuous probability distribution where the logarithm of the variable follows a normal distribution. Defined by the mean (\u00b5) and standard deviation (\u03c3) of the variable\'s natural logarithm, it is right-skewed and suitable for modeling data that grows multiplicatively, such as stock prices, investment returns, and the sizes of biological organisms."
 		   });
 		addAnnotation
-		  (getLogNormalDistribution_Scale(),
+		  (getLogNormalDistribution_LogMean(),
 		   source,
 		   new String[] {
-			   "documentation", "The scale parameter (\u03c3) is the standard deviation of the natural logarithm of the variable. It measures the spread or dispersion of the distribution in the log-transformed scale. A higher \u03c3 indicates more variability in the data. Using the stock prices example, calculating the standard deviation of the logarithms of the prices gives you the scale.."
+			   "documentation", "The mean of the natural logarithm of the variable. It determines the location of the distribution on the logarithmic scale."
 		   });
 		addAnnotation
-		  (getLogNormalDistribution_Shape(),
+		  (getLogNormalDistribution_LogStandardDeviation(),
 		   source,
 		   new String[] {
-			   "documentation", "The location parameter is the mean of the natural logarithm of the variable. It represents the central tendency of the distribution in the log-transformed scale. For instance, if you have data on the prices of stocks, taking the natural logarithm of these prices and finding the average will give you the shape."
+			   "documentation", "The strictly positive standard deviation of the natural logarithm of the variable. It controls the spread of the distribution on the logarithmic scale."
 		   });
 		addAnnotation
 		  (uniformDistributionEClass,
@@ -1016,10 +1064,10 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		  (getBinomialDistribution_Trials(),
 		   source,
 		   new String[] {
-			   "documentation", "The number of trials (n) in a binomial distribution is a positive integer representing the total number of independent and identical Bernoulli trials conducted. Each trial is an experiment or process with exactly two possible outcomes: success or failure. For example, in a scenario where you flip a coin 10 times, the number of trials (n) would be 10."
+			   "documentation", "The number of trials (n) in a binomial distribution is a non-negative integer representing the total number of independent and identical Bernoulli trials conducted. Each trial is an experiment or process with exactly two possible outcomes: success or failure. For example, in a scenario where you flip a coin 10 times, the number of trials (n) would be 10."
 		   });
 		addAnnotation
-		  (getBinomialDistribution_P(),
+		  (getBinomialDistribution_ProbabilityOfSuccess(),
 		   source,
 		   new String[] {
 			   "documentation", "The probability of success (p) is a value between 0 and 1, representing the likelihood of achieving a success in each individual trial. This probability remains constant across all trials. For instance, if you are rolling a die and interested in the probability of rolling a 4, the probability of success (p) would be 1/6. In the context of a coin flip, if you define heads as a success, the probability of success (p) would be 0.5 (assuming a fair coin)."
@@ -1037,16 +1085,28 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 			   "documentation", "The Poisson distribution is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space. Defined by the rate parameter (\u03bb), it is suitable for modeling count data, such as the number of emails received per hour or the number of accidents at a traffic intersection in a day."
 		   });
 		addAnnotation
+		  (getPoissonDistribution_Mean(),
+		   source,
+		   new String[] {
+			   "documentation", "The strictly positive expected number of events in the observed interval, also known as the Poisson rate parameter \u03bb."
+		   });
+		addAnnotation
 		  (exponentialDistributionEClass,
 		   source,
 		   new String[] {
-			   "documentation", "The exponential distribution is a continuous probability distribution often used to model the time between events in a Poisson process. Characterized by the rate parameter (\u03bb), it has a peak at zero and a long tail extending to the right. Common applications include modeling waiting times, such as the time between arrivals in a queue or the lifespan of products."
+			   "documentation", "The exponential distribution is a continuous probability distribution often used to model the time between events in a Poisson process. It is characterized here by its strictly positive mean and has a peak at zero with a long tail extending to the right."
 		   });
 		addAnnotation
 		  (gammaDistributionEClass,
 		   source,
 		   new String[] {
-			   "documentation", "The gamma distribution is a continuous probability distribution that generalizes the exponential distribution by allowing the rate parameter to be variable. Defined by shape (k) and scale (\u03b8) parameters, it is useful for modeling waiting times with multiple stages, such as the time until the k-th event in a queuing process."
+			   "documentation", "The gamma distribution is a continuous probability distribution defined by strictly positive shape (k) and scale (\u03b8) parameters. It is useful for modeling waiting times with multiple stages, such as the time until the k-th event in a queuing process."
+		   });
+		addAnnotation
+		  (probabilityEDataType,
+		   source,
+		   new String[] {
+			   "documentation", "A finite probability between 0 and 1, inclusive."
 		   });
 	}
 

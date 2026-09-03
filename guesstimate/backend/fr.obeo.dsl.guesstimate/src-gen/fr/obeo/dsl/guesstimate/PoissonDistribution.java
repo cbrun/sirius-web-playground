@@ -15,58 +15,38 @@ package fr.obeo.dsl.guesstimate;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getP <em>P</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getEpsilon <em>Epsilon</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getMean <em>Mean</em>}</li>
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getPoissonDistribution()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='meanIsPositive'"
  * @generated
  */
 public interface PoissonDistribution extends DistributionSetting {
 	/**
-	 * Returns the value of the '<em><b>P</b></em>' attribute.
+	 * Returns the value of the '<em><b>Mean</b></em>' attribute.
 	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>P</em>' attribute.
-	 * @see #setP(double)
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getPoissonDistribution_P()
+	 * <!-- begin-model-doc -->
+	 * The strictly positive expected number of events in the observed interval, also known as the Poisson rate parameter λ.
+	 * <!-- end-model-doc -->
+	 * @return the value of the '<em>Mean</em>' attribute.
+	 * @see #setMean(double)
+	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getPoissonDistribution_Mean()
 	 * @model default="1"
 	 * @generated
 	 */
-	double getP();
+	double getMean();
 
 	/**
-	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getP <em>P</em>}' attribute.
+	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getMean <em>Mean</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>P</em>' attribute.
-	 * @see #getP()
+	 * @param value the new value of the '<em>Mean</em>' attribute.
+	 * @see #getMean()
 	 * @generated
 	 */
-	void setP(double value);
-
-	/**
-	 * Returns the value of the '<em><b>Epsilon</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Epsilon</em>' attribute.
-	 * @see #setEpsilon(double)
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getPoissonDistribution_Epsilon()
-	 * @model
-	 * @generated
-	 */
-	double getEpsilon();
-
-	/**
-	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getEpsilon <em>Epsilon</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Epsilon</em>' attribute.
-	 * @see #getEpsilon()
-	 * @generated
-	 */
-	void setEpsilon(double value);
+	void setMean(double value);
 
 } // PoissonDistribution

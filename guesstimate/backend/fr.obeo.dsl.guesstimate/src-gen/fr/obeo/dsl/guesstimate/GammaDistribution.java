@@ -8,7 +8,7 @@ package fr.obeo.dsl.guesstimate;
  * <!-- end-user-doc -->
  *
  * <!-- begin-model-doc -->
- * The gamma distribution is a continuous probability distribution that generalizes the exponential distribution by allowing the rate parameter to be variable. Defined by shape (k) and scale (θ) parameters, it is useful for modeling waiting times with multiple stages, such as the time until the k-th event in a queuing process.
+ * The gamma distribution is a continuous probability distribution defined by strictly positive shape (k) and scale (θ) parameters. It is useful for modeling waiting times with multiple stages, such as the time until the k-th event in a queuing process.
  * <!-- end-model-doc -->
  *
  * <p>
@@ -20,7 +20,7 @@ package fr.obeo.dsl.guesstimate;
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getGammaDistribution()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='parametersAreValid'"
  * @generated
  */
 public interface GammaDistribution extends DistributionSetting {

@@ -1,15 +1,19 @@
 package fr.obeo.dsl.guesstimate.simulation;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.TriangularDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.ecore.EObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterators;
 
@@ -29,12 +33,15 @@ import fr.obeo.dsl.guesstimate.UniformDistribution;
 import fr.obeo.dsl.guesstimate.Variable;
 import fr.obeo.dsl.guesstimate.VariableType;
 import fr.obeo.dsl.guesstimate.util.GuesstimateSwitch;
+import fr.obeo.dsl.guesstimate.util.GuesstimateValidator;
 
 public class SamplingSimulationAdapter extends AdapterImpl {
 
 	private int[] sample = null;
 	private double[] doubleSample = null;
 	private Object distributionSimulator = null;
+
+	private final Logger logger = LoggerFactory.getLogger(SamplingSimulationAdapter.class);
 
 	private void setDistributionSimulator(Object realOrIntegerDistributionFromApache) {
 		this.distributionSimulator = realOrIntegerDistributionFromApache;
@@ -46,8 +53,9 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 	public void notifyChanged(Notification msg) {
 		if (!msg.isTouch() && msg.getFeature() == GuesstimatePackage.eINSTANCE.getVariable_Distribution()) {
 			resetApacheStateFromSettings();
+		} else {
+			resample();
 		}
-		resample();
 	}
 
 	/**
@@ -56,7 +64,9 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 	public void resample() {
 		EObject target = (EObject) this.getTarget();
 		Sheet parentSheet = GuesstimateQueries.getParentSheet(target);
-		if (parentSheet != null) {
+		sample = null;
+		doubleSample = null;
+		if (parentSheet != null && parentSheet.getSampleSize() > 0) {
 			if (distributionSimulator instanceof RealDistribution) {
 				doubleSample = ((RealDistribution) distributionSimulator).sample(parentSheet.getSampleSize());
 			} else if (distributionSimulator instanceof IntegerDistribution) {
@@ -70,6 +80,7 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 	}
 
 	private void setTheEvaluationImplementation(final Variable d) {
+		this.setDistributionSimulator(null);
 		GuesstimateSwitch<Object> dispatcherForApacheDistributions = new GuesstimateSwitch<>() {
 
 			@Override
@@ -80,15 +91,14 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 
 			@Override
 			public Object casePoissonDistribution(PoissonDistribution setting) {
-				var apacheDist = new org.apache.commons.math3.distribution.PoissonDistribution(setting.getP(),
-						setting.getEpsilon());
+				var apacheDist = new org.apache.commons.math3.distribution.PoissonDistribution(setting.getMean());
 				return apacheDist;
 			}
 
 			@Override
 			public Object caseNormalDistribution(NormalDistribution setting) {
 				var apacheDist = new org.apache.commons.math3.distribution.NormalDistribution(setting.getMean(),
-						setting.getSd());
+						setting.getStandardDeviation());
 				return apacheDist;
 			}
 
@@ -114,8 +124,8 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 
 			@Override
 			public Object caseLogNormalDistribution(LogNormalDistribution setting) {
-				var apacheDist = new org.apache.commons.math3.distribution.LogNormalDistribution(setting.getScale(),
-						setting.getShape());
+				var apacheDist = new org.apache.commons.math3.distribution.LogNormalDistribution(setting.getLogMean(),
+						setting.getLogStandardDeviation());
 				return apacheDist;
 			}
 
@@ -128,7 +138,7 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 			@Override
 			public Object caseBinomialDistribution(BinomialDistribution setting) {
 				var apacheDist = new org.apache.commons.math3.distribution.BinomialDistribution(setting.getTrials(),
-						setting.getP());
+						setting.getProbabilityOfSuccess());
 				return apacheDist;
 			}
 
@@ -136,12 +146,16 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 		if (d.getType() == VariableType.FORMULA) {
 			Object formulaImplementation = new FormulaVariableComputer();
 			this.setDistributionSimulator(formulaImplementation);
-		} else if (d.getDistribution() != null) {
+		} else if (d.getDistribution() != null
+				&& GuesstimateValidator.INSTANCE.validate(d.getDistribution(), null, new HashMap<>())) {
 			try {
 				Object apacheImplementation = dispatcherForApacheDistributions.doSwitch(d.getDistribution());
 				this.setDistributionSimulator(apacheImplementation);
-			} catch (Exception e) {
-				System.err.println("ERROR" + e.getMessage());
+			} catch (MathIllegalArgumentException exception) {
+				this.logger.atDebug()
+						.setMessage("The distribution simulator could not be initialized")
+						.setCause(exception)
+						.log();
 			}
 		}
 	}

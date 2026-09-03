@@ -21,7 +21,7 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  * </p>
  * <ul>
  *   <li>{@link fr.obeo.dsl.guesstimate.impl.BinomialDistributionImpl#getTrials <em>Trials</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.impl.BinomialDistributionImpl#getP <em>P</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.impl.BinomialDistributionImpl#getProbabilityOfSuccess <em>Probability Of Success</em>}</li>
  * </ul>
  *
  * @generated
@@ -48,24 +48,24 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	protected int trials = TRIALS_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getP() <em>P</em>}' attribute.
+	 * The default value of the '{@link #getProbabilityOfSuccess() <em>Probability Of Success</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getP()
+	 * @see #getProbabilityOfSuccess()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Double P_EDEFAULT = Double.valueOf(0.5);
+	protected static final Double PROBABILITY_OF_SUCCESS_EDEFAULT = Double.valueOf(0.5);
 
 	/**
-	 * The cached value of the '{@link #getP() <em>P</em>}' attribute.
+	 * The cached value of the '{@link #getProbabilityOfSuccess() <em>Probability Of Success</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getP()
+	 * @see #getProbabilityOfSuccess()
 	 * @generated
 	 * @ordered
 	 */
-	protected Double p = P_EDEFAULT;
+	protected Double probabilityOfSuccess = PROBABILITY_OF_SUCCESS_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -115,8 +115,8 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	@Override
-	public Double getP() {
-		return p;
+	public Double getProbabilityOfSuccess() {
+		return probabilityOfSuccess;
 	}
 
 	/**
@@ -125,11 +125,11 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	@Override
-	public void setP(Double newP) {
-		Double oldP = p;
-		p = newP;
+	public void setProbabilityOfSuccess(Double newProbabilityOfSuccess) {
+		Double oldProbabilityOfSuccess = probabilityOfSuccess;
+		probabilityOfSuccess = newProbabilityOfSuccess;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BINOMIAL_DISTRIBUTION__P, oldP, p));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS, oldProbabilityOfSuccess, probabilityOfSuccess));
 	}
 
 	/**
@@ -142,8 +142,8 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 		switch (featureID) {
 			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
 				return getTrials();
-			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-				return getP();
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS:
+				return getProbabilityOfSuccess();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -159,8 +159,8 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
 				setTrials((Integer)newValue);
 				return;
-			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-				setP((Double)newValue);
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS:
+				setProbabilityOfSuccess((Double)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -177,8 +177,8 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
 				setTrials(TRIALS_EDEFAULT);
 				return;
-			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-				setP(P_EDEFAULT);
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS:
+				setProbabilityOfSuccess(PROBABILITY_OF_SUCCESS_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -194,8 +194,8 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 		switch (featureID) {
 			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__TRIALS:
 				return trials != TRIALS_EDEFAULT;
-			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__P:
-				return P_EDEFAULT == null ? p != null : !P_EDEFAULT.equals(p);
+			case GuesstimatePackage.BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS:
+				return PROBABILITY_OF_SUCCESS_EDEFAULT == null ? probabilityOfSuccess != null : !PROBABILITY_OF_SUCCESS_EDEFAULT.equals(probabilityOfSuccess);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -212,8 +212,8 @@ public class BinomialDistributionImpl extends MinimalEObjectImpl.Container imple
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (trials: ");
 		result.append(trials);
-		result.append(", p: ");
-		result.append(p);
+		result.append(", probabilityOfSuccess: ");
+		result.append(probabilityOfSuccess);
 		result.append(')');
 		return result.toString();
 	}

@@ -105,6 +105,16 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns GammaDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -177,7 +187,7 @@ public class GammaDistributionItemProvider extends ItemProviderAdapter implement
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

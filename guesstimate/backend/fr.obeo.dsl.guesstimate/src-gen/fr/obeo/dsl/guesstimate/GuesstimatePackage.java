@@ -180,13 +180,13 @@ public interface GuesstimatePackage extends EPackage {
 	int NORMAL_DISTRIBUTION__MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
 
 	/**
-	 * The feature id for the '<em><b>Sd</b></em>' attribute.
+	 * The feature id for the '<em><b>Standard Deviation</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int NORMAL_DISTRIBUTION__SD = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int NORMAL_DISTRIBUTION__STANDARD_DEVIATION = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Normal Distribution</em>' class.
@@ -217,22 +217,22 @@ public interface GuesstimatePackage extends EPackage {
 	int LOG_NORMAL_DISTRIBUTION = 3;
 
 	/**
-	 * The feature id for the '<em><b>Scale</b></em>' attribute.
+	 * The feature id for the '<em><b>Log Mean</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int LOG_NORMAL_DISTRIBUTION__SCALE = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
+	int LOG_NORMAL_DISTRIBUTION__LOG_MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
 
 	/**
-	 * The feature id for the '<em><b>Shape</b></em>' attribute.
+	 * The feature id for the '<em><b>Log Standard Deviation</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int LOG_NORMAL_DISTRIBUTION__SHAPE = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Log Normal Distribution</em>' class.
@@ -419,13 +419,13 @@ public interface GuesstimatePackage extends EPackage {
 	int BINOMIAL_DISTRIBUTION__TRIALS = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
 
 	/**
-	 * The feature id for the '<em><b>P</b></em>' attribute.
+	 * The feature id for the '<em><b>Probability Of Success</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int BINOMIAL_DISTRIBUTION__P = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of structural features of the '<em>Binomial Distribution</em>' class.
@@ -557,22 +557,13 @@ public interface GuesstimatePackage extends EPackage {
 	int POISSON_DISTRIBUTION = 10;
 
 	/**
-	 * The feature id for the '<em><b>P</b></em>' attribute.
+	 * The feature id for the '<em><b>Mean</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int POISSON_DISTRIBUTION__P = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
-
-	/**
-	 * The feature id for the '<em><b>Epsilon</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int POISSON_DISTRIBUTION__EPSILON = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
+	int POISSON_DISTRIBUTION__MEAN = DISTRIBUTION_SETTING_FEATURE_COUNT + 0;
 
 	/**
 	 * The number of structural features of the '<em>Poisson Distribution</em>' class.
@@ -581,7 +572,7 @@ public interface GuesstimatePackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int POISSON_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 2;
+	int POISSON_DISTRIBUTION_FEATURE_COUNT = DISTRIBUTION_SETTING_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of operations of the '<em>Poisson Distribution</em>' class.
@@ -686,14 +677,14 @@ public interface GuesstimatePackage extends EPackage {
 	int VARIABLE_TYPE = 13;
 
 	/**
-	 * The meta object id for the '<em>Percentage</em>' data type.
+	 * The meta object id for the '<em>Probability</em>' data type.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see java.lang.Double
-	 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getPercentage()
+	 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getProbability()
 	 * @generated
 	 */
-	int PERCENTAGE = 14;
+	int PROBABILITY = 14;
 
 	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.Variable <em>Variable</em>}'.
@@ -792,15 +783,15 @@ public interface GuesstimatePackage extends EPackage {
 	EAttribute getNormalDistribution_Mean();
 
 	/**
-	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.NormalDistribution#getSd <em>Sd</em>}'.
+	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.NormalDistribution#getStandardDeviation <em>Standard Deviation</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Sd</em>'.
-	 * @see fr.obeo.dsl.guesstimate.NormalDistribution#getSd()
+	 * @return the meta object for the attribute '<em>Standard Deviation</em>'.
+	 * @see fr.obeo.dsl.guesstimate.NormalDistribution#getStandardDeviation()
 	 * @see #getNormalDistribution()
 	 * @generated
 	 */
-	EAttribute getNormalDistribution_Sd();
+	EAttribute getNormalDistribution_StandardDeviation();
 
 	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution <em>Log Normal Distribution</em>}'.
@@ -813,26 +804,26 @@ public interface GuesstimatePackage extends EPackage {
 	EClass getLogNormalDistribution();
 
 	/**
-	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getScale <em>Scale</em>}'.
+	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogMean <em>Log Mean</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Scale</em>'.
-	 * @see fr.obeo.dsl.guesstimate.LogNormalDistribution#getScale()
+	 * @return the meta object for the attribute '<em>Log Mean</em>'.
+	 * @see fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogMean()
 	 * @see #getLogNormalDistribution()
 	 * @generated
 	 */
-	EAttribute getLogNormalDistribution_Scale();
+	EAttribute getLogNormalDistribution_LogMean();
 
 	/**
-	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getShape <em>Shape</em>}'.
+	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogStandardDeviation <em>Log Standard Deviation</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Shape</em>'.
-	 * @see fr.obeo.dsl.guesstimate.LogNormalDistribution#getShape()
+	 * @return the meta object for the attribute '<em>Log Standard Deviation</em>'.
+	 * @see fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogStandardDeviation()
 	 * @see #getLogNormalDistribution()
 	 * @generated
 	 */
-	EAttribute getLogNormalDistribution_Shape();
+	EAttribute getLogNormalDistribution_LogStandardDeviation();
 
 	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.UniformDistribution <em>Uniform Distribution</em>}'.
@@ -963,15 +954,15 @@ public interface GuesstimatePackage extends EPackage {
 	EAttribute getBinomialDistribution_Trials();
 
 	/**
-	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getP <em>P</em>}'.
+	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getProbabilityOfSuccess <em>Probability Of Success</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>P</em>'.
-	 * @see fr.obeo.dsl.guesstimate.BinomialDistribution#getP()
+	 * @return the meta object for the attribute '<em>Probability Of Success</em>'.
+	 * @see fr.obeo.dsl.guesstimate.BinomialDistribution#getProbabilityOfSuccess()
 	 * @see #getBinomialDistribution()
 	 * @generated
 	 */
-	EAttribute getBinomialDistribution_P();
+	EAttribute getBinomialDistribution_ProbabilityOfSuccess();
 
 	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.FormulaSetting <em>Formula Setting</em>}'.
@@ -1058,26 +1049,15 @@ public interface GuesstimatePackage extends EPackage {
 	EClass getPoissonDistribution();
 
 	/**
-	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getP <em>P</em>}'.
+	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getMean <em>Mean</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>P</em>'.
-	 * @see fr.obeo.dsl.guesstimate.PoissonDistribution#getP()
+	 * @return the meta object for the attribute '<em>Mean</em>'.
+	 * @see fr.obeo.dsl.guesstimate.PoissonDistribution#getMean()
 	 * @see #getPoissonDistribution()
 	 * @generated
 	 */
-	EAttribute getPoissonDistribution_P();
-
-	/**
-	 * Returns the meta object for the attribute '{@link fr.obeo.dsl.guesstimate.PoissonDistribution#getEpsilon <em>Epsilon</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Epsilon</em>'.
-	 * @see fr.obeo.dsl.guesstimate.PoissonDistribution#getEpsilon()
-	 * @see #getPoissonDistribution()
-	 * @generated
-	 */
-	EAttribute getPoissonDistribution_Epsilon();
+	EAttribute getPoissonDistribution_Mean();
 
 	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.ExponentialDistribution <em>Exponential Distribution</em>}'.
@@ -1143,15 +1123,19 @@ public interface GuesstimatePackage extends EPackage {
 	EEnum getVariableType();
 
 	/**
-	 * Returns the meta object for data type '{@link java.lang.Double <em>Percentage</em>}'.
+	 * Returns the meta object for data type '{@link java.lang.Double <em>Probability</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for data type '<em>Percentage</em>'.
+     * <!-- begin-model-doc -->
+     * A finite probability between 0 and 1, inclusive.
+     * <!-- end-model-doc -->
+	 * @return the meta object for data type '<em>Probability</em>'.
 	 * @see java.lang.Double
 	 * @model instanceClass="java.lang.Double"
+	 *        annotation="http://www.eclipse.org/emf/2002/Ecore constraints='valueIsValid'"
 	 * @generated
 	 */
-	EDataType getPercentage();
+	EDataType getProbability();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -1255,12 +1239,12 @@ public interface GuesstimatePackage extends EPackage {
 		EAttribute NORMAL_DISTRIBUTION__MEAN = eINSTANCE.getNormalDistribution_Mean();
 
 		/**
-		 * The meta object literal for the '<em><b>Sd</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Standard Deviation</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute NORMAL_DISTRIBUTION__SD = eINSTANCE.getNormalDistribution_Sd();
+		EAttribute NORMAL_DISTRIBUTION__STANDARD_DEVIATION = eINSTANCE.getNormalDistribution_StandardDeviation();
 
 		/**
 		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.impl.LogNormalDistributionImpl <em>Log Normal Distribution</em>}' class.
@@ -1273,20 +1257,20 @@ public interface GuesstimatePackage extends EPackage {
 		EClass LOG_NORMAL_DISTRIBUTION = eINSTANCE.getLogNormalDistribution();
 
 		/**
-		 * The meta object literal for the '<em><b>Scale</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Log Mean</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute LOG_NORMAL_DISTRIBUTION__SCALE = eINSTANCE.getLogNormalDistribution_Scale();
+		EAttribute LOG_NORMAL_DISTRIBUTION__LOG_MEAN = eINSTANCE.getLogNormalDistribution_LogMean();
 
 		/**
-		 * The meta object literal for the '<em><b>Shape</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Log Standard Deviation</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute LOG_NORMAL_DISTRIBUTION__SHAPE = eINSTANCE.getLogNormalDistribution_Shape();
+		EAttribute LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION = eINSTANCE.getLogNormalDistribution_LogStandardDeviation();
 
 		/**
 		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.impl.UniformDistributionImpl <em>Uniform Distribution</em>}' class.
@@ -1393,12 +1377,12 @@ public interface GuesstimatePackage extends EPackage {
 		EAttribute BINOMIAL_DISTRIBUTION__TRIALS = eINSTANCE.getBinomialDistribution_Trials();
 
 		/**
-		 * The meta object literal for the '<em><b>P</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Probability Of Success</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute BINOMIAL_DISTRIBUTION__P = eINSTANCE.getBinomialDistribution_P();
+		EAttribute BINOMIAL_DISTRIBUTION__PROBABILITY_OF_SUCCESS = eINSTANCE.getBinomialDistribution_ProbabilityOfSuccess();
 
 		/**
 		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.impl.FormulaSettingImpl <em>Formula Setting</em>}' class.
@@ -1471,20 +1455,12 @@ public interface GuesstimatePackage extends EPackage {
 		EClass POISSON_DISTRIBUTION = eINSTANCE.getPoissonDistribution();
 
 		/**
-		 * The meta object literal for the '<em><b>P</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Mean</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute POISSON_DISTRIBUTION__P = eINSTANCE.getPoissonDistribution_P();
-
-		/**
-		 * The meta object literal for the '<em><b>Epsilon</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute POISSON_DISTRIBUTION__EPSILON = eINSTANCE.getPoissonDistribution_Epsilon();
+		EAttribute POISSON_DISTRIBUTION__MEAN = eINSTANCE.getPoissonDistribution_Mean();
 
 		/**
 		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.impl.ExponentialDistributionImpl <em>Exponential Distribution</em>}' class.
@@ -1541,14 +1517,14 @@ public interface GuesstimatePackage extends EPackage {
 		EEnum VARIABLE_TYPE = eINSTANCE.getVariableType();
 
 		/**
-		 * The meta object literal for the '<em>Percentage</em>' data type.
+		 * The meta object literal for the '<em>Probability</em>' data type.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @see java.lang.Double
-		 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getPercentage()
+		 * @see fr.obeo.dsl.guesstimate.impl.GuesstimatePackageImpl#getProbability()
 		 * @generated
 		 */
-		EDataType PERCENTAGE = eINSTANCE.getPercentage();
+		EDataType PROBABILITY = eINSTANCE.getProbability();
 
 	}
 

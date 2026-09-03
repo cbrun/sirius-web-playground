@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.EObject;
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getSheet()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='sampleSizeIsPositive'"
  * @generated
  */
 public interface Sheet extends EObject {

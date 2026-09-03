@@ -21,7 +21,7 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  * </p>
  * <ul>
  *   <li>{@link fr.obeo.dsl.guesstimate.impl.NormalDistributionImpl#getMean <em>Mean</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.impl.NormalDistributionImpl#getSd <em>Sd</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.impl.NormalDistributionImpl#getStandardDeviation <em>Standard Deviation</em>}</li>
  * </ul>
  *
  * @generated
@@ -48,24 +48,24 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	protected double mean = MEAN_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getSd() <em>Sd</em>}' attribute.
+	 * The default value of the '{@link #getStandardDeviation() <em>Standard Deviation</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getSd()
+	 * @see #getStandardDeviation()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final double SD_EDEFAULT = 1.0;
+	protected static final double STANDARD_DEVIATION_EDEFAULT = 1.0;
 
 	/**
-	 * The cached value of the '{@link #getSd() <em>Sd</em>}' attribute.
+	 * The cached value of the '{@link #getStandardDeviation() <em>Standard Deviation</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getSd()
+	 * @see #getStandardDeviation()
 	 * @generated
 	 * @ordered
 	 */
-	protected double sd = SD_EDEFAULT;
+	protected double standardDeviation = STANDARD_DEVIATION_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -115,8 +115,8 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 * @generated
 	 */
 	@Override
-	public double getSd() {
-		return sd;
+	public double getStandardDeviation() {
+		return standardDeviation;
 	}
 
 	/**
@@ -125,11 +125,11 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 	 * @generated
 	 */
 	@Override
-	public void setSd(double newSd) {
-		double oldSd = sd;
-		sd = newSd;
+	public void setStandardDeviation(double newStandardDeviation) {
+		double oldStandardDeviation = standardDeviation;
+		standardDeviation = newStandardDeviation;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.NORMAL_DISTRIBUTION__SD, oldSd, sd));
+			eNotify(new ENotificationImpl(this, Notification.SET, GuesstimatePackage.NORMAL_DISTRIBUTION__STANDARD_DEVIATION, oldStandardDeviation, standardDeviation));
 	}
 
 	/**
@@ -142,8 +142,8 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 		switch (featureID) {
 			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
 				return getMean();
-			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-				return getSd();
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__STANDARD_DEVIATION:
+				return getStandardDeviation();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -159,8 +159,8 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
 				setMean((Double)newValue);
 				return;
-			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-				setSd((Double)newValue);
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__STANDARD_DEVIATION:
+				setStandardDeviation((Double)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -177,8 +177,8 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
 				setMean(MEAN_EDEFAULT);
 				return;
-			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-				setSd(SD_EDEFAULT);
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__STANDARD_DEVIATION:
+				setStandardDeviation(STANDARD_DEVIATION_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -194,8 +194,8 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 		switch (featureID) {
 			case GuesstimatePackage.NORMAL_DISTRIBUTION__MEAN:
 				return mean != MEAN_EDEFAULT;
-			case GuesstimatePackage.NORMAL_DISTRIBUTION__SD:
-				return sd != SD_EDEFAULT;
+			case GuesstimatePackage.NORMAL_DISTRIBUTION__STANDARD_DEVIATION:
+				return standardDeviation != STANDARD_DEVIATION_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -212,8 +212,8 @@ public class NormalDistributionImpl extends MinimalEObjectImpl.Container impleme
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (mean: ");
 		result.append(mean);
-		result.append(", sd: ");
-		result.append(sd);
+		result.append(", standardDeviation: ");
+		result.append(standardDeviation);
 		result.append(')');
 		return result.toString();
 	}

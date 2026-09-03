@@ -15,65 +15,64 @@ package fr.obeo.dsl.guesstimate;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getScale <em>Scale</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getShape <em>Shape</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogMean <em>Log Mean</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogStandardDeviation <em>Log Standard Deviation</em>}</li>
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getLogNormalDistribution()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='parametersAreValid'"
  * @generated
  */
 public interface LogNormalDistribution extends DistributionSetting {
 	/**
-	 * Returns the value of the '<em><b>Scale</b></em>' attribute.
+	 * Returns the value of the '<em><b>Log Mean</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * <!-- begin-model-doc -->
+	 * The mean of the natural logarithm of the variable. It determines the location of the distribution on the logarithmic scale.
+	 * <!-- end-model-doc -->
+	 * @return the value of the '<em>Log Mean</em>' attribute.
+	 * @see #setLogMean(double)
+	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getLogNormalDistribution_LogMean()
+	 * @model
+	 * @generated
+	 */
+	double getLogMean();
+
+	/**
+	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogMean <em>Log Mean</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Log Mean</em>' attribute.
+	 * @see #getLogMean()
+	 * @generated
+	 */
+	void setLogMean(double value);
+
+	/**
+	 * Returns the value of the '<em><b>Log Standard Deviation</b></em>' attribute.
 	 * The default value is <code>"1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The scale parameter (σ) is the standard deviation of the natural logarithm of the variable. It measures the spread or dispersion of the distribution in the log-transformed scale. A higher σ indicates more variability in the data. Using the stock prices example, calculating the standard deviation of the logarithms of the prices gives you the scale..
+	 * The strictly positive standard deviation of the natural logarithm of the variable. It controls the spread of the distribution on the logarithmic scale.
 	 * <!-- end-model-doc -->
-	 * @return the value of the '<em>Scale</em>' attribute.
-	 * @see #setScale(double)
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getLogNormalDistribution_Scale()
+	 * @return the value of the '<em>Log Standard Deviation</em>' attribute.
+	 * @see #setLogStandardDeviation(double)
+	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getLogNormalDistribution_LogStandardDeviation()
 	 * @model default="1"
 	 * @generated
 	 */
-	double getScale();
+	double getLogStandardDeviation();
 
 	/**
-	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getScale <em>Scale</em>}' attribute.
+	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getLogStandardDeviation <em>Log Standard Deviation</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Scale</em>' attribute.
-	 * @see #getScale()
+	 * @param value the new value of the '<em>Log Standard Deviation</em>' attribute.
+	 * @see #getLogStandardDeviation()
 	 * @generated
 	 */
-	void setScale(double value);
-
-	/**
-	 * Returns the value of the '<em><b>Shape</b></em>' attribute.
-	 * The default value is <code>"0"</code>.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * <!-- begin-model-doc -->
-	 * The location parameter is the mean of the natural logarithm of the variable. It represents the central tendency of the distribution in the log-transformed scale. For instance, if you have data on the prices of stocks, taking the natural logarithm of these prices and finding the average will give you the shape.
-	 * <!-- end-model-doc -->
-	 * @return the value of the '<em>Shape</em>' attribute.
-	 * @see #setShape(double)
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getLogNormalDistribution_Shape()
-	 * @model default="0"
-	 * @generated
-	 */
-	double getShape();
-
-	/**
-	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.LogNormalDistribution#getShape <em>Shape</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Shape</em>' attribute.
-	 * @see #getShape()
-	 * @generated
-	 */
-	void setShape(double value);
+	void setLogStandardDeviation(double value);
 
 } // LogNormalDistribution

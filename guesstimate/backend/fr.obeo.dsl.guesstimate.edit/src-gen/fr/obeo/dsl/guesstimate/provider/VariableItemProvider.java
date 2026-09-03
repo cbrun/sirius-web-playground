@@ -155,6 +155,16 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns Variable.gif. <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
 	 * @generated NOT
@@ -273,7 +283,7 @@ public class VariableItemProvider extends ItemProviderAdapter implements IEditin
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

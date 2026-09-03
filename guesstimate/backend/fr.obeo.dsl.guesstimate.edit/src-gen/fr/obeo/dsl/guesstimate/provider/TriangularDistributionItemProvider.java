@@ -128,6 +128,16 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns TriangularDistribution.svg.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -201,7 +211,7 @@ public class TriangularDistributionItemProvider extends ItemProviderAdapter impl
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

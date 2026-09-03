@@ -20,7 +20,7 @@ package fr.obeo.dsl.guesstimate;
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getBetaDistribution()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='parametersAreValid'"
  * @generated
  */
 public interface BetaDistribution extends DistributionSetting {

@@ -16,11 +16,11 @@ package fr.obeo.dsl.guesstimate;
  * </p>
  * <ul>
  *   <li>{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getTrials <em>Trials</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getP <em>P</em>}</li>
+ *   <li>{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getProbabilityOfSuccess <em>Probability Of Success</em>}</li>
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getBinomialDistribution()
- * @model
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='trialsAreValid'"
  * @generated
  */
 public interface BinomialDistribution extends DistributionSetting {
@@ -30,7 +30,7 @@ public interface BinomialDistribution extends DistributionSetting {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The number of trials (n) in a binomial distribution is a positive integer representing the total number of independent and identical Bernoulli trials conducted. Each trial is an experiment or process with exactly two possible outcomes: success or failure. For example, in a scenario where you flip a coin 10 times, the number of trials (n) would be 10.
+	 * The number of trials (n) in a binomial distribution is a non-negative integer representing the total number of independent and identical Bernoulli trials conducted. Each trial is an experiment or process with exactly two possible outcomes: success or failure. For example, in a scenario where you flip a coin 10 times, the number of trials (n) would be 10.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Trials</em>' attribute.
 	 * @see #setTrials(int)
@@ -51,29 +51,29 @@ public interface BinomialDistribution extends DistributionSetting {
 	void setTrials(int value);
 
 	/**
-	 * Returns the value of the '<em><b>P</b></em>' attribute.
+	 * Returns the value of the '<em><b>Probability Of Success</b></em>' attribute.
 	 * The default value is <code>"0.5"</code>.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
 	 * The probability of success (p) is a value between 0 and 1, representing the likelihood of achieving a success in each individual trial. This probability remains constant across all trials. For instance, if you are rolling a die and interested in the probability of rolling a 4, the probability of success (p) would be 1/6. In the context of a coin flip, if you define heads as a success, the probability of success (p) would be 0.5 (assuming a fair coin).
 	 * <!-- end-model-doc -->
-	 * @return the value of the '<em>P</em>' attribute.
-	 * @see #setP(Double)
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getBinomialDistribution_P()
-	 * @model default="0.5" dataType="fr.obeo.dsl.guesstimate.Percentage"
+	 * @return the value of the '<em>Probability Of Success</em>' attribute.
+	 * @see #setProbabilityOfSuccess(Double)
+	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getBinomialDistribution_ProbabilityOfSuccess()
+	 * @model default="0.5" dataType="fr.obeo.dsl.guesstimate.Probability" required="true"
 	 * @generated
 	 */
-	Double getP();
+	Double getProbabilityOfSuccess();
 
 	/**
-	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getP <em>P</em>}' attribute.
+	 * Sets the value of the '{@link fr.obeo.dsl.guesstimate.BinomialDistribution#getProbabilityOfSuccess <em>Probability Of Success</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>P</em>' attribute.
-	 * @see #getP()
+	 * @param value the new value of the '<em>Probability Of Success</em>' attribute.
+	 * @see #getProbabilityOfSuccess()
 	 * @generated
 	 */
-	void setP(Double value);
+	void setProbabilityOfSuccess(Double value);
 
 } // BinomialDistribution

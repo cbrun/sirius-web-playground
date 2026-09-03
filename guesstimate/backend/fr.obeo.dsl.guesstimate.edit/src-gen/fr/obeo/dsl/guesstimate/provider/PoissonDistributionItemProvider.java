@@ -54,26 +54,25 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addPPropertyDescriptor(object);
-			addEpsilonPropertyDescriptor(object);
+			addMeanPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
 
 	/**
-	 * This adds a property descriptor for the P feature.
+	 * This adds a property descriptor for the Mean feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addPPropertyDescriptor(Object object) {
+	protected void addMeanPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_PoissonDistribution_p_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_p_feature", "_UI_PoissonDistribution_type"),
-				 GuesstimatePackage.Literals.POISSON_DISTRIBUTION__P,
+				 getString("_UI_PoissonDistribution_mean_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_mean_feature", "_UI_PoissonDistribution_type"),
+				 GuesstimatePackage.Literals.POISSON_DISTRIBUTION__MEAN,
 				 true,
 				 false,
 				 false,
@@ -83,25 +82,13 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	}
 
 	/**
-	 * This adds a property descriptor for the Epsilon feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addEpsilonPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_PoissonDistribution_epsilon_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_PoissonDistribution_epsilon_feature", "_UI_PoissonDistribution_type"),
-				 GuesstimatePackage.Literals.POISSON_DISTRIBUTION__EPSILON,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
-				 null,
-				 null));
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
 	}
 
 	/**
@@ -134,7 +121,7 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	@Override
 	public String getText(Object object) {
 		PoissonDistribution poissonDistribution = (PoissonDistribution)object;
-		return getString("_UI_PoissonDistribution_type") + " " + poissonDistribution.getP();
+		return getString("_UI_PoissonDistribution_type") + " " + poissonDistribution.getMean();
 	}
 
 	/**
@@ -149,8 +136,7 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(PoissonDistribution.class)) {
-			case GuesstimatePackage.POISSON_DISTRIBUTION__P:
-			case GuesstimatePackage.POISSON_DISTRIBUTION__EPSILON:
+			case GuesstimatePackage.POISSON_DISTRIBUTION__MEAN:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
@@ -177,7 +163,7 @@ public class PoissonDistributionItemProvider extends ItemProviderAdapter impleme
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

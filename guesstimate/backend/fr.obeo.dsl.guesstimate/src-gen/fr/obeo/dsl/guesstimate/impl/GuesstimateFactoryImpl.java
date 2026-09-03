@@ -79,8 +79,8 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 		switch (eDataType.getClassifierID()) {
 			case GuesstimatePackage.VARIABLE_TYPE:
 				return createVariableTypeFromString(eDataType, initialValue);
-			case GuesstimatePackage.PERCENTAGE:
-				return createPercentageFromString(eDataType, initialValue);
+			case GuesstimatePackage.PROBABILITY:
+				return createProbabilityFromString(eDataType, initialValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -95,8 +95,8 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 		switch (eDataType.getClassifierID()) {
 			case GuesstimatePackage.VARIABLE_TYPE:
 				return convertVariableTypeToString(eDataType, instanceValue);
-			case GuesstimatePackage.PERCENTAGE:
-				return convertPercentageToString(eDataType, instanceValue);
+			case GuesstimatePackage.PROBABILITY:
+				return convertProbabilityToString(eDataType, instanceValue);
 			default:
 				throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
 		}
@@ -254,20 +254,11 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
-	 * @generated NOT
-	 */
-	public String convertThreePointsToString(EDataType eDataType, Object instanceValue) {
-		return instanceValue.toString();
-	}
-
-	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Double createPercentageFromString(EDataType eDataType, String initialValue) {
+	public Double createProbabilityFromString(EDataType eDataType, String initialValue) {
 		return (Double)super.createFromString(eDataType, initialValue);
 	}
 
@@ -276,8 +267,17 @@ public class GuesstimateFactoryImpl extends EFactoryImpl implements GuesstimateF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String convertPercentageToString(EDataType eDataType, Object instanceValue) {
+	public String convertProbabilityToString(EDataType eDataType, Object instanceValue) {
 		return super.convertToString(eDataType, instanceValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * 
+	 * @generated NOT
+	 */
+	public String convertThreePointsToString(EDataType eDataType, Object instanceValue) {
+		return instanceValue.toString();
 	}
 
 	/**

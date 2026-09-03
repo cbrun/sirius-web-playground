@@ -134,8 +134,8 @@ public class GuesstimateValidator extends EObjectValidator {
 				return validateGammaDistribution((GammaDistribution)value, diagnostics, context);
 			case GuesstimatePackage.VARIABLE_TYPE:
 				return validateVariableType((VariableType)value, diagnostics, context);
-			case GuesstimatePackage.PERCENTAGE:
-				return validatePercentage((Double)value, diagnostics, context);
+			case GuesstimatePackage.PROBABILITY:
+				return validateProbability((Double)value, diagnostics, context);
 			default:
 				return true;
 		}
@@ -234,7 +234,39 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateNormalDistribution(NormalDistribution normalDistribution, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(normalDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(normalDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(normalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateNormalDistribution_parametersAreValid(normalDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the parametersAreValid constraint of '<em>Normal Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateNormalDistribution_parametersAreValid(NormalDistribution normalDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (!Double.isFinite(normalDistribution.getMean())
+				|| !Double.isFinite(normalDistribution.getStandardDeviation())
+				|| normalDistribution.getStandardDeviation() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateNormalDistribution_parametersAreValidConstraint_diagnostic",
+						new Object[] { "parametersAreValid", getObjectLabel(normalDistribution, context) },
+						new Object[] { normalDistribution, GuesstimatePackage.eINSTANCE.getNormalDistribution_Mean(),
+								GuesstimatePackage.eINSTANCE.getNormalDistribution_StandardDeviation() }, context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -243,7 +275,39 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateLogNormalDistribution(LogNormalDistribution logNormalDistribution,
 			DiagnosticChain diagnostics, Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(logNormalDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(logNormalDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(logNormalDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateLogNormalDistribution_parametersAreValid(logNormalDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the parametersAreValid constraint of '<em>Log Normal Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateLogNormalDistribution_parametersAreValid(LogNormalDistribution logNormalDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (!Double.isFinite(logNormalDistribution.getLogMean())
+				|| !Double.isFinite(logNormalDistribution.getLogStandardDeviation())
+				|| logNormalDistribution.getLogStandardDeviation() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateLogNormalDistribution_parametersAreValidConstraint_diagnostic",
+						new Object[] { "parametersAreValid", getObjectLabel(logNormalDistribution, context) },
+						new Object[] { logNormalDistribution, GuesstimatePackage.eINSTANCE.getLogNormalDistribution_LogMean(),
+								GuesstimatePackage.eINSTANCE.getLogNormalDistribution_LogStandardDeviation() }, context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -273,12 +337,14 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateUniformDistribution_minMaxAreConsistent(UniformDistribution uniformDistribution,
 			DiagnosticChain diagnostics, Map<Object, Object> context) {
-		if (uniformDistribution.getMax() < uniformDistribution.getMin()) {
+		if (!Double.isFinite(uniformDistribution.getMin()) || !Double.isFinite(uniformDistribution.getMax())
+				|| uniformDistribution.getMin() >= uniformDistribution.getMax()) {
 			if (diagnostics != null) {
 				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
 						"_UI_validateUniformDistribution_minMaxAreConsistentConstraint_diagnostic",
 						new Object[] { "minMaxAreConsistent", getObjectLabel(uniformDistribution, context) },
-						new Object[] { uniformDistribution, GuesstimatePackage.eINSTANCE.getUniformDistribution_Max() },
+						new Object[] { uniformDistribution, GuesstimatePackage.eINSTANCE.getUniformDistribution_Min(),
+								GuesstimatePackage.eINSTANCE.getUniformDistribution_Max() },
 						context));
 			}
 			return false;
@@ -292,7 +358,38 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateBetaDistribution(BetaDistribution betaDistribution, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(betaDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(betaDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(betaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateBetaDistribution_parametersAreValid(betaDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the parametersAreValid constraint of '<em>Beta Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateBetaDistribution_parametersAreValid(BetaDistribution betaDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (!Double.isFinite(betaDistribution.getAlpha()) || betaDistribution.getAlpha() <= 0
+				|| !Double.isFinite(betaDistribution.getBeta()) || betaDistribution.getBeta() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateBetaDistribution_parametersAreValidConstraint_diagnostic",
+						new Object[] { "parametersAreValid", getObjectLabel(betaDistribution, context) },
+						new Object[] { betaDistribution, GuesstimatePackage.eINSTANCE.getBetaDistribution_Alpha(),
+								GuesstimatePackage.eINSTANCE.getBetaDistribution_Beta() }, context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -301,7 +398,42 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateTriangularDistribution(TriangularDistribution triangularDistribution,
 			DiagnosticChain diagnostics, Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(triangularDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(triangularDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(triangularDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateTriangularDistribution_parametersAreValid(triangularDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the parametersAreValid constraint of '<em>Triangular Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateTriangularDistribution_parametersAreValid(TriangularDistribution triangularDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		double min = triangularDistribution.getMin();
+		double max = triangularDistribution.getMax();
+		double mode = triangularDistribution.getMode();
+		if (!Double.isFinite(min) || !Double.isFinite(max) || !Double.isFinite(mode)
+				|| min >= max || mode < min || mode > max) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateTriangularDistribution_parametersAreValidConstraint_diagnostic",
+						new Object[] { "parametersAreValid", getObjectLabel(triangularDistribution, context) },
+						new Object[] { triangularDistribution, GuesstimatePackage.eINSTANCE.getTriangularDistribution_Min(),
+								GuesstimatePackage.eINSTANCE.getTriangularDistribution_Max(),
+								GuesstimatePackage.eINSTANCE.getTriangularDistribution_Mode() }, context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -310,7 +442,37 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateBinomialDistribution(BinomialDistribution binomialDistribution, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(binomialDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(binomialDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(binomialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateBinomialDistribution_trialsAreValid(binomialDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the trialsAreValid constraint of '<em>Binomial Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateBinomialDistribution_trialsAreValid(BinomialDistribution binomialDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (binomialDistribution.getTrials() < 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateBinomialDistribution_trialsAreValidConstraint_diagnostic",
+						new Object[] { "trialsAreValid", getObjectLabel(binomialDistribution, context) },
+						new Object[] { binomialDistribution, GuesstimatePackage.eINSTANCE.getBinomialDistribution_Trials() },
+						context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -408,7 +570,36 @@ public class GuesstimateValidator extends EObjectValidator {
 	 * @generated
 	 */
 	public boolean validateSheet(Sheet sheet, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(sheet, diagnostics, context);
+		if (!validate_NoCircularContainment(sheet, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validateSheet_sampleSizeIsPositive(sheet, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the sampleSizeIsPositive constraint of '<em>Sheet</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateSheet_sampleSizeIsPositive(Sheet sheet, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (sheet.getSampleSize() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateSheet_sampleSizeIsPositiveConstraint_diagnostic",
+						new Object[] { "sampleSizeIsPositive", getObjectLabel(sheet, context) },
+						new Object[] { sheet, GuesstimatePackage.eINSTANCE.getSheet_SampleSize() }, context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -417,7 +608,37 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validatePoissonDistribution(PoissonDistribution poissonDistribution, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(poissonDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(poissonDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(poissonDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validatePoissonDistribution_meanIsPositive(poissonDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the meanIsPositive constraint of '<em>Poisson Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validatePoissonDistribution_meanIsPositive(PoissonDistribution poissonDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (!Double.isFinite(poissonDistribution.getMean()) || poissonDistribution.getMean() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validatePoissonDistribution_meanIsPositiveConstraint_diagnostic",
+						new Object[] { "meanIsPositive", getObjectLabel(poissonDistribution, context) },
+						new Object[] { poissonDistribution, GuesstimatePackage.eINSTANCE.getPoissonDistribution_Mean() },
+						context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -426,7 +647,37 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateExponentialDistribution(ExponentialDistribution exponentialDistribution,
 			DiagnosticChain diagnostics, Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(exponentialDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(exponentialDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(exponentialDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateExponentialDistribution_meanIsPositive(exponentialDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the meanIsPositive constraint of '<em>Exponential Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateExponentialDistribution_meanIsPositive(ExponentialDistribution exponentialDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (!Double.isFinite(exponentialDistribution.getMean()) || exponentialDistribution.getMean() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateExponentialDistribution_meanIsPositiveConstraint_diagnostic",
+						new Object[] { "meanIsPositive", getObjectLabel(exponentialDistribution, context) },
+						new Object[] { exponentialDistribution, GuesstimatePackage.eINSTANCE.getExponentialDistribution_Mean() },
+						context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -435,7 +686,38 @@ public class GuesstimateValidator extends EObjectValidator {
 	 */
 	public boolean validateGammaDistribution(GammaDistribution gammaDistribution, DiagnosticChain diagnostics,
 			Map<Object, Object> context) {
-		return validate_EveryDefaultConstraint(gammaDistribution, diagnostics, context);
+		if (!validate_NoCircularContainment(gammaDistribution, diagnostics, context)) return false;
+		boolean result = validate_EveryMultiplicityConforms(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryDataValueConforms(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryReferenceIsContained(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryBidirectionalReferenceIsPaired(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryProxyResolves(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_UniqueID(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryKeyUnique(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(gammaDistribution, diagnostics, context);
+		if (result || diagnostics != null) result &= validateGammaDistribution_parametersAreValid(gammaDistribution, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the parametersAreValid constraint of '<em>Gamma Distribution</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateGammaDistribution_parametersAreValid(GammaDistribution gammaDistribution, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (!Double.isFinite(gammaDistribution.getShape()) || gammaDistribution.getShape() <= 0
+				|| !Double.isFinite(gammaDistribution.getScale()) || gammaDistribution.getScale() <= 0) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateGammaDistribution_parametersAreValidConstraint_diagnostic",
+						new Object[] { "parametersAreValid", getObjectLabel(gammaDistribution, context) },
+						new Object[] { gammaDistribution, GuesstimatePackage.eINSTANCE.getGammaDistribution_Shape(),
+								GuesstimatePackage.eINSTANCE.getGammaDistribution_Scale() }, context));
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -448,10 +730,31 @@ public class GuesstimateValidator extends EObjectValidator {
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validatePercentage(Double percentage, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateProbability(Double probability, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		boolean result = validateProbability_valueIsValid(probability, diagnostics, context);
+		return result;
+	}
+
+	/**
+	 * Validates the valueIsValid constraint of '<em>Probability</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateProbability_valueIsValid(Double probability, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (probability == null || !Double.isFinite(probability) || probability < 0 || probability > 1) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateProbability_valueIsValidConstraint_diagnostic",
+						new Object[] { "valueIsValid", getValueLabel(GuesstimatePackage.Literals.PROBABILITY, probability, context) },
+						new Object[] { probability }, context));
+			}
+			return false;
+		}
 		return true;
 	}
 

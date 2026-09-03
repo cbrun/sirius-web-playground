@@ -105,6 +105,16 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 	}
 
 	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
+	}
+
+	/**
 	 * This returns UniformDistribution.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -177,7 +187,7 @@ public class UniformDistributionItemProvider extends ItemProviderAdapter impleme
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }

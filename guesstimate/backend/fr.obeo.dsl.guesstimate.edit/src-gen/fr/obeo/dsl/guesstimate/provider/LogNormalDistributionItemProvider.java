@@ -54,26 +54,26 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addScalePropertyDescriptor(object);
-			addShapePropertyDescriptor(object);
+			addLogMeanPropertyDescriptor(object);
+			addLogStandardDeviationPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
 
 	/**
-	 * This adds a property descriptor for the Scale feature.
+	 * This adds a property descriptor for the Log Mean feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addScalePropertyDescriptor(Object object) {
+	protected void addLogMeanPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_LogNormalDistribution_scale_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_scale_feature", "_UI_LogNormalDistribution_type"),
-				 GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__SCALE,
+				 getString("_UI_LogNormalDistribution_logMean_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_logMean_feature", "_UI_LogNormalDistribution_type"),
+				 GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__LOG_MEAN,
 				 true,
 				 false,
 				 false,
@@ -83,25 +83,35 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	}
 
 	/**
-	 * This adds a property descriptor for the Shape feature.
+	 * This adds a property descriptor for the Log Standard Deviation feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addShapePropertyDescriptor(Object object) {
+	protected void addLogStandardDeviationPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_LogNormalDistribution_shape_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_shape_feature", "_UI_LogNormalDistribution_type"),
-				 GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__SHAPE,
+				 getString("_UI_LogNormalDistribution_logStandardDeviation_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_LogNormalDistribution_logStandardDeviation_feature", "_UI_LogNormalDistribution_type"),
+				 GuesstimatePackage.Literals.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
 				 null,
 				 null));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean hasChildren(Object object) {
+		return hasChildren(object, true);
 	}
 
 	/**
@@ -134,7 +144,7 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	@Override
 	public String getText(Object object) {
 		LogNormalDistribution logNormalDistribution = (LogNormalDistribution)object;
-		return getString("_UI_LogNormalDistribution_type") + " " + logNormalDistribution.getScale();
+		return getString("_UI_LogNormalDistribution_type") + " " + logNormalDistribution.getLogMean();
 	}
 
 	/**
@@ -149,8 +159,8 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(LogNormalDistribution.class)) {
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SCALE:
-			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__SHAPE:
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_MEAN:
+			case GuesstimatePackage.LOG_NORMAL_DISTRIBUTION__LOG_STANDARD_DEVIATION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
@@ -177,7 +187,7 @@ public class LogNormalDistributionItemProvider extends ItemProviderAdapter imple
 	 */
 	@Override
 	public ResourceLocator getResourceLocator() {
-		return ((IChildCreationExtender)adapterFactory).getResourceLocator();
+		return GuesstimateEditPlugin.INSTANCE;
 	}
 
 }
