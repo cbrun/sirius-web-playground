@@ -6,11 +6,12 @@
     modelPluginID="fr.obeo.dsl.guesstimate" modelName="Guesstimate" modelPluginClass="fr.obeo.dsl.guesstimate.GuesstimateEMFPlugin"
     rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" codeFormatting="true"
     importerID="org.eclipse.emf.importer.ecore" complianceLevel="21.0" suppressGenModelAnnotations="false"
-    copyrightFields="false" operationReflection="true" importOrganizing="true">
+    copyrightFields="false" optimizedHasChildren="true" operationReflection="true"
+    importOrganizing="true">
   <foreignModel>guesstimate.ecore</foreignModel>
   <testsDirectory xsi:nil="true"/>
   <genPackages prefix="Guesstimate" basePackage="fr.obeo.dsl" disposableProviderFactory="true"
-      extensibleProviderFactory="true" childCreationExtenders="true" ecorePackage="guesstimate.ecore#/">
+      ecorePackage="guesstimate.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="guesstimate.ecore#//VariableType">
       <genEnumLiterals ecoreEnumLiteral="guesstimate.ecore#//VariableType/computed"/>
       <genEnumLiterals ecoreEnumLiteral="guesstimate.ecore#//VariableType/formula"/>
@@ -30,7 +31,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//Variable/documentation"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//Variable/definition"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//Variable/type"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference guesstimate.ecore#//Variable/distribution"/>
+      <genFeatures property="None" createChild="false" ecoreFeature="ecore:EReference guesstimate.ecore#//Variable/distribution"/>
     </genClasses>
     <genClasses image="false" ecoreClass="guesstimate.ecore#//DistributionSetting"/>
     <genClasses ecoreClass="guesstimate.ecore#//NormalDistribution">

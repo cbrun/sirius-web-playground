@@ -38,7 +38,7 @@ import org.springframework.context.annotation.Import;
 public class GuesstimateConfiguration {
 
     @Bean
-    public View guesstimateView() {
+    View guesstimateView() {
         return new GuesstimateViews().create();
     }
 }

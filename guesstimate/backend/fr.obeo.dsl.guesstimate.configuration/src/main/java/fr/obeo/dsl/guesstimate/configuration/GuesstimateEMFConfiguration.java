@@ -41,12 +41,12 @@ public class GuesstimateEMFConfiguration {
     }
 
     @Bean
-    public ComposedAdapterFactory.Descriptor guesstimateAdapterFactoryDescriptor() {
+    ComposedAdapterFactory.Descriptor guesstimateAdapterFactoryDescriptor() {
         return GuesstimateItemProviderAdapterFactory::new;
     }
 
     @Bean
-    public EPackage guesstimateEPackage() {
+    EPackage guesstimateEPackage() {
         return GuesstimatePackage.eINSTANCE;
     }
 

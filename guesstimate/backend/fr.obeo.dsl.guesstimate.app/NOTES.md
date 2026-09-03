@@ -1,3 +1,5 @@
+### Useful commands while developping
+
 docker run -p 5433:5432 --name guesstimate-postgres \
                             -e POSTGRES_USER=dbuser \
                             -e POSTGRES_PASSWORD=dbpwd \
@@ -16,23 +18,25 @@ cp -R frontend/syson/dist/* backend/application/syson-application/src/main/resou
 
 ### Things that could be interesting with this example
 
-The whole project setups and Maven based build.
+#### The whole project setups and Maven based build.
 
-Basic features : instance creation, label edits
+####  Basic features : instance creation, label edits
 Q: what is that variable name again for the new string value ?
 
-How to make the images SVG's and what to change ?
+####  How to make the images SVG's and what to change ?
  - cf FAQ + getting images from the Eclipse repositories
 
-Messages in the UI:
+####  Messages in the UI:
  - tweaking the .properties for the name of features.
  
-How to integrate another Java framework to support the modeling
+####  How to integrate another Java framework to support the modeling
  - apache commons, the adapters to bridge the model with it.
  
-How to regenerate the EMF code without pain and fuss
+####  How to regenerate the EMF code without pain and fuss
 
-How to write typesafe calls to Java service from AQL queries and avoid most java Strings when building the model.
+
+
+####  How to write typesafe calls to Java service from AQL queries and avoid most java Strings when building the model.
  
 
 The validation rules and how it translate into the UI.
