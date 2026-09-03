@@ -12,8 +12,6 @@
  *******************************************************************************/
 package fr.obeo.dsl.guesstimate.views;
 
-import fr.obeo.dsl.guesstimate.GuesstimatePackage;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -30,9 +28,9 @@ import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.view.ColorPalette;
 import org.eclipse.sirius.components.view.FixedColor;
 import org.eclipse.sirius.components.view.View;
-import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilder;
 import org.eclipse.sirius.components.view.builder.generated.diagram.DiagramBuilders;
 import org.eclipse.sirius.components.view.builder.generated.form.FormBuilders;
+import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilder;
 import org.eclipse.sirius.components.view.builder.generated.view.ViewBuilders;
 import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.ArrowStyle;
@@ -41,7 +39,6 @@ import org.eclipse.sirius.components.view.diagram.DiagramLayoutOption;
 import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
 import org.eclipse.sirius.components.view.diagram.InsideLabelPosition;
 import org.eclipse.sirius.components.view.diagram.LabelEditTool;
-import org.eclipse.sirius.components.view.diagram.LayoutStrategyDescription;
 import org.eclipse.sirius.components.view.diagram.LineStyle;
 import org.eclipse.sirius.components.view.diagram.NodeDescription;
 import org.eclipse.sirius.components.view.form.BarChartDescription;
@@ -51,6 +48,11 @@ import org.eclipse.sirius.components.view.form.FormElementDescription;
 import org.eclipse.sirius.components.view.form.FormElementIf;
 import org.eclipse.sirius.components.view.form.GroupDescription;
 
+import fr.obeo.dsl.guesstimate.GuesstimatePackage;
+import fr.obeo.dsl.guesstimate.ServiceMethod;
+import fr.obeo.dsl.guesstimate.Services;
+import fr.obeo.dsl.guesstimate.VariableServices;
+
 /**
  * Builds the Sirius view used by Guesstimate.
  *
@@ -58,24 +60,24 @@ import org.eclipse.sirius.components.view.form.GroupDescription;
  */
 public class GuesstimateViews {
 
-    private static final String VIEWS_RESOURCE_PATH = "guesstimate guesstimateModelView";
+	private static final String VIEWS_RESOURCE_PATH = "guesstimate guesstimateModelView";
 
-    private final FixedColor main;
+	private final FixedColor main;
 
-    private final FixedColor variableColor;
+	private final FixedColor variableColor;
 
-    private final FixedColor errorColor;
+	private final FixedColor errorColor;
 
-    private final FixedColor grey;
+	private final FixedColor grey;
 
-    private final FixedColor background;
+	private final FixedColor background;
 
-    private final FixedColor black;
+	private final FixedColor black;
 
-    private final FixedColor lightGrey;
+	private final FixedColor lightGrey;
 
-    public GuesstimateViews() {
-        // @formatter:off
+	public GuesstimateViews() {
+		// @formatter:off
         ViewBuilders b = new ViewBuilders();
          this.main =b
                 .newFixedColor()
@@ -145,13 +147,13 @@ public class GuesstimateViews {
                 .build();
         // @formatter:on
 
-    }
+	}
 
-    private FormDescription buildCustomFormForDetails() {
-        GuesstimatePackage domain = GuesstimatePackage.eINSTANCE;
-        ViewBuilders v = new ViewBuilders();
-        FormBuilders f = new FormBuilders();
-        // @formatter:off
+	private FormDescription buildCustomFormForDetails() {
+		GuesstimatePackage domain = GuesstimatePackage.eINSTANCE;
+		ViewBuilders v = new ViewBuilders();
+		FormBuilders f = new FormBuilders();
+		// @formatter:off
 
 
         GroupDescription docGroup = f.newGroupDescription()
@@ -159,7 +161,7 @@ public class GuesstimateViews {
                 .labelExpression("Guide")
                 .children(f.newLabelDescription()
                         .name("riche text for doc")
-                        .valueExpression("aql:self.getGuideDocumentation()")
+                        .valueExpression(ServiceMethod.of0(VariableServices::getGuideDocumentation).aqlSelf())
                         .style(f.newLabelDescriptionStyle()
                                 .build())
                         .build())
@@ -198,11 +200,11 @@ public class GuesstimateViews {
                             .children(f.newRadioDescription()
                                     .labelExpression("Type of variable")
                                     .candidateLabelExpression("aql:candidate.name")
-                                    .candidatesExpression("aql:self.getTypeEnumCandidates()")
-                                    .valueExpression("aql:self.getTypeEnumValue()")
+                                    .candidatesExpression(ServiceMethod.of0(VariableServices::getTypeEnumCandidates).aqlSelf())
+                                    .valueExpression(ServiceMethod.of0(VariableServices::getTypeEnumValue).aqlSelf())
                                     .body(v.newSetValue()
                                             .featureName("type")
-                                            .valueExpression("aql:self.setTypeEnumValue(newValue)")
+                                            .valueExpression(ServiceMethod.of1(VariableServices::setTypeEnumValue).aqlSelf("newValue"))
                                             .build())
                                     .build())
                             .build()
@@ -213,8 +215,8 @@ public class GuesstimateViews {
         BarChartDescription barChart = f.newBarChartDescription()
                 .name("Density Bar Chart")
                 .labelExpression("aql:'Density'")
-                .valuesExpression("aql:self.getDensityValues()")
-                .keysExpression("aql:self.getDensityKeys()")
+                .valuesExpression(ServiceMethod.of0(Services::getDensityValues).aqlSelf())
+                .keysExpression(ServiceMethod.of0(Services::getDensityKeys).aqlSelf())
                 .yAxisLabelExpression("aql:'number of samples'")
                 .style(f.newBarChartDescriptionStyle()
                         .fontSize(8)
@@ -226,37 +228,37 @@ public class GuesstimateViews {
                 .labelExpression("Values")
                 .children( f.newTextfieldDescription()
                         .labelExpression("aql:'mean value'")
-                        .valueExpression("aql:self.summary().mean()")
+                        .valueExpression(ServiceMethod.of0(Services::mean).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
                         .labelExpression("aql:'minimum value'")
-                        .valueExpression("aql:self.summary().min()")
+                        .valueExpression(ServiceMethod.of0(Services::min).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
                         .labelExpression("aql:'maximum value'")
-                        .valueExpression("aql:self.summary().max()")
+                        .valueExpression(ServiceMethod.of0(Services::max).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
                         .labelExpression("aql:'Number of samples'")
-                        .valueExpression("aql:self.summary().n()")
+                        .valueExpression(ServiceMethod.of0(Services::n).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
                         .labelExpression("aql:'Standard deviation'")
-                        .valueExpression("aql:self.summary().sd()")
+                        .valueExpression(ServiceMethod.of0(Services::sd).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
                         .labelExpression("aql:'Variance'")
-                        .valueExpression("aql:self.summary().var()")
+                        .valueExpression(ServiceMethod.of0(Services::var).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build())
@@ -305,87 +307,70 @@ public class GuesstimateViews {
                         .build())
                 .build();
         // @formatter:on
-        return editor;
-    }
+		return editor;
+	}
 
-    /**
-     * @param v
-     * @param f
-     * @param childType
-     * @param childReferenceName
-     */
-    private FormElementDescription buildFeatureEditorsForChildBasedOnType(ViewBuilders v, FormBuilders f, EClass childType, String childReferenceName) {
-        FormElementIf enclosingIf = f.newFormElementIf()
-                .predicateExpression("aql:self.distribution.oclIsKindOf(" + typeName(childType) + ")").build();
-        for (EAttribute childParameter : childType.getEAllAttributes()) {
+	/**
+	 * @param v
+	 * @param f
+	 * @param childType
+	 * @param childReferenceName
+	 */
+	private FormElementDescription buildFeatureEditorsForChildBasedOnType(ViewBuilders v, FormBuilders f,
+			EClass childType, String childReferenceName) {
+		FormElementIf enclosingIf = f.newFormElementIf()
+				.predicateExpression("aql:self.distribution.oclIsKindOf(" + typeName(childType) + ")").build();
+		for (EAttribute childParameter : childType.getEAllAttributes()) {
 
-            if (childParameter == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
-                enclosingIf.getChildren().add(
-                        f.newTextfieldDescription()
-                                .labelExpression(childParameter.getName())
-                                .valueExpression("aql:self." + childReferenceName + "." + childParameter.getName())
-                                .helpExpression(EcoreUtil.getDocumentation(childParameter))
-                                .body(v.newChangeContext()
-                                        .expression("aql:self." + childReferenceName)
-                                        .children(
-                                                v.newSetValue()
-                                                        .featureName(childParameter.getName())
-                                                        .valueExpression("aql:self.setFormula(newValue)")
-                                                        .build())
-                                        .build())
-                                .style(f.newTextfieldDescriptionStyle()
-                                        .build())
-                                .build());
-            } else if (childParameter.getEType() == GuesstimatePackage.eINSTANCE.getPercentage()) {
-                enclosingIf.getChildren().add(
-                        f.newTextfieldDescription()
-                                .labelExpression(childParameter.getName())
-                                .valueExpression("aql:self." + childReferenceName + "." + childParameter.getName() + " * 100.0 +'%'")
-                                .helpExpression(EcoreUtil.getDocumentation(childParameter))
-                                .body(v.newChangeContext()
-                                        .expression("aql:self." + childReferenceName)
-                                        .children(
-                                                v.newSetValue()
-                                                        .featureName(childParameter.getName())
-                                                        .valueExpression("aql:self.percentFloat(newValue)")
-                                                        .build())
-                                        .build())
-                                .style(f.newTextfieldDescriptionStyle()
-                                        .build())
-                                .build());
-            } else {
-                enclosingIf.getChildren().add(
-                        f.newTextfieldDescription()
-                                .labelExpression(childParameter.getName())
-                                .valueExpression("aql:self." + childReferenceName + "." + childParameter.getName())
-                                .helpExpression(EcoreUtil.getDocumentation(childParameter))
-                                .body(v.newChangeContext()
-                                        .expression("aql:self." + childReferenceName)
-                                        .children(
-                                                v.newSetValue()
-                                                        .featureName(childParameter.getName())
-                                                        .valueExpression("aql:newValue")
-                                                        .build())
-                                        .build())
-                                .style(f.newTextfieldDescriptionStyle()
-                                        .build())
-                                .build());
-            }
-        }
-        return enclosingIf;
-    }
+			if (childParameter == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
+				enclosingIf.getChildren()
+						.add(f.newTextfieldDescription().labelExpression(childParameter.getName())
+								.valueExpression("aql:self." + childReferenceName + "." + childParameter.getName())
+								.helpExpression(EcoreUtil.getDocumentation(childParameter))
+								.body(v.newChangeContext().expression("aql:self." + childReferenceName)
+										.children(v.newSetValue().featureName(childParameter.getName())
+												.valueExpression(ServiceMethod.of1(VariableServices::setFormula)
+														.aqlSelf("newValue"))
+												.build())
+										.build())
+								.style(f.newTextfieldDescriptionStyle().build()).build());
+			} else if (childParameter.getEType() == GuesstimatePackage.eINSTANCE.getPercentage()) {
+				enclosingIf.getChildren().add(f.newTextfieldDescription().labelExpression(childParameter.getName())
+						.valueExpression(
+								"aql:self." + childReferenceName + "." + childParameter.getName() + " * 100.0 +'%'")
+						.helpExpression(EcoreUtil.getDocumentation(childParameter))
+						.body(v.newChangeContext().expression("aql:self." + childReferenceName)
+								.children(v.newSetValue().featureName(childParameter.getName())
+										.valueExpression(ServiceMethod.of1(Services::percentFloat).aqlSelf("newValue"))
+										.build())
+								.build())
+						.style(f.newTextfieldDescriptionStyle().build()).build());
+			} else {
+				enclosingIf.getChildren()
+						.add(f.newTextfieldDescription().labelExpression(childParameter.getName())
+								.valueExpression("aql:self." + childReferenceName + "." + childParameter.getName())
+								.helpExpression(EcoreUtil.getDocumentation(childParameter))
+								.body(v.newChangeContext().expression("aql:self." + childReferenceName)
+										.children(v.newSetValue().featureName(childParameter.getName())
+												.valueExpression("aql:newValue").build())
+										.build())
+								.style(f.newTextfieldDescriptionStyle().build()).build());
+			}
+		}
+		return enclosingIf;
+	}
 
-    private DiagramDescription theGeneralDiagram() {
-        GuesstimatePackage domain = GuesstimatePackage.eINSTANCE;
-        DiagramBuilders b = new DiagramBuilders();
-        ViewBuilders v = new ViewBuilders();
+	private DiagramDescription theGeneralDiagram() {
+		GuesstimatePackage domain = GuesstimatePackage.eINSTANCE;
+		DiagramBuilders b = new DiagramBuilders();
+		ViewBuilders v = new ViewBuilders();
 
-     // @formatter:off
+		// @formatter:off
 
         LabelEditTool editLabel = b.newLabelEditTool()
                 .name("edit any element label from the diagrams")
                 .body(v.newChangeContext()
-                        .expression("aql:self.smartEdit(newLabel)")
+						.expression(ServiceMethod.of1(Services::smartEdit).aqlSelf("newLabel"))
                         .build()
                         )
                 .build();
@@ -418,7 +403,7 @@ public class GuesstimateViews {
                                 .borderColor(this.variableColor)
                                 .build())
                         .conditionalStyles(b.newConditionalInsideLabelStyle()
-                                .condition("aql:self.hasValidationError()")
+                                .condition(ServiceMethod.of0(Services::hasValidationError).aqlSelf())
                                 .style(b.newInsideLabelStyle()
                                         .labelColor(this.errorColor)
                                         .showIconExpression("true")
@@ -479,7 +464,8 @@ public class GuesstimateViews {
                                                         .expression("aql:created")
                                                         .children(v.newSetValue()
                                                                 .featureName("name")
-                                                                .valueExpression("aql:created.eContainer(" + this.typeName(domain.getSheet()) + ").getDefaultName()")
+                                                                .valueExpression(ServiceMethod.of0(Services::getDefaultName)
+                                                                        .aql("created.eContainer(" + this.typeName(domain.getSheet()) + ")"))
                                                                 .build())
                                                         .build())
                                 				.build()
@@ -492,68 +478,68 @@ public class GuesstimateViews {
                         .build())
                 .build();
      // @formatter:on
-        Diagnostician validator = new Diagnostician() {
-            @Override
-            protected boolean isValidateContentsRecursively() {
-                return true;
-            }
-        };
-        Diagnostic result = validator.validate(diag);
+		Diagnostician validator = new Diagnostician() {
+			@Override
+			protected boolean isValidateContentsRecursively() {
+				return true;
+			}
+		};
+		Diagnostic result = validator.validate(diag);
 
-        if (result.getSeverity() == Diagnostic.ERROR) {
-            throw new IllegalStateException("Invalid Guesstimate view:" + this.diagnosticsMessages(result, ""));
-        }
-        return diag;
+		if (result.getSeverity() == Diagnostic.ERROR) {
+			throw new IllegalStateException("Invalid Guesstimate view:" + this.diagnosticsMessages(result, ""));
+		}
+		return diag;
 
-    }
+	}
 
-    /**
-     * @param distribution
-     * @return
-     */
-    private String iconFromType(EClass distribution) {
-        return "/icons/full/obj16/" + distribution.getName() + ".svg";
-    }
+	/**
+	 * @param distribution
+	 * @return
+	 */
+	private String iconFromType(EClass distribution) {
+		return "/icons/full/obj16/" + distribution.getName() + ".svg";
+	}
 
-    /**
-     * @param result
-     * @param indent
-     */
-    private String diagnosticsMessages(Diagnostic result, String indent) {
-        var builder = new StringBuilder();
-        builder.append(indent).append(this.getSeverity(result)).append(result.getMessage()).append("\n");
-        String childIndent = indent + "--";
-        for (Diagnostic child : result.getChildren()) {
-            builder.append(this.diagnosticsMessages(child, childIndent));
-        }
-        return builder.toString();
-    }
+	/**
+	 * @param result
+	 * @param indent
+	 */
+	private String diagnosticsMessages(Diagnostic result, String indent) {
+		var builder = new StringBuilder();
+		builder.append(indent).append(this.getSeverity(result)).append(result.getMessage()).append("\n");
+		String childIndent = indent + "--";
+		for (Diagnostic child : result.getChildren()) {
+			builder.append(this.diagnosticsMessages(child, childIndent));
+		}
+		return builder.toString();
+	}
 
-    /**
-     * @param result
-     * @return
-     */
-    private String getSeverity(Diagnostic result) {
-        switch (result.getSeverity()) {
-            case Diagnostic.ERROR:
-                return "ERROR";
-            case Diagnostic.CANCEL:
-                return "CANCEL";
-            case Diagnostic.OK:
-                return "OK";
-            case Diagnostic.WARNING:
-                return "WARNING";
-            default:
-                return "UNKNOWN:" + result.getSeverity();
-        }
-    }
+	/**
+	 * @param result
+	 * @return
+	 */
+	private String getSeverity(Diagnostic result) {
+		switch (result.getSeverity()) {
+		case Diagnostic.ERROR:
+			return "ERROR";
+		case Diagnostic.CANCEL:
+			return "CANCEL";
+		case Diagnostic.OK:
+			return "OK";
+		case Diagnostic.WARNING:
+			return "WARNING";
+		default:
+			return "UNKNOWN:" + result.getSeverity();
+		}
+	}
 
-    /**
-     * @param sheet
-     * @return
-     */
-    private String typeName(EClass clazz) {
-        return clazz.getEPackage().getName() + "::" + clazz.getName();
-    }
+	/**
+	 * @param sheet
+	 * @return
+	 */
+	private String typeName(EClass clazz) {
+		return clazz.getEPackage().getName() + "::" + clazz.getName();
+	}
 
 }
