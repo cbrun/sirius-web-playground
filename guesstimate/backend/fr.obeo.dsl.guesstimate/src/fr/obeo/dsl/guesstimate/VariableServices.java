@@ -20,6 +20,8 @@ public class VariableServices {
 
 	private static final Set<String> SUPPORTED_OPERATORS = Set.of("+", "-", "*", "/", "^");
 
+	private final ArithParser formulaParser = new ArithParser();
+
 	public Set<String> collectUnknownVariables(FormulaSetting op) {
 		Set<String> unknowns = collectVariableNamesUsedInFormula(op);
 		Sheet s = GuesstimateQueries.getParentSheet(op);
@@ -165,9 +167,16 @@ public class VariableServices {
 	 */
 	public Map<String, Variable> collectAccessibleVariables(Sheet s) {
 		Map<String, Variable> available = new LinkedHashMap<>();
+		Set<String> ambiguousNames = new HashSet<>();
 		for (Variable d : s.getVariables()) {
-			if (d.getName() != null) {
-				available.put(d.getName().trim(), d);
+			String name = d.getName();
+			if (this.formulaParser.isValidIdentifier(name)) {
+				if (available.containsKey(name)) {
+					available.remove(name);
+					ambiguousNames.add(name);
+				} else if (!ambiguousNames.contains(name)) {
+					available.put(name, d);
+				}
 			}
 		}
 		return available;
@@ -180,7 +189,7 @@ public class VariableServices {
 	private Map<String, Set<String>> collectVariableOperatorPaths(FormulaSetting formulaSetting) {
 		Map<String, Set<String>> paths = new LinkedHashMap<>();
 		if (formulaSetting.getFormula() != null) {
-			Result result = new ArithParser().parse(formulaSetting.getFormula());
+			Result result = this.formulaParser.parse(formulaSetting.getFormula());
 			if (result.isSuccess()) {
 				this.collectVariableOperatorPaths(result.get(), "", paths);
 			}

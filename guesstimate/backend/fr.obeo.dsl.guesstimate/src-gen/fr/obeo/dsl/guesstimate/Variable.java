@@ -30,7 +30,7 @@ public interface Variable extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * <!-- begin-model-doc -->
-	 * The variable name. Must respect the rules of a programming language identifier.
+	 * The variable name. Must match the formula identifier syntax: a letter followed by zero or more letters or digits.
 	 * <!-- end-model-doc -->
 	 * @return the value of the '<em>Name</em>' attribute.
 	 * @see #setName(String)

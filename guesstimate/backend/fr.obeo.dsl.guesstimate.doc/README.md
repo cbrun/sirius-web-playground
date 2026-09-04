@@ -54,6 +54,8 @@ The modeler demonstrates programmatic diagram and details-view descriptions, AQL
 
 `Variable.settings` is the persistent source of truth for a variable's kind and parameters. `Variable.type` is a derived, writable convenience feature: selecting another type replaces the settings object with the matching subtype and its defaults, intentionally discarding the previous parameters.
 
+Variable names are the identifiers used by formulas. They follow the PetitParser grammar: a letter followed by zero or more letters or digits, with case-sensitive matching. Names must be unique within a sheet; EMF validation reports duplicates, and the runtime excludes an ambiguous name instead of silently selecting one variable.
+
 ## Formula dependency edges
 
 The variables diagram displays formula dependencies from each input variable to the calculated variable. The edge label shows the operator path through the formula, with the root operator determining its style:

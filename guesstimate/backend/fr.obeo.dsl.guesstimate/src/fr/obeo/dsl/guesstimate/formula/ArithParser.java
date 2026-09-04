@@ -29,6 +29,10 @@ import org.petitparser.tools.ExpressionBuilder;
  */
 public class ArithParser {
 
+    private final Parser identifier = letter().seq(word().star()).flatten();
+
+    private final Parser identifierParser = this.identifier.end();
+
     private final Parser parser = this.createParser();
 
     /**
@@ -42,12 +46,21 @@ public class ArithParser {
         return this.parser.parse(formula);
     }
 
+    /**
+     * Tests whether a value is a valid variable identifier in the formula language.
+     *
+     * @param value the value to test
+     * @return whether the value is accepted as an identifier
+     * @since 0.0.7
+     */
+    public boolean isValidIdentifier(String value) {
+        return value != null && this.identifierParser.parse(value).isSuccess();
+    }
+
     private Parser createParser() {
 
         ExpressionBuilder builder = new ExpressionBuilder();
-        Parser id = letter().seq(word().star()).flatten();
-
-        ChoiceParser digOrVar = digit().or(id);
+        ChoiceParser digOrVar = digit().or(this.identifier);
         builder.group().primitive(digOrVar.plus().seq(of('.').seq(digOrVar.plus()).optional()).flatten().trim()).wrapper(of('(').trim(), of(')').trim());
         // negation is a prefix operator
         builder.group().prefix(of('-').trim());

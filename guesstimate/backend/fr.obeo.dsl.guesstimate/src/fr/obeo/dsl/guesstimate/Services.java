@@ -9,12 +9,15 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.ecore.EObject;
 
+import fr.obeo.dsl.guesstimate.formula.ArithParser;
 import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
 
 /**
  * The services class used by VSM.
  */
 public class Services {
+
+	private final ArithParser formulaParser = new ArithParser();
 
 	public boolean hasValidationError(EObject any) {
 		DiagnosticAttachAdapter adapter = DiagnosticAttachAdapter.get(any);
@@ -85,7 +88,7 @@ public class Services {
 				}
 			}
 			// Check if the input is a valid variable name
-			else if (input.matches("^[a-zA-Z_$][a-zA-Z_$0-9]*$")) {
+			else if (this.formulaParser.isValidIdentifier(input)) {
 				var.setName(input);
 			} else if (input.startsWith(":")) {
 				var.setDocumentation(input.substring(":".length()));

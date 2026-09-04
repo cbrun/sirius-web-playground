@@ -3,6 +3,8 @@
 package fr.obeo.dsl.guesstimate.util;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.Diagnostic;
@@ -170,16 +172,18 @@ public class GuesstimateValidator extends EObjectValidator {
 			if (diagnostics != null) {
 				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
 						"_UI_VariableConstraint_diagnostic_noname",
-						new Object[] { "nameIsValid", getObjectLabel(variable, context) }, new Object[] { variable },
+						new Object[] { "nameIsValid", getObjectLabel(variable, context) },
+						new Object[] { variable, GuesstimatePackage.eINSTANCE.getVariable_Name() },
 						context));
 			}
 			return false;
 		}
-		if (variable.getName().contains(" ")) {
+		if (!new ArithParser().isValidIdentifier(variable.getName())) {
 			if (diagnostics != null) {
 				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
 						"_UI_VariableConstraint_diagnostic_nameinvalid",
-						new Object[] { "nameIsValid", getObjectLabel(variable, context) }, new Object[] { variable },
+						new Object[] { "nameIsValid", getObjectLabel(variable, context) },
+						new Object[] { variable, GuesstimatePackage.eINSTANCE.getVariable_Name() },
 						context));
 			}
 			return false;
@@ -550,6 +554,7 @@ public class GuesstimateValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_EveryKeyUnique(sheet, diagnostics, context);
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(sheet, diagnostics, context);
 		if (result || diagnostics != null) result &= validateSheet_sampleSizeIsPositive(sheet, diagnostics, context);
+		if (result || diagnostics != null) result &= validateSheet_variableNamesAreUnique(sheet, diagnostics, context);
 		return result;
 	}
 
@@ -566,6 +571,39 @@ public class GuesstimateValidator extends EObjectValidator {
 						"_UI_validateSheet_sampleSizeIsPositiveConstraint_diagnostic",
 						new Object[] { "sampleSizeIsPositive", getObjectLabel(sheet, context) },
 						new Object[] { sheet, GuesstimatePackage.eINSTANCE.getSheet_SampleSize() }, context));
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the variableNamesAreUnique constraint of '<em>Sheet</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateSheet_variableNamesAreUnique(Sheet sheet, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		Map<String, Variable> firstByName = new LinkedHashMap<>();
+		Set<Variable> duplicateVariables = new LinkedHashSet<>();
+		for (Variable variable : sheet.getVariables()) {
+			String name = variable.getName();
+			if (name != null && !name.isEmpty()) {
+				Variable first = firstByName.putIfAbsent(name, variable);
+				if (first != null) {
+					duplicateVariables.add(first);
+					duplicateVariables.add(variable);
+				}
+			}
+		}
+		if (!duplicateVariables.isEmpty()) {
+			if (diagnostics != null) {
+				for (Variable variable : duplicateVariables) {
+					diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+							"_UI_validateSheet_variableNamesAreUniqueConstraint_diagnostic",
+							new Object[] { "variableNamesAreUnique", getObjectLabel(variable, context), variable.getName() },
+							new Object[] { variable, GuesstimatePackage.eINSTANCE.getVariable_Name() }, context));
+				}
 			}
 			return false;
 		}

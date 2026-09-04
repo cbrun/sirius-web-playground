@@ -890,7 +890,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		  (sheetEClass,
 		   source,
 		   new String[] {
-			   "constraints", "sampleSizeIsPositive"
+			   "constraints", "sampleSizeIsPositive variableNamesAreUnique"
 		   });
 		addAnnotation
 		  (poissonDistributionEClass,
@@ -930,7 +930,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		  (getVariable_Name(),
 		   source,
 		   new String[] {
-			   "documentation", "The variable name. Must respect the rules of a programming language identifier."
+			   "documentation", "The variable name. Must match the formula identifier syntax: a letter followed by zero or more letters or digits."
 		   });
 		addAnnotation
 		  (getVariable_Documentation(),
