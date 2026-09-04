@@ -884,7 +884,7 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 		  (formulaSettingEClass,
 		   source,
 		   new String[] {
-			   "constraints", "unknownVariable invalidSyntax"
+			   "constraints", "unknownVariable invalidSyntax acyclicDependencies"
 		   });
 		addAnnotation
 		  (sheetEClass,

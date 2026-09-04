@@ -1,5 +1,7 @@
 package fr.obeo.dsl.guesstimate;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +49,68 @@ public class VariableServices {
 			}
 		}
 		return List.of();
+	}
+
+	/**
+	 * Returns the variables in dependency-first evaluation order.
+	 *
+	 * @param sheet the sheet to order
+	 * @return all variables in a stable evaluation order
+	 * @since 0.0.7
+	 */
+	public List<Variable> getVariablesInEvaluationOrder(Sheet sheet) {
+		List<Variable> orderedVariables = new ArrayList<>();
+		Set<Variable> visiting = new HashSet<>();
+		Set<Variable> visited = new HashSet<>();
+		for (Variable variable : sheet.getVariables()) {
+			this.addWithDependencies(variable, visiting, visited, orderedVariables);
+		}
+		return List.copyOf(orderedVariables);
+	}
+
+	/**
+	 * Tests whether a formula belongs to or transitively depends on a cycle.
+	 *
+	 * @param formulaSetting the formula settings to test
+	 * @return {@code true} if a dependency cycle is reachable
+	 * @since 0.0.7
+	 */
+	public boolean hasCyclicDependency(FormulaSetting formulaSetting) {
+		if (formulaSetting.eContainer() instanceof Variable variable) {
+			return this.hasCyclicDependency(variable, new HashSet<>(), new HashSet<>());
+		}
+		return false;
+	}
+
+	private void addWithDependencies(Variable variable, Set<Variable> visiting, Set<Variable> visited,
+			List<Variable> orderedVariables) {
+		if (visited.contains(variable) || !visiting.add(variable)) {
+			return;
+		}
+		for (Variable dependency : this.getReferencedVariables(variable)) {
+			this.addWithDependencies(dependency, visiting, visited, orderedVariables);
+		}
+		visiting.remove(variable);
+		visited.add(variable);
+		orderedVariables.add(variable);
+	}
+
+	private boolean hasCyclicDependency(Variable variable, Set<Variable> visiting, Set<Variable> visited) {
+		if (visiting.contains(variable)) {
+			return true;
+		}
+		if (!visited.add(variable)) {
+			return false;
+		}
+		visiting.add(variable);
+		for (Variable dependency : this.getReferencedVariables(variable)) {
+			if (this.hasCyclicDependency(dependency, visiting, visited)) {
+				visiting.remove(variable);
+				return true;
+			}
+		}
+		visiting.remove(variable);
+		return false;
 	}
 
 	/**

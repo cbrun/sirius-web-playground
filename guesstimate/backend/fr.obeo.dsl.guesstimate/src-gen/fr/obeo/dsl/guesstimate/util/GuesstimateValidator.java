@@ -461,6 +461,7 @@ public class GuesstimateValidator extends EObjectValidator {
 		if (result || diagnostics != null) result &= validate_EveryMapEntryUnique(formulaSetting, diagnostics, context);
 		if (result || diagnostics != null) result &= validateFormulaSetting_unknownVariable(formulaSetting, diagnostics, context);
 		if (result || diagnostics != null) result &= validateFormulaSetting_invalidSyntax(formulaSetting, diagnostics, context);
+		if (result || diagnostics != null) result &= validateFormulaSetting_acyclicDependencies(formulaSetting, diagnostics, context);
 		return result;
 	}
 
@@ -512,6 +513,26 @@ public class GuesstimateValidator extends EObjectValidator {
 				}
 				return false;
 			}
+		}
+		return true;
+	}
+
+	/**
+	 * Validates the acyclicDependencies constraint of '<em>Formula Setting</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public boolean validateFormulaSetting_acyclicDependencies(FormulaSetting formulaSetting, DiagnosticChain diagnostics, Map<Object, Object> context) {
+		if (new VariableServices().hasCyclicDependency(formulaSetting)) {
+			if (diagnostics != null) {
+				diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
+						"_UI_validateFormulaSetting_acyclicDependencies",
+						new Object[] { "acyclicDependencies", getObjectLabel(formulaSetting, context) },
+						new Object[] { formulaSetting, GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula() },
+						context));
+			}
+			return false;
 		}
 		return true;
 	}

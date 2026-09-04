@@ -155,7 +155,7 @@
       <details key="documentation" value="A variable which is defined by a formula using other variables."/>
     </eAnnotations>
     <eAnnotations source="http://www.eclipse.org/emf/2002/Ecore">
-      <details key="constraints" value="unknownVariable invalidSyntax"/>
+      <details key="constraints" value="unknownVariable invalidSyntax acyclicDependencies"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="formula" lowerBound="1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" defaultValueLiteral="0"/>

@@ -15,11 +15,10 @@ import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
 
 public class FormulaVariableComputer {
 
-	private List<String> errors = new ArrayList<>();
-
 	public void compute(Sheet s, Map<String, Variable> variables, Variable var) {
 		if (var.getSettings() instanceof FormulaSetting) {
 			FormulaSetting data = (FormulaSetting) var.getSettings();
+			List<String> errors = new ArrayList<>();
 			System.out.println("Computing  op " + data.getFormula() + " " + var.getName());
 
 			if (data.getFormula() != null) {
@@ -31,7 +30,10 @@ public class FormulaVariableComputer {
 					public Object caseString(String varName) {
 						Variable referedVar = variables.get(varName);
 						if (referedVar != null && referedVar != var) {
-							return SamplingSimulationAdapter.getOrCreate(referedVar).getSampleAsDoubles();
+							double[] referencedSample = SamplingSimulationAdapter.getOrCreate(referedVar).getSampleAsDoubles();
+							if (referencedSample != null) {
+								return referencedSample;
+							}
 						}
 						errors.add("Could not find distribution: " + referedVar);
 						return null;
@@ -116,7 +118,7 @@ public class FormulaVariableComputer {
 				};
 				if (r.isSuccess()) {
 					Object table = v.visit(r);
-					if (table instanceof double[]) {
+					if (table instanceof double[] && errors.isEmpty()) {
 						SamplingSimulationAdapter.getOrCreate(var).setSample((double[]) table);
 //					op.getOutput().setDescription(GuesstimateUtils.getDefinitionFromSample((double[]) table));
 					} else {

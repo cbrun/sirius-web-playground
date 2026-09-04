@@ -1,7 +1,6 @@
 package fr.obeo.dsl.guesstimate;
 
 import java.text.DecimalFormat;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -9,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
 
@@ -22,7 +19,7 @@ public class GuesstimateUtils {
 
 		Stopwatch sampling = Stopwatch.createStarted();
 
-		for (final Variable d : Iterables.filter(s.getVariables(), Variable.class)) {
+		for (Variable d : new VariableServices().getVariablesInEvaluationOrder(s)) {
 			if (d.getSettings() != null) {
 				SamplingSimulationAdapter apacheBridge = SamplingSimulationAdapter.getOrCreate(d);
 				apacheBridge.resetApacheStateFromSettings();

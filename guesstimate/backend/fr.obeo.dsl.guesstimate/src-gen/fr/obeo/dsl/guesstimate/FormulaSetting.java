@@ -19,7 +19,7 @@ package fr.obeo.dsl.guesstimate;
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getFormulaSetting()
- * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='unknownVariable invalidSyntax'"
+ * @model annotation="http://www.eclipse.org/emf/2002/Ecore constraints='unknownVariable invalidSyntax acyclicDependencies'"
  * @generated
  */
 public interface FormulaSetting extends VariableSettings {
