@@ -1,146 +1,130 @@
+/*******************************************************************************
+ * Copyright (c) 2026 Obeo.
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     Obeo - initial API and implementation
+ *******************************************************************************/
 package fr.obeo.dsl.guesstimate;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.petitparser.context.Result;
-import org.petitparser.parser.Parser;
+
+import com.google.common.primitives.Doubles;
 
 import fr.obeo.dsl.guesstimate.formula.ArithParser;
-import fr.obeo.dsl.guesstimate.formula.ArithmeticVisitor;
 import fr.obeo.dsl.guesstimate.simulation.SamplingSimulationAdapter;
 
+/**
+ * Evaluates formula variables against the samples of their dependencies.
+ *
+ * @since 0.0.7
+ */
 public class FormulaVariableComputer {
 
-	public void compute(Sheet s, Map<String, Variable> variables, Variable var) {
-		if (var.getSettings() instanceof FormulaSetting) {
-			FormulaSetting data = (FormulaSetting) var.getSettings();
-			List<String> errors = new ArrayList<>();
-			System.out.println("Computing  op " + data.getFormula() + " " + var.getName());
+    /**
+     * Evaluates a formula without changing the model or its simulation adapter.
+     *
+     * @param sheet the containing sheet
+     * @param variables the variables available by name
+     * @param variable the formula variable to evaluate
+     * @return the computed sample or a failure category
+     * @since 0.0.7
+     */
+    public FormulaEvaluationResult compute(Sheet sheet, Map<String, Variable> variables, Variable variable) {
+        if (!(variable.getSettings() instanceof FormulaSetting formulaSetting) || formulaSetting.getFormula() == null) {
+            return FormulaEvaluationResult.failure(FormulaEvaluationFailure.INVALID_SYNTAX);
+        }
+        Result parseResult = new ArithParser().parse(formulaSetting.getFormula());
+        if (parseResult.isFailure()) {
+            return FormulaEvaluationResult.failure(FormulaEvaluationFailure.INVALID_SYNTAX);
+        }
+        return this.evaluate(parseResult.get(), sheet.getSampleSize(), variables, variable);
+    }
 
-			if (data.getFormula() != null) {
-				Parser p = new ArithParser().createParser();
-				Result r = p.parse(data.getFormula());
-				ArithmeticVisitor v = new ArithmeticVisitor() {
+    private FormulaEvaluationResult evaluate(Object expression, int sampleSize, Map<String, Variable> variables, Variable variable) {
+        if (expression instanceof Number number) {
+            return this.constant(number.doubleValue(), sampleSize);
+        } else if (expression instanceof String value) {
+            Double number = Doubles.tryParse(value);
+            return number != null ? this.constant(number, sampleSize) : this.variable(value, sampleSize, variables, variable);
+        } else if (expression instanceof List<?> parts) {
+            if (parts.size() == 3 && Character.valueOf('(').equals(parts.get(0)) && Character.valueOf(')').equals(parts.get(2))) {
+                return this.evaluate(parts.get(1), sampleSize, variables, variable);
+            } else if (parts.size() == 2 && Character.valueOf('-').equals(parts.get(0))) {
+                return this.evaluateUnaryMinus(parts.get(1), sampleSize, variables, variable);
+            } else if (parts.size() == 3 && parts.get(1) instanceof Character operator) {
+                return this.evaluateBinary(parts.get(0), operator, parts.get(2), sampleSize, variables, variable);
+            }
+        }
+        return FormulaEvaluationResult.failure(FormulaEvaluationFailure.UNSUPPORTED_EXPRESSION);
+    }
 
-					@Override
-					public Object caseString(String varName) {
-						Variable referedVar = variables.get(varName);
-						if (referedVar != null && referedVar != var) {
-							double[] referencedSample = SamplingSimulationAdapter.getOrCreate(referedVar).getSampleAsDoubles();
-							if (referencedSample != null) {
-								return referencedSample;
-							}
-						}
-						errors.add("Could not find distribution: " + referedVar);
-						return null;
-					}
+    private FormulaEvaluationResult constant(double value, int sampleSize) {
+        double[] sample = new double[sampleSize];
+        Arrays.fill(sample, value);
+        return FormulaEvaluationResult.success(sample);
+    }
 
-					@Override
-					public Object caseNumber(Number child) {
-						if (child instanceof Double) {
-							double[] vals = new double[s.getSampleSize()];
-							for (int i = 0; i < vals.length; i++) {
-								vals[i] = Double.valueOf(child.doubleValue());
-							}
-							return vals;
+    private FormulaEvaluationResult variable(String name, int sampleSize, Map<String, Variable> variables, Variable variable) {
+        Variable referencedVariable = variables.get(name);
+        if (referencedVariable != null && referencedVariable != variable) {
+            double[] sample = SamplingSimulationAdapter.find(referencedVariable)
+                    .map(SamplingSimulationAdapter::getSampleAsDoubles)
+                    .orElse(null);
+            if (sample != null && sample.length == sampleSize) {
+                return FormulaEvaluationResult.success(sample);
+            }
+        }
+        return FormulaEvaluationResult.failure(FormulaEvaluationFailure.UNAVAILABLE_INPUT);
+    }
 
-						}
-						if (child instanceof Integer) {
-							double[] vals = new double[s.getSampleSize()];
-							for (int i = 0; i < vals.length; i++) {
-								vals[i] = Integer.valueOf(child.intValue());
-							}
-							return vals;
-						}
-						return child;
-					}
+    private FormulaEvaluationResult evaluateUnaryMinus(Object operand, int sampleSize, Map<String, Variable> variables, Variable variable) {
+        FormulaEvaluationResult result = this.evaluate(operand, sampleSize, variables, variable);
+        if (result.failure().isPresent()) {
+            return result;
+        }
+        double[] sample = result.sample().orElseThrow();
+        for (int index = 0; index < sample.length; index++) {
+            sample[index] = -sample[index];
+        }
+        return FormulaEvaluationResult.success(sample);
+    }
 
-					@Override
-					public Object aggregate(List<Object> results) {
-						if (results.size() == 2 && Character.valueOf('-').equals(results.get(0)) && results.get(1) instanceof double[] operand) {
-							double[] negated = new double[operand.length];
-							for (int index = 0; index < operand.length; index++) {
-								negated[index] = -operand[index];
-							}
-							return negated;
-						}
-						Deque<double[]> stack = new ArrayDeque<>();
-						int o = 0;
-						char op = ' ';
-						while (o < results.size()) {
-							Object cur = results.get(o);
-							if (cur instanceof double[]) {
-								stack.push((double[]) cur);
-							}
-							if (cur instanceof Character) {
-								op = ((Character) cur).charValue();
-							}
-							if (stack.size() == 2) {
-								// beware op2 is the most recent one.
-								double[] op2 = stack.pop();
-								double[] op1 = stack.pop();
-								double[] r = new double[s.getSampleSize()];
-								switch (op) {
-								case '+':
-									for (int i = 0; i < r.length; i++) {
-										r[i] = op1[i] + op2[i];
-									}
-									stack.push(r);
-									break;
-								case '-':
-									for (int i = 0; i < r.length; i++) {
-										r[i] = op1[i] - op2[i];
-									}
-									stack.push(r);
-									break;
-								case '/':
-									for (int i = 0; i < r.length; i++) {
-										r[i] = op1[i] / op2[i];
-									}
-									stack.push(r);
-									break;
-								case '*':
-									for (int i = 0; i < r.length; i++) {
-										r[i] = op1[i] * op2[i];
-									}
-									stack.push(r);
-									break;
-								case '^':
-									for (int i = 0; i < r.length; i++) {
-										r[i] = Math.pow(op1[i], op2[i]);
-									}
-									stack.push(r);
-									break;
-								}
-							}
-
-							o++;
-						}
-						// we are done
-
-						if (stack.size() == 1) {
-							return stack.pop();
-						}
-						return super.aggregate(results);
-					}
-
-				};
-				if (r.isSuccess()) {
-					Object table = v.visit(r);
-					if (table instanceof double[] && errors.isEmpty()) {
-						SamplingSimulationAdapter.getOrCreate(var).setSample((double[]) table);
-//					op.getOutput().setDescription(GuesstimateUtils.getDefinitionFromSample((double[]) table));
-					} else {
-						System.err.println("Had no results for : " + data.getFormula());
-					}
-				} else {
-					System.err.println("Error parsing : " + data.getFormula() + " error was :" + r.getMessage());
-				}
-			}
-		}
-	}
+    private FormulaEvaluationResult evaluateBinary(Object leftExpression, char operator, Object rightExpression, int sampleSize,
+            Map<String, Variable> variables, Variable variable) {
+        FormulaEvaluationResult leftResult = this.evaluate(leftExpression, sampleSize, variables, variable);
+        if (leftResult.failure().isPresent()) {
+            return leftResult;
+        }
+        FormulaEvaluationResult rightResult = this.evaluate(rightExpression, sampleSize, variables, variable);
+        if (rightResult.failure().isPresent()) {
+            return rightResult;
+        }
+        if (operator != '+' && operator != '-' && operator != '*' && operator != '/' && operator != '^') {
+            return FormulaEvaluationResult.failure(FormulaEvaluationFailure.UNSUPPORTED_EXPRESSION);
+        }
+        double[] left = leftResult.sample().orElseThrow();
+        double[] right = rightResult.sample().orElseThrow();
+        double[] sample = new double[sampleSize];
+        for (int index = 0; index < sampleSize; index++) {
+            sample[index] = switch (operator) {
+                case '+' -> left[index] + right[index];
+                case '-' -> left[index] - right[index];
+                case '*' -> left[index] * right[index];
+                case '/' -> left[index] / right[index];
+                case '^' -> Math.pow(left[index], right[index]);
+                default -> throw new IllegalStateException("Unsupported operator");
+            };
+        }
+        return FormulaEvaluationResult.success(sample);
+    }
 }

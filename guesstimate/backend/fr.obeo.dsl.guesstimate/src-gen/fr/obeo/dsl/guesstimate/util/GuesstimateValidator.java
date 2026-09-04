@@ -11,7 +11,6 @@ import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.EObjectValidator;
 import org.petitparser.context.Result;
-import org.petitparser.parser.Parser;
 
 import com.google.common.base.Strings;
 
@@ -500,14 +499,13 @@ public class GuesstimateValidator extends EObjectValidator {
 			Map<Object, Object> context) {
 
 		if (formulaSetting.getFormula() != null) {
-			Parser p = new ArithParser().createParser();
-			Result r = p.parse(formulaSetting.getFormula());
+			Result r = new ArithParser().parse(formulaSetting.getFormula());
 
 			if (r.isFailure()) {
 				if (diagnostics != null) {
 					diagnostics.add(createDiagnostic(Diagnostic.ERROR, DIAGNOSTIC_SOURCE, 0,
 							"_UI_validateFormulaSetting_invalidSyntax",
-							new Object[] { "invalidSyntax", getObjectLabel(formulaSetting, context), r.getMessage() },
+							new Object[] { "invalidSyntax", getObjectLabel(formulaSetting, context), r.getPosition() + 1, r.getMessage() },
 							new Object[] { formulaSetting, GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula() },
 							context));
 				}

@@ -3,6 +3,7 @@ package fr.obeo.dsl.guesstimate.simulation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
@@ -60,10 +61,15 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 				doubleSample = ((RealDistribution) distributionSimulator).sample(parentSheet.getSampleSize());
 			} else if (distributionSimulator instanceof IntegerDistribution) {
 				sample = ((IntegerDistribution) distributionSimulator).sample(parentSheet.getSampleSize());
-			} else if (distributionSimulator instanceof FormulaVariableComputer) {
+			} else if (distributionSimulator instanceof FormulaVariableComputer formulaVariableComputer) {
 				VariableServices service = new VariableServices();
 				var available = service.collectAccessibleVariables(parentSheet);
-				((FormulaVariableComputer) distributionSimulator).compute(parentSheet, available, (Variable) target);
+				var result = formulaVariableComputer.compute(parentSheet, available, (Variable) target);
+				result.sample().ifPresent(this::setSample);
+				result.failure().ifPresent(failure -> this.logger.atDebug()
+						.setMessage("Formula evaluation failed")
+						.addKeyValue("failure", failure)
+						.log());
 			}
 		}
 	}
@@ -173,14 +179,24 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 	}
 
 	public static SamplingSimulationAdapter getOrCreate(EObject eObj) {
-		Iterator<SamplingSimulationAdapter> it = Iterators.filter(eObj.eAdapters().iterator(),
+		return find(eObj).orElseGet(() -> {
+			SamplingSimulationAdapter newOne = new SamplingSimulationAdapter();
+			eObj.eAdapters().add(newOne);
+			return newOne;
+		});
+	}
+
+	/**
+	 * Finds the simulation adapter without changing the object.
+	 *
+	 * @param eObj the object to inspect
+	 * @return the existing simulation adapter
+	 * @since 0.0.7
+	 */
+	public static Optional<SamplingSimulationAdapter> find(EObject eObj) {
+		Iterator<SamplingSimulationAdapter> adapters = Iterators.filter(eObj.eAdapters().iterator(),
 				SamplingSimulationAdapter.class);
-		if (it.hasNext()) {
-			return it.next();
-		}
-		SamplingSimulationAdapter newOne = new SamplingSimulationAdapter();
-		eObj.eAdapters().add(newOne);
-		return newOne;
+		return adapters.hasNext() ? Optional.of(adapters.next()) : Optional.empty();
 	}
 
 	public double[] getSampleAsDoubles() {

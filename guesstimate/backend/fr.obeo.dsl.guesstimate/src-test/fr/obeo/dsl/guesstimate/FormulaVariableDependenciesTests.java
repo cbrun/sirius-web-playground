@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.ecore.util.Diagnostician;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -136,6 +138,65 @@ public class FormulaVariableDependenciesTests {
 
         assertThat(this.getSample(unavailable)).isNull();
         assertThat(this.getSample(dependent)).isNull();
+    }
+
+    @Test
+    @DisplayName("Given invalid formula syntax, when it is diagnosed, then the formula feature and position are reported")
+    public void givenInvalidFormulaSyntaxWhenItIsDiagnosedThenTheFormulaFeatureAndPositionAreReported() {
+        Sheet sheet = this.factory.createSheet();
+        Variable variable = this.createFormula("A", "1 + )");
+        sheet.getVariables().add(variable);
+        FormulaSetting formulaSetting = (FormulaSetting) variable.getSettings();
+
+        Diagnostic diagnostic = Diagnostician.INSTANCE.validate(formulaSetting);
+        FormulaEvaluationResult result = new FormulaVariableComputer().compute(sheet,
+                new VariableServices().collectAccessibleVariables(sheet), variable);
+
+        assertThat(diagnostic.getSeverity()).isEqualTo(Diagnostic.ERROR);
+        assertThat(diagnostic.getChildren()).singleElement().satisfies(child -> {
+            assertThat(child.getMessage()).contains("Invalid syntax at position 3").contains("end of input expected");
+            assertThat(child.getData()).isEqualTo(List.of(formulaSetting, GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()));
+        });
+        assertThat(result.failure()).contains(FormulaEvaluationFailure.INVALID_SYNTAX);
+    }
+
+    @Test
+    @DisplayName("Given a sampled formula, when its syntax becomes invalid and is corrected, then no stale sample is retained")
+    public void givenSampledFormulaWhenItsSyntaxBecomesInvalidAndIsCorrectedThenNoStaleSampleIsRetained() {
+        Sheet sheet = this.factory.createSheet();
+        sheet.setSampleSize(4);
+        Variable input = this.createVariable("A", VariableType.NORMAL);
+        Variable formula = this.createFormula("B", "A + 1");
+        sheet.getVariables().addAll(List.of(input, formula));
+        FormulaSetting formulaSetting = (FormulaSetting) formula.getSettings();
+
+        sheet.resample();
+        assertThat(this.getSample(formula)).hasSize(4);
+
+        formulaSetting.setFormula("1 + )");
+        sheet.resample();
+        assertThat(this.getSample(formula)).isNull();
+
+        formulaSetting.setFormula("A + 2");
+        sheet.resample();
+        assertThat(this.getSample(formula)).hasSize(4);
+    }
+
+    @Test
+    @DisplayName("Given a formula input without a sample, when it is evaluated, then an unavailable input failure is returned")
+    public void givenFormulaInputWithoutSampleWhenItIsEvaluatedThenAnUnavailableInputFailureIsReturned() {
+        Sheet sheet = this.factory.createSheet();
+        sheet.setSampleSize(4);
+        Variable input = this.createVariable("A", VariableType.NORMAL);
+        Variable formula = this.createFormula("B", "A + 1");
+        sheet.getVariables().addAll(List.of(input, formula));
+
+        FormulaEvaluationResult result = new FormulaVariableComputer().compute(sheet,
+                new VariableServices().collectAccessibleVariables(sheet), formula);
+
+        assertThat(result.sample()).isEmpty();
+        assertThat(result.failure()).contains(FormulaEvaluationFailure.UNAVAILABLE_INPUT);
+        assertThat(input.eAdapters()).isEmpty();
     }
 
     @Test

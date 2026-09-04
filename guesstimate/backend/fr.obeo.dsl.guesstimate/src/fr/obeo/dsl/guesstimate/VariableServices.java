@@ -11,7 +11,6 @@ import java.util.Set;
 import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.petitparser.context.Result;
-import org.petitparser.parser.Parser;
 
 import com.google.common.primitives.Doubles;
 
@@ -181,8 +180,7 @@ public class VariableServices {
 	private Map<String, Set<String>> collectVariableOperatorPaths(FormulaSetting formulaSetting) {
 		Map<String, Set<String>> paths = new LinkedHashMap<>();
 		if (formulaSetting.getFormula() != null) {
-			Parser parser = new ArithParser().createParser();
-			Result result = parser.parse(formulaSetting.getFormula());
+			Result result = new ArithParser().parse(formulaSetting.getFormula());
 			if (result.isSuccess()) {
 				this.collectVariableOperatorPaths(result.get(), "", paths);
 			}

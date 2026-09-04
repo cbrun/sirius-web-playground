@@ -67,3 +67,7 @@ The variables diagram displays formula dependencies from each input variable to 
 Nested formulas keep their complete operator path. For example, `C = A * (B + D)` displays `*` for `A` and `* +` for `B` and `D`. Distinct paths for the same input are separated by ` | `.
 
 An edge explains how an input contributes to the calculated variable, from the outermost operation to the innermost one. The first operator in its label determines the edge style; the remaining operators describe the nested branch. For a variable whose formula is `D - E * C`, the precedence rules interpret the expression as `D - (E * C)`: the edge from `D` is labeled `+` because `D` is the positive, left-hand term of the subtraction, while the edges from `E` and `C` are labeled `- *` because both belong to the subtracted term and are multiplied inside it. Likewise, with `A / B`, the edge from `A` is labeled `*` (the multiplicative numerator) and the edge from `B` is labeled `/` (the divisor). This convention makes every label a compact path through the expression tree instead of showing only the nearest operator.
+
+## Formula diagnostics
+
+Syntax errors are reported by EMF validation on the `FormulaSetting.formula` feature with their character position. Runtime failures, such as an input whose sample is unavailable, do not create model diagnostics: they leave the calculated sample empty and are exposed to the simulation code as a typed failure category.
