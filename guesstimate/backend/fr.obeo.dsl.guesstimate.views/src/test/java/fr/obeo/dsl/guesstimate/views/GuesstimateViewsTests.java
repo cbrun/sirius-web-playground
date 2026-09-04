@@ -14,6 +14,9 @@ package fr.obeo.dsl.guesstimate.views;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.regex.Pattern;
+
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.sirius.components.view.FixedColor;
 import org.eclipse.sirius.components.view.diagram.ArrowStyle;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
@@ -40,16 +43,35 @@ public class GuesstimateViewsTests {
 				.orElseThrow();
 
 		assertThat(diagram.getEdgeDescriptions()).hasSize(5);
-		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(0), "+", "Addition", LineStyle.SOLID, 1);
-		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(1), "-", "Subtraction", LineStyle.DASH, 1);
-		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(2), "*", "Multiplication", LineStyle.DOT, 1);
-		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(3), "/", "Division", LineStyle.DASH_DOT, 1);
-		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(4), "^", "Power", LineStyle.SOLID, 2);
+		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(0), "+", "AdditionColor", "FormulaAdditionDependenciesEdge", LineStyle.SOLID, 1);
+		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(1), "-", "SubtractionColor", "FormulaSubtractionDependenciesEdge", LineStyle.DASH, 1);
+		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(2), "*", "MultiplicationColor", "FormulaMultiplicationDependenciesEdge", LineStyle.DOT, 1);
+		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(3), "/", "DivisionColor", "FormulaDivisionDependenciesEdge", LineStyle.DASH_DOT, 1);
+		this.assertOperatorEdge(diagram.getEdgeDescriptions().get(4), "^", "PowerColor", "FormulaPowerDependenciesEdge", LineStyle.SOLID, 2);
 	}
 
-	private void assertOperatorEdge(EdgeDescription edge, String operator, String colorName, LineStyle lineStyle,
+	@Test
+	@DisplayName("Given the Guesstimate view, when descriptions are created, then every named element uses UpperCamelCase")
+	public void givenGuesstimateViewWhenDescriptionsAreCreatedThenEveryNamedElementUsesUpperCamelCase() {
+		var view = new GuesstimateViews().create();
+		var upperCamelCase = Pattern.compile("[A-Z][A-Za-z0-9]*");
+
+		view.eAllContents().forEachRemaining(eObject -> this.assertNameIfPresent(eObject, upperCamelCase));
+	}
+
+	private void assertNameIfPresent(EObject eObject, Pattern upperCamelCase) {
+		var nameFeature = eObject.eClass().getEStructuralFeature("name");
+		if (nameFeature != null && nameFeature.getEType().getInstanceClass() == String.class) {
+			var name = (String) eObject.eGet(nameFeature);
+			if (name != null && !name.isBlank()) {
+				assertThat(name).matches(upperCamelCase);
+			}
+		}
+	}
+
+	private void assertOperatorEdge(EdgeDescription edge, String operator, String colorName, String edgeName, LineStyle lineStyle,
 			int edgeWidth) {
-		assertThat(edge.getName()).isEqualTo("Formula " + operator + " dependencies");
+		assertThat(edge.getName()).isEqualTo(edgeName);
 		assertThat(edge.isIsDomainBasedEdge()).isTrue();
 		assertThat(edge.getSourceDescriptions()).hasSize(1);
 		assertThat(edge.getTargetDescriptions()).containsExactlyElementsOf(edge.getSourceDescriptions());

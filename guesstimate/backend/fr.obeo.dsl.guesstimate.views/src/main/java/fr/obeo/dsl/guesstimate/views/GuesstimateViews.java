@@ -89,70 +89,70 @@ public class GuesstimateViews {
 
 	public GuesstimateViews() {
 		// @formatter:off
-        ViewBuilders b = new ViewBuilders();
+         ViewBuilders b = new ViewBuilders();
          this.main =b
                 .newFixedColor()
-                .name("Main")
+                .name("MainColor")
                 .value("rgb(51, 76, 111)")
                 .build();
 
          this.lightGrey = b
                 .newFixedColor()
-                .name("Light Grey")
+                .name("LightGreyColor")
                 .value("rgb(117, 117, 117)")
                 .build();
 
          this.errorColor = b
                  .newFixedColor()
-                 .name("Light Grey")
+                 .name("ErrorColor")
                  .value("rgb(255, 0, 0)")
                  .build();
 
         this.grey = b
                 .newFixedColor()
-                .name("Grey")
+                .name("GreyColor")
                 .value("rgb(66, 66, 66)")
                 .build();
 
          this.background = b
                 .newFixedColor()
-                .name("Background")
+                .name("BackgroundColor")
                 .value("rgb(250, 250, 250)")
                 .build();
 
          this.black = b
                 .newFixedColor()
-                .name("Black")
+                .name("BlackColor")
                 .value("rgb(0, 0, 0)")
                 .build();
 
          this.additionColor = b
                 .newFixedColor()
-                .name("Addition")
+                .name("AdditionColor")
                 .value("rgb(46, 125, 50)")
                 .build();
 
          this.subtractionColor = b
                 .newFixedColor()
-                .name("Subtraction")
+                .name("SubtractionColor")
                 .value("rgb(198, 40, 40)")
                 .build();
 
          this.multiplicationColor = b
                 .newFixedColor()
-                .name("Multiplication")
+                .name("MultiplicationColor")
                 .value("rgb(21, 101, 192)")
                 .build();
 
          this.divisionColor = b
                 .newFixedColor()
-                .name("Division")
+                .name("DivisionColor")
                 .value("rgb(230, 81, 0)")
                 .build();
 
          this.powerColor = b
                 .newFixedColor()
-                .name("Power")
+                .name("PowerColor")
                 .value("rgb(106, 27, 154)")
                 .build();
          this.variableColor = this.main;
@@ -200,10 +200,10 @@ public class GuesstimateViews {
 
 
         GroupDescription docGroup = f.newGroupDescription()
-                .name("Distribution Doc")
+                .name("DistributionDocumentationGroup")
                 .labelExpression("Guide")
                 .children(f.newLabelDescription()
-                        .name("riche text for doc")
+                        .name("DocumentationLabel")
                         .valueExpression(ServiceMethod.of0(VariableServices::getGuideDocumentation).aqlSelf())
                         .style(f.newLabelDescriptionStyle()
                                 .build())
@@ -211,11 +211,11 @@ public class GuesstimateViews {
                 .build();
 
         GroupDescription propertiesGroup = f.newGroupDescription()
-                .name("Properties")
+                .name("PropertiesGroup")
                 .labelExpression("Properties")
                 .children(
                         f.newTextfieldDescription()
-                        .name("edit name")
+                        .name("NameField")
                         .labelExpression("Name")
                         .valueExpression("aql:self.name")
                         .helpExpression(EcoreUtil.getDocumentation(domain.getVariable_Name()))
@@ -227,7 +227,7 @@ public class GuesstimateViews {
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
-                        .name("edit description")
+                        .name("DescriptionField")
                         .labelExpression("Description")
                         .helpExpression(EcoreUtil.getDocumentation(domain.getVariable_Documentation()))
                         .valueExpression("aql:self.documentation")
@@ -239,6 +239,7 @@ public class GuesstimateViews {
                                 .build())
                         .build(),
                         f.newRadioDescription()
+                                .name("VariableTypeField")
                                 .labelExpression("Type of variable")
                                 .candidateLabelExpression("aql:candidate.name")
                                 .candidatesExpression(ServiceMethod.of0(VariableServices::getTypeEnumCandidates).aqlSelf())
@@ -252,7 +253,7 @@ public class GuesstimateViews {
                 .build();
 
         BarChartDescription barChart = f.newBarChartDescription()
-                .name("Density Bar Chart")
+                .name("DensityBarChart")
                 .labelExpression("aql:'Density'")
                 .valuesExpression(ServiceMethod.of0(Services::getDensityValues).aqlSelf())
                 .keysExpression(ServiceMethod.of0(Services::getDensityKeys).aqlSelf())
@@ -263,39 +264,45 @@ public class GuesstimateViews {
                         .build())
                 .build();
         FlexboxContainerDescription summary = f.newFlexboxContainerDescription()
-                .name("summary box")
+                .name("SummaryContainer")
                 .labelExpression("Values")
                 .children( f.newTextfieldDescription()
+                        .name("MeanField")
                         .labelExpression("aql:'mean value'")
                         .valueExpression(ServiceMethod.of0(Services::mean).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
+                        .name("MinimumField")
                         .labelExpression("aql:'minimum value'")
                         .valueExpression(ServiceMethod.of0(Services::min).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
+                        .name("MaximumField")
                         .labelExpression("aql:'maximum value'")
                         .valueExpression(ServiceMethod.of0(Services::max).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
+                        .name("SampleCountField")
                         .labelExpression("aql:'Number of samples'")
                         .valueExpression(ServiceMethod.of0(Services::n).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
+                        .name("StandardDeviationField")
                         .labelExpression("aql:'Standard deviation'")
                         .valueExpression(ServiceMethod.of0(Services::sd).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
                                 .build())
                         .build(),
                         f.newTextfieldDescription()
+                        .name("VarianceField")
                         .labelExpression("aql:'Variance'")
                         .valueExpression(ServiceMethod.of0(Services::var).aql("self." + ServiceMethod.of0(Services::summary).name() + "()"))
                         .style(f.newTextfieldDescriptionStyle()
@@ -319,7 +326,7 @@ public class GuesstimateViews {
 
 
         GroupDescription settings = f.newGroupDescription()
-                .name("settings")
+                .name("SettingsGroup")
                 .labelExpression("Parameters")
                 .children(
                         childrenFeaturesEditors.toArray(new FormElementDescription[0])
@@ -328,7 +335,7 @@ public class GuesstimateViews {
 
 
         FormDescription editor = f.newFormDescription()
-                .name("Details")
+                .name("DetailsForm")
                 .domainType(typeName(domain.getVariable()))
                 .titleExpression("aql: self.name + ' summary'")
                 .pages(f.newPageDescription()
@@ -338,6 +345,7 @@ public class GuesstimateViews {
                                 docGroup,
                                 settings,
                                 f.newGroupDescription()
+                                    .name("StatisticsGroup")
                                     .children(
                                             barChart,
                                             summary)
@@ -358,12 +366,14 @@ public class GuesstimateViews {
 	private FormElementDescription buildFeatureEditorsForChildBasedOnType(ViewBuilders v, FormBuilders f,
 			EClass childType, String childReferenceName) {
 		FormElementIf enclosingIf = f.newFormElementIf()
+				.name(childType.getName() + "SettingsIf")
 				.predicateExpression("aql:self.settings.oclIsKindOf(" + typeName(childType) + ")").build();
 		for (EAttribute childParameter : childType.getEAllAttributes()) {
 
 			if (childParameter == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
-				enclosingIf.getChildren()
-						.add(f.newTextfieldDescription().labelExpression(childParameter.getName())
+					enclosingIf.getChildren()
+						.add(f.newTextfieldDescription().name(this.toUpperCamelCase(childParameter.getName()) + "Field")
+								.labelExpression(childParameter.getName())
 								.valueExpression("aql:self." + childReferenceName + "." + childParameter.getName())
 								.helpExpression(EcoreUtil.getDocumentation(childParameter))
 								.body(v.newChangeContext().expression("aql:self." + childReferenceName)
@@ -373,7 +383,9 @@ public class GuesstimateViews {
 										.build())
 								.style(f.newTextfieldDescriptionStyle().build()).build());
 			} else if (childParameter.getEType() == GuesstimatePackage.eINSTANCE.getProbability()) {
-				enclosingIf.getChildren().add(f.newTextfieldDescription().labelExpression(childParameter.getName())
+					enclosingIf.getChildren().add(f.newTextfieldDescription()
+						.name(this.toUpperCamelCase(childParameter.getName()) + "Field")
+						.labelExpression(childParameter.getName())
 						.valueExpression(
 								"aql:self." + childReferenceName + "." + childParameter.getName() + " * 100.0 +'%'")
 						.helpExpression(EcoreUtil.getDocumentation(childParameter))
@@ -384,8 +396,9 @@ public class GuesstimateViews {
 								.build())
 						.style(f.newTextfieldDescriptionStyle().build()).build());
 			} else {
-				enclosingIf.getChildren()
-						.add(f.newTextfieldDescription().labelExpression(childParameter.getName())
+					enclosingIf.getChildren()
+						.add(f.newTextfieldDescription().name(this.toUpperCamelCase(childParameter.getName()) + "Field")
+								.labelExpression(childParameter.getName())
 								.valueExpression("aql:self." + childReferenceName + "." + childParameter.getName())
 								.helpExpression(EcoreUtil.getDocumentation(childParameter))
 								.body(v.newChangeContext().expression("aql:self." + childReferenceName)
@@ -406,7 +419,7 @@ public class GuesstimateViews {
 		// @formatter:off
 
         LabelEditTool editLabel = b.newLabelEditTool()
-                .name("edit any element label from the diagrams")
+                .name("EditVariableLabelTool")
                 .body(v.newChangeContext()
 						.expression(ServiceMethod.of1(Services::smartEdit).aqlSelf("newLabel"))
                         .build()
@@ -424,7 +437,7 @@ public class GuesstimateViews {
 //
 
         NodeDescription distributionMapping = b.newNodeDescription()
-                .name("Variables")
+                .name("VariableNode")
                 .domainType(typeName(domain.getVariable()))
                 .defaultWidthExpression("80")
                 .defaultHeightExpression("30")
@@ -466,7 +479,7 @@ public class GuesstimateViews {
 
 
         DiagramDescription diag = b.newDiagramDescription()
-                .name("Variables and Computations")
+                .name("VariablesDiagram")
                 .arrangeLayoutDirection(ArrangeLayoutDirection.UP)
                 .domainType(typeName(domain.getSheet()))
                 .layoutOption(DiagramLayoutOption.AUTO_UNTIL_MANUAL)
@@ -480,6 +493,7 @@ public class GuesstimateViews {
                         this.buildOperatorEdge(b, distributionMapping, "^", this.powerColor, LineStyle.SOLID, 2))
                 .palette(b.newDiagramPalette()
                         .nodeTools(b.newNodeTool()
+                                // Node tool names are displayed directly in the palette.
                                 .name("Variable")
                                 .iconURLsExpression(this.iconFromType(domain.getVariable()))
                                 .body(v.newChangeContext()
@@ -528,7 +542,7 @@ public class GuesstimateViews {
 	private EdgeDescription buildOperatorEdge(DiagramBuilders builders, NodeDescription variableDescription,
 			String operator, FixedColor color, LineStyle lineStyle, int edgeWidth) {
 		return builders.newEdgeDescription()
-				.name("Formula " + operator + " dependencies")
+				.name("Formula" + this.operatorName(operator) + "DependenciesEdge")
 				.domainType(this.typeName(GuesstimatePackage.eINSTANCE.getVariable()))
 				.semanticCandidatesExpression("aql:self.variables")
 				.isDomainBasedEdge(true)
@@ -549,6 +563,24 @@ public class GuesstimateViews {
 						.targetArrowStyle(ArrowStyle.INPUT_ARROW)
 						.build())
 				.build();
+	}
+
+	private String operatorName(String operator) {
+		return switch (operator) {
+		case "+" -> "Addition";
+		case "-" -> "Subtraction";
+		case "*" -> "Multiplication";
+		case "/" -> "Division";
+		case "^" -> "Power";
+		default -> throw new IllegalArgumentException("Unsupported formula operator: " + operator);
+		};
+	}
+
+	private String toUpperCamelCase(String name) {
+		if (name == null || name.isEmpty()) {
+			return name;
+		}
+		return Character.toUpperCase(name.charAt(0)) + name.substring(1);
 	}
 
 	/**
