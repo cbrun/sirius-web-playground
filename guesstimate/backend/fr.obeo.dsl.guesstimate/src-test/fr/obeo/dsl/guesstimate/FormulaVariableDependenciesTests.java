@@ -138,6 +138,80 @@ public class FormulaVariableDependenciesTests {
         assertThat(this.getSample(dependent)).isNull();
     }
 
+    @Test
+    @DisplayName("Given formulas using arithmetic operators, when their dependencies are queried, then operator paths are preserved")
+    public void givenFormulasUsingArithmeticOperatorsWhenDependenciesAreQueriedThenOperatorPathsArePreserved() {
+        Sheet sheet = this.factory.createSheet();
+        Variable first = this.createVariable("A", VariableType.NORMAL);
+        Variable second = this.createVariable("B", VariableType.NORMAL);
+        Variable third = this.createVariable("C", VariableType.NORMAL);
+        Variable formula = this.createFormula("D", "A + B");
+        sheet.getVariables().addAll(List.of(first, second, third, formula));
+        VariableServices services = new VariableServices();
+        FormulaSetting settings = (FormulaSetting) formula.getSettings();
+
+        assertThat(services.getReferencedVariablesByOperator(formula, "+")).containsExactly(first, second);
+        assertThat(services.getOperatorLabel(formula, first, "+")).isEqualTo("+");
+
+        settings.setFormula("A - B");
+        assertThat(services.getReferencedVariablesByOperator(formula, "+")).containsExactly(first);
+        assertThat(services.getReferencedVariablesByOperator(formula, "-")).containsExactly(second);
+
+        settings.setFormula("A * B");
+        assertThat(services.getReferencedVariablesByOperator(formula, "*")).containsExactly(first, second);
+
+        settings.setFormula("A - B * C");
+        assertThat(services.getOperatorLabel(formula, first, "+")).isEqualTo("+");
+        assertThat(services.getOperatorLabel(formula, second, "-")).isEqualTo("- *");
+        assertThat(services.getOperatorLabel(formula, third, "-")).isEqualTo("- *");
+
+        settings.setFormula("A / B");
+        assertThat(services.getReferencedVariablesByOperator(formula, "*")).containsExactly(first);
+        assertThat(services.getReferencedVariablesByOperator(formula, "/")).containsExactly(second);
+
+        settings.setFormula("A ^ B");
+        assertThat(services.getReferencedVariablesByOperator(formula, "^")).containsExactly(first, second);
+
+        settings.setFormula("-A");
+        assertThat(services.getReferencedVariablesByOperator(formula, "-")).containsExactly(first);
+
+        settings.setFormula("A * B + C / A");
+        assertThat(services.getReferencedVariablesByOperator(formula, "+")).containsExactly(first, second, third);
+        assertThat(services.getOperatorLabel(formula, first, "+")).isEqualTo("+ * | + /");
+        assertThat(services.getOperatorLabel(formula, second, "+")).isEqualTo("+ *");
+
+        settings.setFormula("A + unknown");
+        assertThat(services.getReferencedVariablesByOperator(formula, "+")).containsExactly(first);
+        settings.setFormula("(");
+        assertThat(services.getReferencedVariablesByOperator(formula, "+")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Given power and unary negation formulas, when the sheet is sampled, then both operators are evaluated")
+    public void givenPowerAndUnaryNegationFormulasWhenSheetIsSampledThenBothOperatorsAreEvaluated() {
+        Sheet sheet = this.factory.createSheet();
+        sheet.setSampleSize(4);
+        Variable input = this.createVariable("A", VariableType.NORMAL);
+        Variable negative = this.createFormula("B", "-A");
+        Variable square = this.createFormula("C", "A ^ 2");
+        Variable rightAssociativePower = this.createFormula("D", "2 ^ 3 ^ 2");
+        sheet.getVariables().addAll(List.of(negative, square, rightAssociativePower, input));
+
+        sheet.resample();
+
+        double[] inputSample = this.getSample(input);
+        double[] negativeSample = this.getSample(negative);
+        double[] squareSample = this.getSample(square);
+        assertThat(inputSample).hasSize(4);
+        assertThat(negativeSample).hasSize(4);
+        assertThat(squareSample).hasSize(4);
+        assertThat(this.getSample(rightAssociativePower)).containsOnly(512d);
+        for (int index = 0; index < inputSample.length; index++) {
+            assertThat(negativeSample[index]).isEqualTo(-inputSample[index]);
+            assertThat(squareSample[index]).isEqualTo(Math.pow(inputSample[index], 2));
+        }
+    }
+
     private Variable createVariable(String name, VariableType type) {
         Variable variable = this.factory.createVariable();
         variable.setName(name);

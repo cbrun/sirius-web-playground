@@ -61,6 +61,13 @@ public class FormulaVariableComputer {
 
 					@Override
 					public Object aggregate(List<Object> results) {
+						if (results.size() == 2 && Character.valueOf('-').equals(results.get(0)) && results.get(1) instanceof double[] operand) {
+							double[] negated = new double[operand.length];
+							for (int index = 0; index < operand.length; index++) {
+								negated[index] = -operand[index];
+							}
+							return negated;
+						}
 						Deque<double[]> stack = new ArrayDeque<>();
 						int o = 0;
 						char op = ' ';
@@ -99,6 +106,12 @@ public class FormulaVariableComputer {
 								case '*':
 									for (int i = 0; i < r.length; i++) {
 										r[i] = op1[i] * op2[i];
+									}
+									stack.push(r);
+									break;
+								case '^':
+									for (int i = 0; i < r.length; i++) {
+										r[i] = Math.pow(op1[i], op2[i]);
 									}
 									stack.push(r);
 									break;

@@ -53,3 +53,17 @@ From `backend/fr.obeo.dsl.guesstimate.releng`, start only the database with `doc
 The modeler demonstrates programmatic diagram and details-view descriptions, AQL Java services, EMF validation, conditional styles, formula parsing, and probability-distribution sampling.
 
 `Variable.settings` is the persistent source of truth for a variable's kind and parameters. `Variable.type` is a derived, writable convenience feature: selecting another type replaces the settings object with the matching subtype and its defaults, intentionally discarding the previous parameters.
+
+## Formula dependency edges
+
+The variables diagram displays formula dependencies from each input variable to the calculated variable. The edge label shows the operator path through the formula, with the root operator determining its style:
+
+- `+`: green, solid;
+- `-`: red, dashed;
+- `*`: blue, dotted;
+- `/`: orange, dash-dot;
+- `^`: purple, solid and thicker.
+
+Nested formulas keep their complete operator path. For example, `C = A * (B + D)` displays `*` for `A` and `* +` for `B` and `D`. Distinct paths for the same input are separated by ` | `.
+
+An edge explains how an input contributes to the calculated variable, from the outermost operation to the innermost one. The first operator in its label determines the edge style; the remaining operators describe the nested branch. For a variable whose formula is `D - E * C`, the precedence rules interpret the expression as `D - (E * C)`: the edge from `D` is labeled `+` because `D` is the positive, left-hand term of the subtraction, while the edges from `E` and `C` are labeled `- *` because both belong to the subtracted term and are multiplied inside it. Likewise, with `A / B`, the edge from `A` is labeled `*` (the multiplicative numerator) and the edge from `B` is labeled `/` (the divisor). This convention makes every label a compact path through the expression tree instead of showing only the nearest operator.

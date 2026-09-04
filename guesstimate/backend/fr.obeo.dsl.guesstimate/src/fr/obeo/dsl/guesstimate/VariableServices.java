@@ -2,9 +2,10 @@ package fr.obeo.dsl.guesstimate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EEnumLiteral;
@@ -12,12 +13,13 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.petitparser.context.Result;
 import org.petitparser.parser.Parser;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.primitives.Doubles;
 
 import fr.obeo.dsl.guesstimate.formula.ArithParser;
-import fr.obeo.dsl.guesstimate.formula.ArithmeticVisitor;
+
 public class VariableServices {
+
+	private static final Set<String> SUPPORTED_OPERATORS = Set.of("+", "-", "*", "/", "^");
 
 	public Set<String> collectUnknownVariables(FormulaSetting op) {
 		Set<String> unknowns = collectVariableNamesUsedInFormula(op);
@@ -49,6 +51,51 @@ public class VariableServices {
 			}
 		}
 		return List.of();
+	}
+
+	/**
+	 * Returns the variables referenced through paths starting with the given operator.
+	 *
+	 * @param variable the formula variable
+	 * @param operator the root operator
+	 * @return the referenced variables, in first occurrence order
+	 * @since 0.0.7
+	 */
+	public List<Variable> getReferencedVariablesByOperator(Variable variable, String operator) {
+		if (operator != null && SUPPORTED_OPERATORS.contains(operator) && variable.getSettings() instanceof FormulaSetting formulaSetting) {
+			Sheet sheet = GuesstimateQueries.getParentSheet(formulaSetting);
+			if (sheet != null) {
+				Map<String, Variable> available = this.collectAccessibleVariables(sheet);
+				return this.collectVariableOperatorPaths(formulaSetting).entrySet().stream()
+						.filter(entry -> entry.getValue().stream().anyMatch(path -> this.hasRootOperator(path, operator)))
+						.map(Map.Entry::getKey)
+						.map(available::get)
+						.filter(referencedVariable -> referencedVariable != null)
+						.toList();
+			}
+		}
+		return List.of();
+	}
+
+	/**
+	 * Returns the operator paths connecting a referenced variable to a formula.
+	 *
+	 * @param variable the formula variable
+	 * @param referencedVariable the referenced variable
+	 * @param operator the root operator used to select the paths
+	 * @return the distinct paths separated by {@code |}, or an empty string
+	 * @since 0.0.7
+	 */
+	public String getOperatorLabel(Variable variable, Variable referencedVariable, String operator) {
+		if (operator != null && SUPPORTED_OPERATORS.contains(operator) && referencedVariable != null && referencedVariable.getName() != null
+				&& variable.getSettings() instanceof FormulaSetting formulaSetting) {
+			Set<String> paths = this.collectVariableOperatorPaths(formulaSetting)
+					.getOrDefault(referencedVariable.getName().trim(), Set.of());
+			return String.join(" | ", paths.stream()
+					.filter(path -> this.hasRootOperator(path, operator))
+					.toList());
+		}
+		return "";
 	}
 
 	/**
@@ -118,7 +165,7 @@ public class VariableServices {
 	 * @return
 	 */
 	public Map<String, Variable> collectAccessibleVariables(Sheet s) {
-		Map<String, Variable> available = Maps.newLinkedHashMap();
+		Map<String, Variable> available = new LinkedHashMap<>();
 		for (Variable d : s.getVariables()) {
 			if (d.getName() != null) {
 				available.put(d.getName().trim(), d);
@@ -128,23 +175,52 @@ public class VariableServices {
 	}
 
 	private Set<String> collectVariableNamesUsedInFormula(FormulaSetting op) {
-		Set<String> varNames = Sets.newLinkedHashSet();
-		if (op.getFormula() != null) {
-			String content = op.getFormula();
+		return new LinkedHashSet<>(this.collectVariableOperatorPaths(op).keySet());
+	}
 
-			Parser p = new ArithParser().createParser();
-			Result r = p.parse(content);
-			ArithmeticVisitor v = new ArithmeticVisitor() {
-				@Override
-				public Object caseString(String child) {
-					String child2 = child.trim();
-					varNames.add(child2);
-					return child2;
-				}
-			};
-			v.visit(r);
+	private Map<String, Set<String>> collectVariableOperatorPaths(FormulaSetting formulaSetting) {
+		Map<String, Set<String>> paths = new LinkedHashMap<>();
+		if (formulaSetting.getFormula() != null) {
+			Parser parser = new ArithParser().createParser();
+			Result result = parser.parse(formulaSetting.getFormula());
+			if (result.isSuccess()) {
+				this.collectVariableOperatorPaths(result.get(), "", paths);
+			}
 		}
-		return varNames;
+		return paths;
+	}
+
+	private void collectVariableOperatorPaths(Object expression, String path, Map<String, Set<String>> paths) {
+		if (expression instanceof String value && Doubles.tryParse(value) == null) {
+			paths.computeIfAbsent(value.trim(), key -> new LinkedHashSet<>()).add(path.isEmpty() ? "+" : path);
+		} else if (expression instanceof List<?> parts) {
+			if (parts.size() == 3 && Character.valueOf('(').equals(parts.get(0)) && Character.valueOf(')').equals(parts.get(2))) {
+				this.collectVariableOperatorPaths(parts.get(1), path, paths);
+			} else if (parts.size() == 2 && Character.valueOf('-').equals(parts.get(0))) {
+				this.collectVariableOperatorPaths(parts.get(1), this.appendOperator(path, "-"), paths);
+			} else if (parts.size() == 3 && parts.get(1) instanceof Character operator) {
+				String operatorValue = operator.toString();
+				this.collectVariableOperatorPaths(parts.get(0), this.appendOperator(path, this.leftOperator(operatorValue)), paths);
+				this.collectVariableOperatorPaths(parts.get(2), this.appendOperator(path, operatorValue), paths);
+			}
+		}
+	}
+
+	private String leftOperator(String operator) {
+		return switch (operator) {
+			case "+", "-" -> "+";
+			case "*", "/" -> "*";
+			case "^" -> "^";
+			default -> operator;
+		};
+	}
+
+	private String appendOperator(String path, String operator) {
+		return path.isEmpty() ? operator : path + " " + operator;
+	}
+
+	private boolean hasRootOperator(String path, String operator) {
+		return path.equals(operator) || path.startsWith(operator + " ");
 	}
 
 	public String getGuideDocumentation(Variable v) {

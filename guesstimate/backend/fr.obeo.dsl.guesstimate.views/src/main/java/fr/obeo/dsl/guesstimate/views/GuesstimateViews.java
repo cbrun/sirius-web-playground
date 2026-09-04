@@ -36,6 +36,7 @@ import org.eclipse.sirius.components.view.diagram.ArrangeLayoutDirection;
 import org.eclipse.sirius.components.view.diagram.ArrowStyle;
 import org.eclipse.sirius.components.view.diagram.DiagramDescription;
 import org.eclipse.sirius.components.view.diagram.DiagramLayoutOption;
+import org.eclipse.sirius.components.view.diagram.EdgeDescription;
 import org.eclipse.sirius.components.view.diagram.HeaderSeparatorDisplayMode;
 import org.eclipse.sirius.components.view.diagram.InsideLabelPosition;
 import org.eclipse.sirius.components.view.diagram.LabelEditTool;
@@ -76,6 +77,16 @@ public class GuesstimateViews {
 
 	private final FixedColor lightGrey;
 
+	private final FixedColor additionColor;
+
+	private final FixedColor subtractionColor;
+
+	private final FixedColor multiplicationColor;
+
+	private final FixedColor divisionColor;
+
+	private final FixedColor powerColor;
+
 	public GuesstimateViews() {
 		// @formatter:off
         ViewBuilders b = new ViewBuilders();
@@ -114,6 +125,36 @@ public class GuesstimateViews {
                 .name("Black")
                 .value("rgb(0, 0, 0)")
                 .build();
+
+         this.additionColor = b
+                .newFixedColor()
+                .name("Addition")
+                .value("rgb(46, 125, 50)")
+                .build();
+
+         this.subtractionColor = b
+                .newFixedColor()
+                .name("Subtraction")
+                .value("rgb(198, 40, 40)")
+                .build();
+
+         this.multiplicationColor = b
+                .newFixedColor()
+                .name("Multiplication")
+                .value("rgb(21, 101, 192)")
+                .build();
+
+         this.divisionColor = b
+                .newFixedColor()
+                .name("Division")
+                .value("rgb(230, 81, 0)")
+                .build();
+
+         this.powerColor = b
+                .newFixedColor()
+                .name("Power")
+                .value("rgb(106, 27, 154)")
+                .build();
          this.variableColor = this.main;
     }
 
@@ -143,7 +184,9 @@ public class GuesstimateViews {
     private ColorPalette guesstimatePalette() {
         return new ViewBuilders()
                 .newColorPalette()
-                .colors(this.main, this.lightGrey, this.grey, this.background, this.black)
+                .colors(this.main, this.lightGrey, this.grey, this.background, this.black,
+                        this.additionColor, this.subtractionColor, this.multiplicationColor,
+                        this.divisionColor, this.powerColor)
                 .build();
         // @formatter:on
 
@@ -429,22 +472,12 @@ public class GuesstimateViews {
                 .layoutOption(DiagramLayoutOption.AUTO_UNTIL_MANUAL)
                 .style(b.newDiagramStyleDescription().build())
                 .nodeDescriptions(distributionMapping)
-                .edgeDescriptions(b.newEdgeDescription()
-                        .name("link from variables having formulas to other variables")
-                        .sourceDescriptions(distributionMapping)
-                        .targetDescriptions(distributionMapping)
-                        .targetExpression(ServiceMethod.of0(VariableServices::getReferencedVariables).aqlSelf())
-                        .centerLabelExpression("") // otherwise self.name is used :-/
-                        .style(b.newEdgeStyle()
-                                .borderColor(this.variableColor)
-                                .color(this.variableColor)
-                                .borderLineStyle(LineStyle.SOLID)
-                                .edgeWidth(1)
-                                .borderSize(0)
-                                .sourceArrowStyle(ArrowStyle.INPUT_ARROW)
-                                .targetArrowStyle(ArrowStyle.NONE)
-                                .build())
-                        .build())
+                .edgeDescriptions(
+                        this.buildOperatorEdge(b, distributionMapping, "+", this.additionColor, LineStyle.SOLID, 1),
+                        this.buildOperatorEdge(b, distributionMapping, "-", this.subtractionColor, LineStyle.DASH, 1),
+                        this.buildOperatorEdge(b, distributionMapping, "*", this.multiplicationColor, LineStyle.DOT, 1),
+                        this.buildOperatorEdge(b, distributionMapping, "/", this.divisionColor, LineStyle.DASH_DOT, 1),
+                        this.buildOperatorEdge(b, distributionMapping, "^", this.powerColor, LineStyle.SOLID, 2))
                 .palette(b.newDiagramPalette()
                         .nodeTools(b.newNodeTool()
                                 .name("Variable")
@@ -490,6 +523,32 @@ public class GuesstimateViews {
 		}
 		return diag;
 
+	}
+
+	private EdgeDescription buildOperatorEdge(DiagramBuilders builders, NodeDescription variableDescription,
+			String operator, FixedColor color, LineStyle lineStyle, int edgeWidth) {
+		return builders.newEdgeDescription()
+				.name("Formula " + operator + " dependencies")
+				.domainType(this.typeName(GuesstimatePackage.eINSTANCE.getVariable()))
+				.semanticCandidatesExpression("aql:self.variables")
+				.isDomainBasedEdge(true)
+				.sourceDescriptions(variableDescription)
+				.targetDescriptions(variableDescription)
+				.sourceExpression(ServiceMethod.of1(VariableServices::getReferencedVariablesByOperator)
+						.aqlSelf("'" + operator + "'"))
+				.targetExpression(ServiceMethod.AQL_SELF)
+				.centerLabelExpression(ServiceMethod.of2(VariableServices::getOperatorLabel)
+						.aqlSelf("semanticEdgeSource", "'" + operator + "'"))
+				.style(builders.newEdgeStyle()
+						.color(color)
+						.borderColor(color)
+						.lineStyle(lineStyle)
+						.edgeWidth(edgeWidth)
+						.borderSize(0)
+						.sourceArrowStyle(ArrowStyle.NONE)
+						.targetArrowStyle(ArrowStyle.INPUT_ARROW)
+						.build())
+				.build();
 	}
 
 	/**
