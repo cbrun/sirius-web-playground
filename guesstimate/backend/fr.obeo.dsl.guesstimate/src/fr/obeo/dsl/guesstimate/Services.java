@@ -44,14 +44,13 @@ public class Services {
 
 		if (cur instanceof Variable) {
 			Variable var = (Variable) cur;
-			VariableServices service = new VariableServices();
 			input = input.trim();
 			if (input.startsWith("=")) {
 				input = input.substring("=".length());
 				// Check if the input is a number (integer or float)
 				if (input.matches("^\\d+(\\.\\d+)?$")) {
 					var.setType(VariableType.FORMULA);
-					service.setFormula((FormulaSetting) var.getSettings(), input);
+					((FormulaSetting) var.getSettings()).setFormula(input);
 				}
 				// Check if the input is a confidence interval (e.g., "40 to 70" or "from 50 to
 				// 60")

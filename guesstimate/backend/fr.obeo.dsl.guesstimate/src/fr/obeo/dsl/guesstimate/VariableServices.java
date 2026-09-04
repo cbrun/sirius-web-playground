@@ -28,9 +28,14 @@ public class VariableServices {
 		return unknowns;
 	}
 
-	public String setFormula(FormulaSetting op, String newValue) {
+	/**
+	 * Synchronizes the references derived from a formula.
+	 *
+	 * @param op the formula settings to synchronize
+	 * @since 0.0.7
+	 */
+	public void synchronizeFormulaInputs(FormulaSetting op) {
 		Sheet s = GuesstimateQueries.getParentSheet(op);
-		op.setFormula(newValue);
 		Map<String, Variable> available = collectAccessibleVariables(s);
 		Set<String> varNamesInFormula = collectVariableNamesUsedInFormula(op);
 		if (op.getFormula() != null) {
@@ -55,8 +60,6 @@ public class VariableServices {
 			op.getInputs().removeAll(toRemove);
 			op.getInputs().addAll(toAdd);
 		}
-		s.resample();
-		return newValue;
 	}
 
 	/**

@@ -9,7 +9,6 @@ import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.TriangularDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
-import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.ecore.EObject;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import fr.obeo.dsl.guesstimate.ExponentialDistribution;
 import fr.obeo.dsl.guesstimate.FormulaSetting;
 import fr.obeo.dsl.guesstimate.FormulaVariableComputer;
 import fr.obeo.dsl.guesstimate.GammaDistribution;
-import fr.obeo.dsl.guesstimate.GuesstimatePackage;
 import fr.obeo.dsl.guesstimate.GuesstimateQueries;
 import fr.obeo.dsl.guesstimate.LogNormalDistribution;
 import fr.obeo.dsl.guesstimate.NormalDistribution;
@@ -47,15 +45,6 @@ public class SamplingSimulationAdapter extends AdapterImpl {
 		this.distributionSimulator = realOrIntegerDistributionFromApache;
 		sample = null;
 		doubleSample = null;
-	}
-
-	@Override
-	public void notifyChanged(Notification msg) {
-		if (!msg.isTouch() && msg.getFeature() == GuesstimatePackage.eINSTANCE.getVariable_Settings()) {
-			resetApacheStateFromSettings();
-		} else if (msg.getFeature() != GuesstimatePackage.eINSTANCE.getVariable_Type()) {
-			resample();
-		}
 	}
 
 	/**

@@ -325,8 +325,7 @@ public class GuesstimateViews {
 								.helpExpression(EcoreUtil.getDocumentation(childParameter))
 								.body(v.newChangeContext().expression("aql:self." + childReferenceName)
 										.children(v.newSetValue().featureName(childParameter.getName())
-												.valueExpression(ServiceMethod.of1(VariableServices::setFormula)
-														.aqlSelf("newValue"))
+												.valueExpression("aql:newValue")
 												.build())
 										.build())
 								.style(f.newTextfieldDescriptionStyle().build()).build());
