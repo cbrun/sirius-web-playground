@@ -499,16 +499,6 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 	 * @generated
 	 */
 	@Override
-	public EReference getFormulaSetting_Inputs() {
-		return (EReference)formulaSettingEClass.getEStructuralFeatures().get(1);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
 	public EClass getSheet() {
 		return sheetEClass;
 	}
@@ -698,7 +688,6 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		formulaSettingEClass = createEClass(FORMULA_SETTING);
 		createEAttribute(formulaSettingEClass, FORMULA_SETTING__FORMULA);
-		createEReference(formulaSettingEClass, FORMULA_SETTING__INPUTS);
 
 		sheetEClass = createEClass(SHEET);
 		createEReference(sheetEClass, SHEET__VARIABLES);
@@ -798,8 +787,6 @@ public class GuesstimatePackageImpl extends EPackageImpl implements GuesstimateP
 
 		initEClass(formulaSettingEClass, FormulaSetting.class, "FormulaSetting", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getFormulaSetting_Formula(), ecorePackage.getEString(), "formula", "0", 1, 1, FormulaSetting.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getFormulaSetting_Inputs(), this.getVariable(), null, "inputs", null, 0, -1, FormulaSetting.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		getFormulaSetting_Inputs().getEKeys().add(this.getVariable_Name());
 
 		initEClass(sheetEClass, Sheet.class, "Sheet", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getSheet_Variables(), this.getVariable(), null, "variables", null, 0, -1, Sheet.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

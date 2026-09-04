@@ -2314,11 +2314,6 @@
         <semanticElements xmi:type="ecore:EAttribute" href="guesstimate.ecore#//FormulaSetting/formula"/>
         <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
       </lines>
-      <lines xmi:type="table:DLine" uid="_NV04QnXKEe-Ja6DHQZDurA" label="EReference : inputs">
-        <target xmi:type="ecore:EReference" href="guesstimate.ecore#//FormulaSetting/inputs"/>
-        <semanticElements xmi:type="ecore:EReference" href="guesstimate.ecore#//FormulaSetting/inputs"/>
-        <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']/@ownedSubLines[name='Doc%20EStructural%20Features']"/>
-      </lines>
       <semanticElements xmi:type="ecore:EClass" href="guesstimate.ecore#//FormulaSetting"/>
       <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']/@ownedRepresentations[name='Documentation']/@ownedLineMappings[name='Doc%20EClassifiers']"/>
       <cells xmi:type="table:DCell" uid="_NWN50HXKEe-Ja6DHQZDurA" label="A variable which is defined by a formula using other variables." column="_hP1asEUZEe-Em7KKoPPppQ">

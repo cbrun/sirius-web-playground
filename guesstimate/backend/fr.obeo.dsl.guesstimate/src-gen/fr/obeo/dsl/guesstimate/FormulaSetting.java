@@ -2,8 +2,6 @@
  */
 package fr.obeo.dsl.guesstimate;
 
-import org.eclipse.emf.common.util.EList;
-
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Formula Setting</b></em>'.
@@ -18,7 +16,6 @@ import org.eclipse.emf.common.util.EList;
  * </p>
  * <ul>
  *   <li>{@link fr.obeo.dsl.guesstimate.FormulaSetting#getFormula <em>Formula</em>}</li>
- *   <li>{@link fr.obeo.dsl.guesstimate.FormulaSetting#getInputs <em>Inputs</em>}</li>
  * </ul>
  *
  * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getFormulaSetting()
@@ -48,17 +45,5 @@ public interface FormulaSetting extends VariableSettings {
 	 * @generated
 	 */
 	void setFormula(String value);
-
-	/**
-	 * Returns the value of the '<em><b>Inputs</b></em>' reference list.
-	 * The list contents are of type {@link fr.obeo.dsl.guesstimate.Variable}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Inputs</em>' reference list.
-	 * @see fr.obeo.dsl.guesstimate.GuesstimatePackage#getFormulaSetting_Inputs()
-	 * @model keys="name"
-	 * @generated
-	 */
-	EList<Variable> getInputs();
 
 } // FormulaSetting

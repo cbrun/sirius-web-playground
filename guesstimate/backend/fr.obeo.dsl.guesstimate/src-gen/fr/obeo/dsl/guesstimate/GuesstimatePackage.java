@@ -465,22 +465,13 @@ public interface GuesstimatePackage extends EPackage {
 	int FORMULA_SETTING__FORMULA = VARIABLE_SETTINGS_FEATURE_COUNT + 0;
 
 	/**
-	 * The feature id for the '<em><b>Inputs</b></em>' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int FORMULA_SETTING__INPUTS = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
-
-	/**
 	 * The number of structural features of the '<em>Formula Setting</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int FORMULA_SETTING_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 2;
+	int FORMULA_SETTING_FEATURE_COUNT = VARIABLE_SETTINGS_FEATURE_COUNT + 1;
 
 	/**
 	 * The number of operations of the '<em>Formula Setting</em>' class.
@@ -986,17 +977,6 @@ public interface GuesstimatePackage extends EPackage {
 	EAttribute getFormulaSetting_Formula();
 
 	/**
-	 * Returns the meta object for the reference list '{@link fr.obeo.dsl.guesstimate.FormulaSetting#getInputs <em>Inputs</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the reference list '<em>Inputs</em>'.
-	 * @see fr.obeo.dsl.guesstimate.FormulaSetting#getInputs()
-	 * @see #getFormulaSetting()
-	 * @generated
-	 */
-	EReference getFormulaSetting_Inputs();
-
-	/**
 	 * Returns the meta object for class '{@link fr.obeo.dsl.guesstimate.Sheet <em>Sheet</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1401,14 +1381,6 @@ public interface GuesstimatePackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute FORMULA_SETTING__FORMULA = eINSTANCE.getFormulaSetting_Formula();
-
-		/**
-		 * The meta object literal for the '<em><b>Inputs</b></em>' reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference FORMULA_SETTING__INPUTS = eINSTANCE.getFormulaSetting_Inputs();
 
 		/**
 		 * The meta object literal for the '{@link fr.obeo.dsl.guesstimate.impl.SheetImpl <em>Sheet</em>}' class.

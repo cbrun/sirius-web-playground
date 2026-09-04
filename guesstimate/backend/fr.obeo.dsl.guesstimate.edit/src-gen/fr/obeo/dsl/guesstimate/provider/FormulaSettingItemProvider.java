@@ -55,7 +55,6 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 			super.getPropertyDescriptors(object);
 
 			addFormulaPropertyDescriptor(object);
-			addInputsPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -78,28 +77,6 @@ public class FormulaSettingItemProvider extends ItemProviderAdapter implements I
 				 false,
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Inputs feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addInputsPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_FormulaSetting_inputs_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_FormulaSetting_inputs_feature", "_UI_FormulaSetting_type"),
-				 GuesstimatePackage.Literals.FORMULA_SETTING__INPUTS,
-				 true,
-				 false,
-				 true,
-				 null,
 				 null,
 				 null));
 	}

@@ -60,7 +60,6 @@
     </genClasses>
     <genClasses ecoreClass="guesstimate.ecore#//FormulaSetting">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute guesstimate.ecore#//FormulaSetting/formula"/>
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference guesstimate.ecore#//FormulaSetting/inputs"/>
     </genClasses>
     <genClasses ecoreClass="guesstimate.ecore#//Sheet">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference guesstimate.ecore#//Sheet/variables"/>

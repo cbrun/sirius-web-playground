@@ -70,8 +70,6 @@ public class GuesstimateAutomaticModelUpdateTests {
 
         ((NormalDistribution) inputVariable.getSettings()).setMean(42);
         ((FormulaSetting) formulaVariable.getSettings()).setFormula("A + 1");
-
-        assertThat(((FormulaSetting) formulaVariable.getSettings()).getInputs()).containsExactly(inputVariable);
         assertThat(sheet.getResamplingCount()).isOne();
 
         this.preAccept(automaticModelUpdate, editingContext);

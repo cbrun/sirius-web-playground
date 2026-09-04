@@ -12,12 +12,10 @@
  *******************************************************************************/
 package fr.obeo.dsl.guesstimate.configuration;
 
-import fr.obeo.dsl.guesstimate.FormulaSetting;
 import fr.obeo.dsl.guesstimate.GuesstimatePackage;
 import fr.obeo.dsl.guesstimate.GuesstimateQueries;
 import fr.obeo.dsl.guesstimate.Sheet;
 import fr.obeo.dsl.guesstimate.Variable;
-import fr.obeo.dsl.guesstimate.VariableServices;
 import fr.obeo.dsl.guesstimate.VariableSettings;
 
 import java.util.LinkedHashSet;
@@ -49,9 +47,6 @@ public class GuesstimateUpdateModelAdapter extends EContentAdapter {
     private void handleNotification(Notification notification) {
         Object notifier = notification.getNotifier();
         Object feature = notification.getFeature();
-        if (notifier instanceof FormulaSetting formulaSetting && feature == GuesstimatePackage.eINSTANCE.getFormulaSetting_Formula()) {
-            new VariableServices().synchronizeFormulaInputs(formulaSetting);
-        }
         if (notifier instanceof VariableSettings variableSettings) {
             this.markDirty(variableSettings);
         } else if (notifier instanceof Variable variable

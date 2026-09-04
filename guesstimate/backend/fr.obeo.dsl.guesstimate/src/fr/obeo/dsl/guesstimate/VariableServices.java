@@ -29,37 +29,24 @@ public class VariableServices {
 	}
 
 	/**
-	 * Synchronizes the references derived from a formula.
+	 * Returns the variables referenced by a formula variable.
 	 *
-	 * @param op the formula settings to synchronize
+	 * @param variable the formula variable
+	 * @return the referenced variables, in first occurrence order
 	 * @since 0.0.7
 	 */
-	public void synchronizeFormulaInputs(FormulaSetting op) {
-		Sheet s = GuesstimateQueries.getParentSheet(op);
-		Map<String, Variable> available = collectAccessibleVariables(s);
-		Set<String> varNamesInFormula = collectVariableNamesUsedInFormula(op);
-		if (op.getFormula() != null) {
-			Set<Variable> referedTo = Sets.newLinkedHashSet();
-			Set<Variable> toRemove = Sets.newLinkedHashSet();
-			Set<Variable> toAdd = Sets.newLinkedHashSet();
-			for (String varName : varNamesInFormula) {
-				varName = varName.trim();
-				Variable found = available.get(varName);
-				if (found != null) {
-					referedTo.add(found);
-					if (!op.getInputs().contains(found)) {
-						toAdd.add(found);
-					}
-				}
+	public List<Variable> getReferencedVariables(Variable variable) {
+		if (variable.getSettings() instanceof FormulaSetting formulaSetting) {
+			Sheet sheet = GuesstimateQueries.getParentSheet(formulaSetting);
+			if (sheet != null) {
+				Map<String, Variable> available = collectAccessibleVariables(sheet);
+				return collectVariableNamesUsedInFormula(formulaSetting).stream()
+						.map(available::get)
+						.filter(referencedVariable -> referencedVariable != null)
+						.toList();
 			}
-			for (Variable currentlyReferenced : op.getInputs()) {
-				if (!referedTo.contains(currentlyReferenced)) {
-					toRemove.add(currentlyReferenced);
-				}
-			}
-			op.getInputs().removeAll(toRemove);
-			op.getInputs().addAll(toAdd);
 		}
+		return List.of();
 	}
 
 	/**

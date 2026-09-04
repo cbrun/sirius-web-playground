@@ -433,7 +433,7 @@ public class GuesstimateViews {
                         .name("link from variables having formulas to other variables")
                         .sourceDescriptions(distributionMapping)
                         .targetDescriptions(distributionMapping)
-                        .targetExpression("aql:self.eAllContents("+typeName(domain.getFormulaSetting())+").inputs" )
+                        .targetExpression(ServiceMethod.of0(VariableServices::getReferencedVariables).aqlSelf())
                         .centerLabelExpression("") // otherwise self.name is used :-/
                         .style(b.newEdgeStyle()
                                 .borderColor(this.variableColor)
