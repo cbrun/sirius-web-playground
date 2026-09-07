@@ -35,7 +35,7 @@ public class RestfulEMFExceptionHandler {
             case CAPABILITY_DENIED, READ_ONLY -> HttpStatus.FORBIDDEN;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case INVALID_RESOURCE -> HttpStatus.BAD_REQUEST;
-            case PAYLOAD_TOO_LARGE -> HttpStatus.PAYLOAD_TOO_LARGE;
+            case PAYLOAD_TOO_LARGE -> HttpStatus.CONTENT_TOO_LARGE;
             case TRANSFER_CAPACITY_EXHAUSTED -> HttpStatus.SERVICE_UNAVAILABLE;
             case TIMEOUT -> HttpStatus.GATEWAY_TIMEOUT;
             case PROCESSING_FAILURE -> HttpStatus.INTERNAL_SERVER_ERROR;
