@@ -25,6 +25,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>sirius-web-restful-emf-client</module>
         <module>sirius-web-restful-emf</module>
     </modules>
 

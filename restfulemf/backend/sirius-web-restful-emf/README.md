@@ -60,7 +60,7 @@ Add the component dependency to the Sirius Web application:
 Enable the component with `sirius.web.enabled=restful-emf` (or `sirius.web.enabled=*`). An explicit
 `sirius.web.disabled=restful-emf` takes precedence.
 
-Build the reusable component from the repository root:
+Build the reusable server and standalone client from the repository root with Java 21:
 
 ```shell
 mvn clean verify -f restfulemf/backend/pom.xml
@@ -83,25 +83,22 @@ Unknown projects, documents, or resources return `404`. Invalid XMI or binary in
 
 Resource responses include an `ETag` computed from the canonical Sirius Web JSON content. A PUT carrying `If-Match` is applied only if that revision is still current. For backward compatibility, a PUT without `If-Match` remains accepted by default. Set `sirius.web.restful-emf.require-if-match=true` to reject such requests with `428 Precondition Required`.
 
-An EMF client can use the binary endpoint directly:
+## Standalone EMF client
+
+Client applications should depend on `org.eclipse.sirius:sirius-web-restful-emf-client:2026.7.3-SNAPSHOT`, not this server artifact. See the [client README](../sirius-web-restful-emf-client/README.md) for Maven setup, authentication, generated metamodels, and standalone handler usage.
+
+Load all semantic documents from a project or any of its sub-URLs:
 
 ```java
-Map<String, Object> options = new HashMap<>();
-options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.sirius.web.restfulemf.client.RestfulEMFClient;
 
-URI uri = URI.createURI("http://localhost:8080/api/rest/projects/PROJECT_ID/DOCUMENT_ID/bin");
-ResourceSet resourceSet = new ResourceSetImpl();
-resourceSet.getURIConverter().getURIHandlers().add(0, new RestfulEMFURIHandler());
-resourceSet.getPackageRegistry().put(FlowPackage.eNS_URI, FlowPackage.eINSTANCE);
-Resource resource = new XMLResourceImpl(uri);
-resourceSet.getResources().add(resource);
-resource.load(options);
-
-// Modify the model, then persist it back to Sirius Web.
-resource.save(options);
+ResourceSet resources = new RestfulEMFClient().loadProject(
+        URI.createURI("http://localhost:8080/projects/PROJECT_ID/edit"));
 ```
 
-`RestfulEMFURIHandler` remembers the `ETag` received by `load()` and sends it as `If-Match` during `save()`. Consequently, `Resource.save()` throws an `IOException` instead of overwriting a concurrent update.
+The client installs `RestfulEMFURIHandler`, which remembers the `ETag` received by `load()` and sends it as `If-Match` during `save()`. Consequently, `resource.save(Map.of())` throws an `IOException` instead of overwriting a concurrent update. The handler's Java package is unchanged, but its class has moved from this server artifact into the client artifact. Project loading includes semantic documents, not representations or metadata, and is not an atomic project snapshot.
 
 ## Large transfers
 

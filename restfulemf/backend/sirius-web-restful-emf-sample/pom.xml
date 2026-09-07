@@ -23,6 +23,11 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.sirius</groupId>
+            <artifactId>sirius-web-restful-emf-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.sirius</groupId>
             <artifactId>sirius-web-restful-emf</artifactId>
             <version>${project.version}</version>
         </dependency>
