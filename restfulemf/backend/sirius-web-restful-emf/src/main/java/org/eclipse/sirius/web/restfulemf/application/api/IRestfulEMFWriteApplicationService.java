@@ -19,6 +19,8 @@ import java.util.List;
  * Write use cases exposed by the RESTful EMF application layer.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public interface IRestfulEMFWriteApplicationService {
 

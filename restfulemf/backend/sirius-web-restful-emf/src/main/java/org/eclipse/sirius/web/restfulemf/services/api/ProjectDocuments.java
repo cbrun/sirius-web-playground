@@ -24,6 +24,6 @@ public record ProjectDocuments(String editingContextId, List<ResourceDocument> d
 
     public ProjectDocuments {
         Objects.requireNonNull(editingContextId);
-        documents = List.copyOf(Objects.requireNonNull(documents));
+        documents = List.copyOf(documents);
     }
 }

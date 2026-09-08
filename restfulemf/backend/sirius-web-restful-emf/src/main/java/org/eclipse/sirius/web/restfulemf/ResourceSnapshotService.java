@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * Creates resource snapshots using the canonical Sirius Web persistence format.
+ *
+ * @author cbrun
  */
 @Service
 public class ResourceSnapshotService implements IResourceSnapshotService {
@@ -46,7 +48,10 @@ public class ResourceSnapshotService implements IResourceSnapshotService {
 
     @Override
     public Optional<ResourceSnapshot> getSnapshot(Resource resource) {
-        Resource canonicalResource = resource instanceof JsonResource ? resource : this.toJsonResource(resource);
+        Resource canonicalResource = resource;
+        if (!(resource instanceof JsonResource)) {
+            canonicalResource = this.toJsonResource(resource);
+        }
         return this.resourceToDocumentService.toDocument(canonicalResource, false)
                 .map(documentData -> documentData.document().getContent())
                 .map(content -> new ResourceSnapshot(content, this.getRevision(content)));
@@ -54,13 +59,17 @@ public class ResourceSnapshotService implements IResourceSnapshotService {
 
     private Resource toJsonResource(Resource resource) {
         JsonResource targetResource = new JSONResourceFactory().createResource(resource.getURI());
-        var copier = new EcoreUtil.Copier();
+        // Preserve external references without resolving proxies or demand-loading other resources.
+        var copier = new EcoreUtil.Copier(false, true);
         targetResource.getContents().addAll(copier.copyAll(resource.getContents()));
         copier.copyReferences();
         var idManager = new EObjectIDManager();
         copier.forEach((sourceObject, copiedObject) -> {
-            String id = resource instanceof XMLResource xmlResource ? xmlResource.getID(sourceObject) : null;
-            Optional.ofNullable(id).or(() -> idManager.findId(sourceObject)).ifPresent(value -> targetResource.setID(copiedObject, value));
+            Optional<String> optionalId = Optional.empty();
+            if (resource instanceof XMLResource xmlResource) {
+                optionalId = Optional.ofNullable(xmlResource.getID(sourceObject));
+            }
+            optionalId.or(() -> idManager.findId(sourceObject)).ifPresent(value -> targetResource.setID(copiedObject, value));
         });
         return targetResource;
     }

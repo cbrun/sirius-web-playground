@@ -29,6 +29,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -40,6 +41,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Client integration tests against a real HTTP transport and binary EMF payloads.
+ *
+ * @author cbrun
  */
 public class RestfulEMFClientTests {
 
@@ -170,14 +173,7 @@ public class RestfulEMFClientTests {
             assertThat(((XMLResource) document).getID(loaded)).isEqualTo(HOLDER_ID);
             document.save(Map.of());
             assertThat(match.get()).isEqualTo(INITIAL_ETAG);
-            var roundTrip = new XMLResourceImpl(URI.createURI(FIRST_RESOURCE_URI));
-            var roundTripSet = new ResourceSetImpl();
-            roundTripSet.getPackageRegistry().putAll(resourceSet.getPackageRegistry());
-            roundTripSet.getResources().add(roundTrip);
-            roundTrip.load(new ByteArrayInputStream(saved.get()), Map.of(XMLResource.OPTION_BINARY, true));
-            assertThat(roundTrip.getID(roundTrip.getContents().getFirst())).isEqualTo(HOLDER_ID);
-            assertThat(EcoreUtil.getURI((org.eclipse.emf.ecore.EObject) roundTrip.getContents().getFirst().eGet(loadedReference, false)).toString())
-                    .isEqualTo(SECOND_RESOURCE_URI + "#target-id");
+            this.assertSavedDocument(saved.get(), resourceSet.getPackageRegistry());
         } finally {
             server.stop(0);
         }
@@ -188,7 +184,10 @@ public class RestfulEMFClientTests {
         byte[] metadata = this.binary(new XMLResourceImpl(URI.createURI(METADATA_URI)));
         HttpServer server = HttpServer.create(new InetSocketAddress(HOST, 0), 0);
         server.createContext(PROJECT_ENDPOINT, exchange -> {
-            byte[] response = exchange.getRequestURI().getPath().endsWith(DOCUMENTS_PATH) ? "[]".getBytes(StandardCharsets.UTF_8) : metadata;
+            byte[] response = metadata;
+            if (exchange.getRequestURI().getPath().endsWith(DOCUMENTS_PATH)) {
+                response = "[]".getBytes(StandardCharsets.UTF_8);
+            }
             exchange.sendResponseHeaders(200, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
@@ -220,7 +219,10 @@ public class RestfulEMFClientTests {
             if (path.endsWith("/documents/bin/a")) {
                 exchange.sendResponseHeaders(500, -1);
             } else {
-                byte[] response = path.endsWith(DOCUMENTS_PATH) ? listing.get().getBytes(StandardCharsets.UTF_8) : metadata;
+                byte[] response = metadata;
+                if (path.endsWith(DOCUMENTS_PATH)) {
+                    response = listing.get().getBytes(StandardCharsets.UTF_8);
+                }
                 exchange.sendResponseHeaders(200, response.length);
                 exchange.getResponseBody().write(response);
             }
@@ -247,6 +249,18 @@ public class RestfulEMFClientTests {
         } finally {
             server.stop(0);
         }
+    }
+
+    private void assertSavedDocument(byte[] content, EPackage.Registry packages) throws IOException {
+        var roundTrip = new XMLResourceImpl(URI.createURI(FIRST_RESOURCE_URI));
+        var roundTripSet = new ResourceSetImpl();
+        roundTripSet.getPackageRegistry().putAll(packages);
+        roundTripSet.getResources().add(roundTrip);
+        roundTrip.load(new ByteArrayInputStream(content), Map.of(XMLResource.OPTION_BINARY, true));
+        var loaded = roundTrip.getContents().getFirst();
+        assertThat(roundTrip.getID(loaded)).isEqualTo(HOLDER_ID);
+        var reference = loaded.eClass().getEStructuralFeature(TARGET_REFERENCE_NAME);
+        assertThat(EcoreUtil.getURI((EObject) loaded.eGet(reference, false)).toString()).isEqualTo(SECOND_RESOURCE_URI + "#target-id");
     }
 
     private byte[] binary(XMLResource resource) throws IOException {

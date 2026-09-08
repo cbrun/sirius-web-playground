@@ -16,6 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Objects;
+
 import org.eclipse.sirius.web.restfulemf.controllers.RestfulEMFResourceController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,6 +30,8 @@ import org.springframework.mock.env.MockEnvironment;
 
 /**
  * Tests the RESTful EMF feature activation.
+ *
+ * @author cbrun
  */
 public class OnRestfulEMFEnabledTests {
 
@@ -44,15 +48,15 @@ public class OnRestfulEMFEnabledTests {
 
     @ParameterizedTest
     @CsvSource(delimiter = '|', value = {
-            "restful-emf |                 | true",
-            "*           |                 | true",
-            "*           | restful-emf     | false",
-            "             |                 | false"
+        "restful-emf |                 | true",
+        "*           |                 | true",
+        "*           | restful-emf     | false",
+        "             |                 | false"
     })
     public void givenSiriusFeaturePropertiesThenActivationMatches(String enabled, String disabled, boolean expectedMatch) {
         var environment = new MockEnvironment()
-                .withProperty("sirius.web.enabled", enabled == null ? "" : enabled)
-                .withProperty("sirius.web.disabled", disabled == null ? "" : disabled);
+                .withProperty("sirius.web.enabled", Objects.requireNonNullElse(enabled, ""))
+                .withProperty("sirius.web.disabled", Objects.requireNonNullElse(disabled, ""));
         var context = mock(ConditionContext.class);
         when(context.getEnvironment()).thenReturn(environment);
 

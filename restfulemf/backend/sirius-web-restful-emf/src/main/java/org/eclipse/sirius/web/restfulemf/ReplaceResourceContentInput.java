@@ -29,7 +29,7 @@ public record ReplaceResourceContentInput(UUID id, String path, ResourceFormat f
         Objects.requireNonNull(path);
         Objects.requireNonNull(format);
         content = Objects.requireNonNull(content).clone();
-        expectedRevisions = List.copyOf(Objects.requireNonNull(expectedRevisions));
+        expectedRevisions = List.copyOf(expectedRevisions);
     }
 
     @Override

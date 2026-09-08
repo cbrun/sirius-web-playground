@@ -33,12 +33,16 @@ import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
+import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
+import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFError;
 import org.junit.jupiter.api.Test;
 
 import reactor.core.publisher.Sinks;
 
 /**
  * Checks collaborative reads without changing the live model.
+ *
+ * @author cbrun
  */
 public class GetResourceContentEventHandlerTests {
 
@@ -85,7 +89,8 @@ public class GetResourceContentEventHandlerTests {
         var handler = new GetResourceContentEventHandler(resource -> Optional.empty(), new ResourcePaths());
         var payload = Sinks.<IPayload>one();
         handler.handle(payload, Sinks.many().unicast().onBackpressureBuffer(), this.context(), new GetResourceContentInput(UUID.randomUUID(), "../escape"));
-        assertThatThrownBy(() -> payload.asMono().block()).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> payload.asMono().block()).isInstanceOfSatisfying(RestfulEMFException.class,
+                exception -> assertThat(exception.getError()).isEqualTo(RestfulEMFError.INVALID_RESOURCE));
     }
 
     private IEMFEditingContext context() {

@@ -43,6 +43,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
  * Imports a directory through the standard EMF runtime, without the optional REST client.
+ *
+ * @author cbrun
  */
 @GivenSiriusWebServer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -87,7 +89,10 @@ public class RestfulEMFPathIntegrationTests extends AbstractIntegrationTests {
             String prefix = "upload-" + UUID.randomUUID();
             URI remote = URI.createURI("http://localhost:" + this.port + DOCUMENTS + "/xmi/" + prefix + "/");
             resources.getURIConverter().getURIMap().put(local, remote);
-            List<Resource> ordered = reverse ? List.of(second, first) : List.of(first, second);
+            List<Resource> ordered = List.of(first, second);
+            if (reverse) {
+                ordered = List.of(second, first);
+            }
             ordered.getFirst().save(Map.of());
             this.givenInitialServerState.initialize();
             ordered.getLast().save(Map.of());

@@ -18,6 +18,8 @@ import java.util.Optional;
  * Resolves Sirius Web project documents without exposing its domain model.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public interface IProjectDocumentsService {
 

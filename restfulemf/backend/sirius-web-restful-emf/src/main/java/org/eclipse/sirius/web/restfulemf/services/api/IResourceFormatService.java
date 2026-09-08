@@ -25,6 +25,8 @@ import org.eclipse.sirius.web.restfulemf.application.api.ResourceFormat;
  * Converts canonical Sirius Web resource snapshots to and from external EMF formats.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public interface IResourceFormatService {
 

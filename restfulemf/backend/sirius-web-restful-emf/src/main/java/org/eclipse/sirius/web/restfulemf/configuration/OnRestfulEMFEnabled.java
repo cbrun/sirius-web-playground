@@ -25,6 +25,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * Determines whether RESTful EMF is enabled.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public class OnRestfulEMFEnabled extends SpringBootCondition {
 

@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +38,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
  * Integration tests of the RESTful EMF read endpoints.
+ *
+ * @author cbrun
  */
 @GivenSiriusWebServer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RestfulEMFReadIntegrationTests extends AbstractIntegrationTests {
+
+    private static final String PROJECTS_URI = "/api/rest/projects/";
 
     private static final String ECORE_PROJECT_ID = "99d336a2-3049-439a-8853-b104ffb22653";
 
@@ -65,7 +68,7 @@ public class RestfulEMFReadIntegrationTests extends AbstractIntegrationTests {
     @DisplayName("Given an unchanged document, when read repeatedly, then strong ETags match the actual bytes")
     public void givenUnchangedDocumentWhenReadRepeatedlyThenStrongEtagsMatchTheActualBytes() throws Exception {
         for (String format : List.of("xmi", "bin", "xmi.zip")) {
-            String uri = "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/" + format + "/Flow";
+            String uri = PROJECTS_URI + FLOW_PROJECT_ID + "/documents/" + format + "/Flow";
             var first = this.webTestClient.get().uri(uri).exchange().expectStatus().isOk().expectBody(byte[].class).returnResult();
             var second = this.webTestClient.get().uri(uri).exchange().expectStatus().isOk().expectBody(byte[].class).returnResult();
             assertThat(second.getResponseBody()).as(format).isEqualTo(first.getResponseBody());
@@ -98,9 +101,9 @@ public class RestfulEMFReadIntegrationTests extends AbstractIntegrationTests {
     @Test
     @DisplayName("Given an Ecore project, when its EMF formats are requested by name or identifier, then they retain model identifiers")
     public void givenEcoreProjectWhenItsEMFFormatsAreRequestedByNameOrIdentifierThenTheyRetainModelIdentifiers() {
-        byte[] xmiByName = this.getBytes("/api/rest/projects/" + ECORE_PROJECT_ID + "/documents/xmi/Ecore");
-        byte[] binary = this.getBytes("/api/rest/projects/" + ECORE_PROJECT_ID + "/documents/bin/Ecore");
-        byte[] zippedXMI = this.getBytes("/api/rest/projects/" + ECORE_PROJECT_ID + "/documents/xmi.zip/Ecore");
+        byte[] xmiByName = this.getBytes(PROJECTS_URI + ECORE_PROJECT_ID + "/documents/xmi/Ecore");
+        byte[] binary = this.getBytes(PROJECTS_URI + ECORE_PROJECT_ID + "/documents/bin/Ecore");
+        byte[] zippedXMI = this.getBytes(PROJECTS_URI + ECORE_PROJECT_ID + "/documents/xmi.zip/Ecore");
 
         assertThat(new String(xmiByName, StandardCharsets.UTF_8)).contains("3237b215-ae23-48d7-861e-f542a4b9a4b8");
         assertThat(binary).isNotEmpty();
@@ -108,18 +111,16 @@ public class RestfulEMFReadIntegrationTests extends AbstractIntegrationTests {
 
         this.givenInitialServerState.initialize();
         this.jdbcTemplate.update("UPDATE document SET name = ? WHERE id = ?::uuid", "../Ecore", ECORE_DOCUMENT_ID);
-        byte[] xmiById = this.getBytes("/api/rest/projects/" + ECORE_PROJECT_ID + "/documents/xmi/_by-id/" + ECORE_DOCUMENT_ID);
+        byte[] xmiById = this.getBytes(PROJECTS_URI + ECORE_PROJECT_ID + "/documents/xmi/_by-id/" + ECORE_DOCUMENT_ID);
         assertThat(new String(xmiById, StandardCharsets.UTF_8)).contains("3237b215-ae23-48d7-861e-f542a4b9a4b8");
     }
 
     @Test
     @DisplayName("Given Ecore and Flow support, when registered packages are requested, then both metamodels are returned")
     public void givenEcoreAndFlowSupportWhenRegisteredPackagesAreRequestedThenBothMetamodelsAreReturned() throws Exception {
-        byte[] content = this.getBytes("/api/rest/projects/" + FLOW_PROJECT_ID + "/epackages/bin");
+        byte[] content = this.getBytes(PROJECTS_URI + FLOW_PROJECT_ID + "/epackages/bin");
         XMLResource resource = new XMLResourceImpl();
-        Map<String, Object> options = new HashMap<>();
-        options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-        resource.load(new ByteArrayInputStream(content), options);
+        resource.load(new ByteArrayInputStream(content), Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE));
 
         assertThat(resource.getContents())
                 .filteredOn(EPackage.class::isInstance)
@@ -131,9 +132,9 @@ public class RestfulEMFReadIntegrationTests extends AbstractIntegrationTests {
     @Test
     @DisplayName("Given a Flow project, when XMI and CSV are requested, then Flow model data is returned")
     public void givenFlowProjectWhenXMIAndCSVAreRequestedThenFlowModelDataIsReturned() {
-        byte[] xmi = this.getBytes("/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/xmi/Flow");
-        String defaultCSV = this.getString("/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/csv/Flow");
-        String customCSV = this.getString("/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/csv/Flow?sep=;");
+        byte[] xmi = this.getBytes(PROJECTS_URI + FLOW_PROJECT_ID + "/documents/xmi/Flow");
+        String defaultCSV = this.getString(PROJECTS_URI + FLOW_PROJECT_ID + "/documents/csv/Flow");
+        String customCSV = this.getString(PROJECTS_URI + FLOW_PROJECT_ID + "/documents/csv/Flow?sep=;");
 
         assertThat(new String(xmi, StandardCharsets.UTF_8)).contains("CompositeProcessor1", "http://www.obeo.fr/dsl/designer/sample/flow");
         assertThat(defaultCSV).contains("\teClass\t", "CompositeProcessor");

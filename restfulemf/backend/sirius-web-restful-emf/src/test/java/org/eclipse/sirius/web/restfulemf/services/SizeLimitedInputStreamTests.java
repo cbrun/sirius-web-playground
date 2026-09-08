@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Verifies byte limits across all stream access paths.
+ *
+ * @author cbrun
  */
 public class SizeLimitedInputStreamTests {
 
@@ -61,4 +63,3 @@ public class SizeLimitedInputStreamTests {
         assertThatThrownBy(() -> new SizeLimitedInputStream(InputStream.nullInputStream(), 0)).isInstanceOf(IllegalArgumentException.class);
     }
 }
-

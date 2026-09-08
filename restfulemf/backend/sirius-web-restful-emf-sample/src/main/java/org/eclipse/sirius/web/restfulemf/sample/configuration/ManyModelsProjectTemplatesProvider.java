@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * Provides the playground project templates.
+ *
+ * @author cbrun
  */
 @Service
 public class ManyModelsProjectTemplatesProvider implements IProjectTemplateProvider {

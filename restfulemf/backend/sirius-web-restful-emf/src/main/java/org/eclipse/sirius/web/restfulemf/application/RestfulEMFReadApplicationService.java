@@ -40,6 +40,8 @@ import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 
 /**
  * Orchestrates RESTful EMF read use cases.
+ *
+ * @author cbrun
  */
 @Service
 public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicationService {
@@ -77,6 +79,8 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
     }
 
     @Override
+    // The collaborative/serialization boundary translates unchecked failures into the stable REST error contract.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public ResourceRepresentation getResource(String projectId, String documentSelector, ResourceFormat format, String separator) {
         ProjectDocuments projectDocuments = this.getProjectDocuments(projectId);
         this.resourcePaths.validate(documentSelector);

@@ -13,6 +13,7 @@
 package org.eclipse.sirius.web.restfulemf.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -30,6 +31,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Verifies project-to-semantic-data resolution without crossing repository ownership.
+ *
+ * @author cbrun
  */
 public class ProjectDocumentsServiceTests {
 
@@ -41,11 +44,8 @@ public class ProjectDocumentsServiceTests {
         var semanticSearch = mock(ISemanticDataSearchService.class);
         UUID editingContextId = UUID.randomUUID();
         var semanticData = mock(SemanticData.class);
-        var document = mock(Document.class);
         UUID documentId = UUID.randomUUID();
-        when(document.getId()).thenReturn(documentId);
-        when(document.getName()).thenReturn("folder/model.ecore");
-        when(document.isReadOnly()).thenReturn(true);
+        var document = Document.newDocument(documentId).name("folder/model.ecore").content("{}").isReadOnly(true).build();
         when(semanticData.getDocuments()).thenReturn(Set.of(document));
         when(projects.getEditingContextId(PROJECT)).thenReturn(Optional.of(editingContextId.toString()));
         when(semanticSearch.findById(editingContextId)).thenReturn(Optional.of(semanticData));
@@ -53,6 +53,18 @@ public class ProjectDocumentsServiceTests {
         assertThat(result).isPresent();
         assertThat(result.get().editingContextId()).isEqualTo(editingContextId.toString());
         assertThat(result.get().documents()).containsExactly(new ResourceDocument(documentId, document.getName(), true));
+    }
+
+    @Test
+    public void givenPersistenceFailureWhenResolvingThenItIsNotReportedAsAMissingProject() {
+        var projects = mock(IProjectEditingContextService.class);
+        var semanticSearch = mock(ISemanticDataSearchService.class);
+        var editingContextId = UUID.randomUUID();
+        when(projects.getEditingContextId(PROJECT)).thenReturn(Optional.of(editingContextId.toString()));
+        var failure = new IllegalArgumentException("Invalid stored data");
+        when(semanticSearch.findById(editingContextId)).thenThrow(failure);
+
+        assertThatThrownBy(() -> new ProjectDocumentsService(projects, semanticSearch).findByProjectId(PROJECT)).isSameAs(failure);
     }
 
     @Test

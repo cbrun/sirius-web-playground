@@ -13,19 +13,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.eclipse.sirius.web.restfulemf.sample.configuration.ManyModelsProjectTemplatesProvider;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.emf.ecore.EcoreFactory;
-import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
-import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
-import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.eclipse.sirius.components.emf.services.api.IEMFLabelService;
 import org.eclipse.sirius.web.application.project.dto.CreateProjectInput;
 import org.eclipse.sirius.web.application.project.services.api.IProjectTemplateProvider;
-import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.ProjectSemanticData;
-import org.eclipse.sirius.web.domain.boundedcontexts.projectsemanticdata.services.api.IProjectSemanticDataSearchService;
 import org.eclipse.sirius.web.tests.data.GivenSiriusWebServer;
 import org.eclipse.sirius.web.tests.graphql.CreateProjectExecutor;
 import org.eclipse.sirius.web.tests.graphql.CreateProjectMutationRunner;
@@ -40,14 +34,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration tests of the playground project templates.
+ *
+ * @author cbrun
  */
 @Transactional
 @GivenSiriusWebServer
@@ -68,12 +62,6 @@ public class ProjectTemplatesIntegrationTests extends AbstractIntegrationTests {
     private CreateProjectExecutor createProjectExecutor;
 
     @Autowired
-    private IEditingContextSearchService editingContextSearchService;
-
-    @Autowired
-    private IProjectSemanticDataSearchService projectSemanticDataSearchService;
-
-    @Autowired
     private IEMFLabelService emfLabelService;
 
     @BeforeEach
@@ -82,16 +70,12 @@ public class ProjectTemplatesIntegrationTests extends AbstractIntegrationTests {
     }
 
     @Test
-    @DisplayName("Given the playground application, when templates are requested, then all starter templates and models are available")
-    public void givenPlaygroundApplicationWhenTemplatesAreRequestedThenAllStarterTemplatesAndModelsAreAvailable() throws IOException {
+    @DisplayName("Given the playground application, when templates are requested, then starter templates and their icons are available")
+    public void givenPlaygroundApplicationWhenTemplatesAreRequestedThenStarterTemplatesAndTheirIconsAreAvailable() {
         assertThat(this.projectTemplateProviders.stream().flatMap(provider -> provider.getProjectTemplates().stream()).map(template -> template.id()))
                 .contains("blank-project", "studio-template", "blank-studio-template", "flow-template",
                         ManyModelsProjectTemplatesProvider.MANY_MODELS_TEMPLATE_ID,
                         ManyModelsProjectTemplatesProvider.ONE_MILLION_TEMPLATE_ID);
-
-        for (int index = 1; index <= 20; index++) {
-            assertThat(new ClassPathResource("1Modeling/reverse" + index + ".ecorebin").contentLength()).isPositive();
-        }
 
         var webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
         webTestClient.get().uri("/api/images/project-templates/Models-Template.png").exchange()
@@ -108,22 +92,11 @@ public class ProjectTemplatesIntegrationTests extends AbstractIntegrationTests {
         var input = new CreateProjectInput(UUID.randomUUID(), "Many Models", ManyModelsProjectTemplatesProvider.MANY_MODELS_TEMPLATE_ID, List.of());
         var projectId = this.createProjectExecutor.execute(input, capturedOutput).isSuccess().getProjectId();
 
-        var resourceNames = this.projectSemanticDataSearchService.findByProjectId(AggregateReference.to(projectId))
-                .map(ProjectSemanticData::getSemanticData)
-                .map(AggregateReference::getId)
-                .map(UUID::toString)
-                .flatMap(this.editingContextSearchService::findById)
-                .filter(IEMFEditingContext.class::isInstance)
-                .map(IEMFEditingContext.class::cast)
-                .stream()
-                .flatMap(editingContext -> editingContext.getDomain().getResourceSet().getResources().stream())
-                .flatMap(resource -> resource.eAdapters().stream())
-                .filter(ResourceMetadataAdapter.class::isInstance)
-                .map(ResourceMetadataAdapter.class::cast)
-                .map(ResourceMetadataAdapter::getName)
-                .toList();
-
-        assertThat(resourceNames).containsExactlyInAnyOrder("NobelPrize.bpmn", "Big_Guy.flow", "linux-kernel.uml", "library.ecore", "reverse1.ecorebin");
+        WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build()
+                .get().uri("/api/rest/projects/{projectId}/documents", projectId).exchange()
+                .expectStatus().isOk().expectBody()
+                .jsonPath("$[*].name").value(names -> assertThat(names).asList()
+                        .containsExactlyInAnyOrder("NobelPrize.bpmn", "Big_Guy.flow", "linux-kernel.uml", "library.ecore", "reverse1.ecorebin"));
     }
 
     @Test

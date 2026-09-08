@@ -32,6 +32,7 @@ import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -57,10 +58,47 @@ import reactor.core.publisher.Sinks;
 
 /**
  * Exercises real EMF rollback while injecting only the durable persistence failure.
+ *
+ * @author cbrun
  */
 public class ReplaceDocumentEventHandlerTests {
 
     private static final String TARGET_PATH = "target.ecore";
+
+    @Test
+    public void importingAReferenceToAnExistingDocumentDoesNotTreatItsRelativeUriAsAMissingPackage() {
+        var domain = new AdapterFactoryEditingDomain(new AdapterFactoryImpl(), new BasicCommandStack());
+        domain.getResourceSet().getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
+        var context = mock(IEMFEditingContext.class);
+        when(context.getDomain()).thenReturn(domain);
+        when(context.getId()).thenReturn(UUID.randomUUID().toString());
+        var factory = new JSONResourceFactory();
+        var target = factory.createResource(factory.createResourceURI(UUID.randomUUID().toString()));
+        target.eAdapters().add(new ResourceMetadataAdapter(TARGET_PATH));
+        var parent = EcoreFactory.eINSTANCE.createEClass();
+        parent.setName("Parent");
+        target.getContents().add(parent);
+        String objectId = UUID.randomUUID().toString();
+        target.setID(parent, objectId);
+        domain.getResourceSet().getResources().add(target);
+        var format = new ResourceFormatService(this::snapshot, List.of(EcorePackage.eINSTANCE),
+                new RestfulEMFProperties(false, DataSize.ofMegabytes(1), DataSize.ofMegabytes(1), 2));
+        var handler = new ReplaceDocumentEventHandler(this::snapshot, format, new ResourcePaths(),
+                mock(RestfulEMFPersistenceService.class), new SimpleMeterRegistry());
+        String body = "<ecore:EClass xmlns:ecore=\"http://www.eclipse.org/emf/2002/Ecore\" name=\"Child\">"
+                + "<eSuperTypes href=\"" + TARGET_PATH + "#" + objectId + "\"/></ecore:EClass>";
+        var input = new ReplaceResourceContentInput(UUID.randomUUID(), "child.ecore", ResourceFormat.XMI,
+                body.getBytes(StandardCharsets.UTF_8), List.of(), true);
+        var payload = Sinks.<IPayload>one();
+
+        handler.handle(payload, Sinks.many().unicast().onBackpressureBuffer(), context, input);
+
+        assertThat(payload.asMono().block()).isInstanceOf(ReplaceResourceContentSuccessPayload.class);
+        var childResource = domain.getResourceSet().getResources().getLast();
+        assertThat(childResource.getErrors()).isEmpty();
+        assertThat(childResource.getContents()).singleElement().isInstanceOfSatisfying(EClass.class,
+                child -> assertThat(child.getESuperTypes()).containsExactly(parent));
+    }
 
     @Test
     public void failedCommitRestoresTargetAndPendingReferencesWithoutReplacingOtherObjects() {
@@ -76,7 +114,7 @@ public class ReplaceDocumentEventHandlerTests {
         original.setName("original");
         target.getContents().add(original);
         String objectId = UUID.randomUUID().toString();
-        new EObjectIDManager().setId(original, objectId);
+        target.setID(original, objectId);
         var source = factory.createResource(factory.createResourceURI(UUID.randomUUID().toString()));
         source.eAdapters().add(new ResourceMetadataAdapter("source.ecore"));
         var referencing = EcoreFactory.eINSTANCE.createEClass();

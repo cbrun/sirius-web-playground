@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -50,7 +49,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.XMLResource;
@@ -75,9 +73,15 @@ import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 
 /**
  * Converts canonical resource snapshots to XMI, binary and CSV representations.
+ *
+ * @author cbrun
  */
 @Service
 public class ResourceFormatService implements IResourceFormatService {
+
+    private static final String DOCUMENT_ID = "documentId";
+
+    private static final String SERIALIZATION_FAILURE = "The EMF resource could not be serialized";
 
     private final IResourceSnapshotService resourceSnapshotService;
 
@@ -141,6 +145,7 @@ public class ResourceFormatService implements IResourceFormatService {
             case XMI -> this.serializeXMI(resource, document, false, outputStream);
             case ZIPPED_XMI -> this.serializeXMI(resource, document, true, outputStream);
             case CSV -> this.serializeCSV(resource, separator, document, outputStream);
+            default -> throw new IllegalArgumentException("Unsupported resource format: " + format);
         }
     }
 
@@ -155,28 +160,30 @@ public class ResourceFormatService implements IResourceFormatService {
     }
 
     @Override
+    // EMF loaders report malformed external models through checked and unchecked exceptions; both mean invalid input.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public ResourceSnapshot deserialize(InputStream content, ResourceDocument document, ResourceFormat format, List<ResourceDocument> documents, ResourceSet existingResources) {
         if (format == ResourceFormat.CSV) {
             throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "CSV resources cannot be imported");
         }
 
-        Resource resource = new XMIResourceImpl(new ResourceReferences().publicURI(document));
+        XMLResource resource = new XMIResourceImpl(new ResourceReferences().publicURI(document));
         var resourceSet = this.createResourceSet();
         resourceSet.getPackageRegistry().putAll(existingResources.getPackageRegistry());
         resourceSet.getResources().add(resource);
         try {
             this.load(resource, content, format);
-            this.assignIds((XMLResource) resource, document);
+            this.assignIds(resource, document);
             new ResourceReferences().canonicalize(resource, document, documents, existingResources);
             Resource canonicalResource = this.moveToJsonResource(resource, document);
             return this.resourceSnapshotService.getSnapshot(canonicalResource)
-                    .orElseThrow(() -> new IllegalArgumentException("The EMF resource could not be serialized"));
+                    .orElseThrow(() -> new IllegalArgumentException(SERIALIZATION_FAILURE));
         } catch (RestfulEMFException exception) {
             throw exception;
         } catch (IOException | RuntimeException exception) {
             this.logger.atWarn()
                     .setMessage("Document content could not be loaded")
-                    .addKeyValue("documentId", document.id())
+                    .addKeyValue(DOCUMENT_ID, document.id())
                     .setCause(exception)
                     .log();
             throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "Invalid EMF document", exception);
@@ -200,6 +207,8 @@ public class ResourceFormatService implements IResourceFormatService {
         }
     }
 
+    // Malformed stored EMF snapshots may fail unchecked and must be reported as processing errors, not client input errors.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private Resource loadSnapshot(ResourceSnapshot snapshot, ResourceDocument document) {
         var resourceSet = this.createResourceSet();
         var resource = new org.eclipse.sirius.emfjson.resource.JsonResourceImpl(this.createURI(document), Map.of(
@@ -212,7 +221,7 @@ public class ResourceFormatService implements IResourceFormatService {
         } catch (IOException | RuntimeException exception) {
             this.logger.atWarn()
                     .setMessage("EMF resource snapshot could not be loaded")
-                    .addKeyValue("documentId", document.id())
+                    .addKeyValue(DOCUMENT_ID, document.id())
                     .setCause(exception)
                     .log();
             throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF resource snapshot could not be loaded", exception);
@@ -258,7 +267,7 @@ public class ResourceFormatService implements IResourceFormatService {
             writer.flush();
         } catch (IOException | UncheckedIOException exception) {
             this.logSerializationFailure(document, exception);
-            throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF resource could not be serialized", exception);
+            throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, SERIALIZATION_FAILURE, exception);
         }
     }
 
@@ -301,9 +310,10 @@ public class ResourceFormatService implements IResourceFormatService {
         for (EAttribute attribute : object.eClass().getEAllAttributes()) {
             Object value = object.eGet(attribute);
             if (!attribute.isMany() && value != null) {
-                String serializedValue = attribute.getEType().getEPackage().getEFactoryInstance().convertToString((EDataType) attribute.getEType(), value);
+                EDataType dataType = attribute.getEAttributeType();
+                String serializedValue = dataType.getEPackage().getEFactoryInstance().convertToString(dataType, value);
                 if (value instanceof String) {
-                    serializedValue = "\"" + serializedValue.replace("\"", "\"\"") + "\"";
+                    serializedValue = '"' + serializedValue.replace("\"", "\"\"") + '"';
                 }
                 row.put(attribute.getName(), serializedValue);
             }
@@ -315,7 +325,7 @@ public class ResourceFormatService implements IResourceFormatService {
             resource.save(outputStream, options);
         } catch (IOException exception) {
             this.logSerializationFailure(document, exception);
-            throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF resource could not be serialized", exception);
+            throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, SERIALIZATION_FAILURE, exception);
         }
     }
 
@@ -324,7 +334,7 @@ public class ResourceFormatService implements IResourceFormatService {
                 .setMessage("EMF resource could not be serialized")
                 .setCause(exception);
         if (document != null) {
-            logBuilder.addKeyValue("documentId", document.id());
+            logBuilder.addKeyValue(DOCUMENT_ID, document.id());
         }
         logBuilder.log();
     }
@@ -366,32 +376,32 @@ public class ResourceFormatService implements IResourceFormatService {
         ids.forEach(resource::setID);
     }
 
-    private Resource moveToJsonResource(Resource sourceResource, ResourceDocument document) {
-        JsonResource targetResource = (JsonResource) new JSONResourceFactory().createResource(this.createURI(document));
-        var idManager = new EObjectIDManager();
+    private Resource moveToJsonResource(XMLResource sourceResource, ResourceDocument document) {
+        JsonResource targetResource = new JSONResourceFactory().createResource(this.createURI(document));
         EcoreUtil.<EObject>getAllProperContents(sourceResource, false).forEachRemaining(object -> {
-            if (object.eIsProxy()) {
-                return;
+            if (!object.eIsProxy()) {
+                targetResource.setID(object, sourceResource.getID(object));
             }
-            String id = sourceResource instanceof XMLResource xmlResource ? xmlResource.getID(object) : null;
-            Optional.ofNullable(id).or(() -> idManager.findId(object)).ifPresent(value -> targetResource.setID(object, value));
         });
         targetResource.getContents().addAll(List.copyOf(sourceResource.getContents()));
         return targetResource;
     }
 
-    private ResourceSetImpl createResourceSet() {
+    private ResourceSet createResourceSet() {
         var resourceSet = new DetachedResourceSet();
         this.registeredPackages.forEach(ePackage -> resourceSet.getPackageRegistry().put(ePackage.getNsURI(), ePackage));
         return resourceSet;
     }
 
     private Map<String, Object> getOptions(ResourceFormat format) {
-        Map<String, Object> options = format == ResourceFormat.BINARY ? new HashMap<>() : new HashMap<>(new EMFResourceUtils().getXMILoadOptions());
+        Map<String, Object> options = new HashMap<>();
         if (format == ResourceFormat.BINARY) {
             options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-        } else if (format == ResourceFormat.ZIPPED_XMI) {
-            options.put(Resource.OPTION_ZIP, Boolean.TRUE);
+        } else {
+            options.putAll(new EMFResourceUtils().getXMILoadOptions());
+            if (format == ResourceFormat.ZIPPED_XMI) {
+                options.put(Resource.OPTION_ZIP, Boolean.TRUE);
+            }
         }
         return options;
     }

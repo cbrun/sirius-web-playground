@@ -143,7 +143,7 @@ for (Resource resource : imported) {
 Imports use `java.nio.file.Files`, `java.nio.file.Path`, `java.util.List`, `java.util.Map`, EMF `URI`, `Resource`,
 `ResourceSet`, `ResourceSetImpl`, `EcorePackage`, and `EcoreResourceFactoryImpl`. For other model types, register their
 factory and packages instead. Binary input must be loaded with its binary options before exporting as XMI.
-Upload order is unrestricted: unresolved references retain their relative path and original fragment in normal JSON
+Upload order is unrestricted for non-containment references: unresolved references retain their relative path and original fragment in normal JSON
 content and are reconciled when their target arrives, including after a restart. Cycles do not need special client code.
 Original non-UUID IDs are mapped deterministically; semantic intrinsic-ID attributes are not rewritten. Original IDs
 already discarded by historical non-REST imports cannot be recovered.
@@ -151,6 +151,8 @@ already discarded by historical non-REST imports cannot be recovered.
 Imported external references must target a registered metamodel namespace or an already loaded server resource;
 unknown HTTP, file and pathmap dependencies are rejected instead of being fetched by the server. Pending references
 in read-only documents are not rewritten when another document arrives. Zipped XMI uploads must contain exactly one file.
+Unresolved containment references and proxy roots are rejected with HTTP 400: the upstream JSON persistence format
+cannot preserve them. Contained objects must be included in the uploaded document.
 
 For authenticated, revision-protected use, install the optional `RestfulEMFURIHandler` as documented below. Plain EMF
 does not automatically send ETags or authentication headers.
@@ -209,6 +211,9 @@ The following properties bound memory exposure. Values use Spring `DataSize` syn
 
 The concurrency limit is local to each application instance. A reverse proxy should enforce the corresponding global
 policy when several instances are deployed.
+
+The collaborative timeout is not an end-to-end request deadline: dispatch may block before the response publisher is
+returned. A client or proxy timeout does not cancel a dispatched write. Reload before retrying when its outcome is unknown.
 
 ## Architecture
 

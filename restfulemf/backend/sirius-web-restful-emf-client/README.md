@@ -93,6 +93,8 @@ Binary load/save options are configured by the client. Keep the installed handle
 
 A concurrent update or an existing create-only target produces an `IOException` reporting HTTP `412`; the client never retries or overwrites automatically. Preserve local work and explicitly reconcile it with the latest server revision before saving again. Other HTTP failures also surface as `IOException`. A GET without a strong ETag does not authorize an unprotected save.
 
+Weak or malformed ETags are rejected as save preconditions, including `*`, which would otherwise disable revision matching. Keep each handler with its ResourceSet; sharing a handler between independently loaded copies would mix their revisions. The ResourceSet and its models remain subject to normal EMF thread confinement.
+
 ## Upload a local directory with EMF alone
 
 No client dependency, discovery request, document UUID, or separate creation call is required. The following example imports `.ecore` files into an **existing** project, keeping their directory-relative paths. It uses only Java and standard EMF APIs:

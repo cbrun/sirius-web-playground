@@ -31,6 +31,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
  * Integration tests of the RESTful EMF capability checks.
+ *
+ * @author cbrun
  */
 @GivenSiriusWebServer
 @Import(RestfulEMFCapabilityIntegrationTests.DeniedCapabilitiesConfiguration.class)
@@ -72,6 +74,11 @@ public class RestfulEMFCapabilityIntegrationTests extends AbstractIntegrationTes
                 .expectStatus().isForbidden();
     }
 
+    /**
+     * Denies access to the Flow fixture through the normal capability evaluation.
+     *
+     * @author cbrun
+     */
     @TestConfiguration(proxyBeanMethods = false)
     static class DeniedCapabilitiesConfiguration {
 

@@ -16,6 +16,8 @@ package org.eclipse.sirius.web.restfulemf.application.api;
  * Application errors exposed to the REST adapter.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public enum RestfulEMFError {
     CAPABILITY_DENIED,

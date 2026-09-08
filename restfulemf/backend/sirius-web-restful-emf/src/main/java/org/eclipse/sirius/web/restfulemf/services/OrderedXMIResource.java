@@ -19,6 +19,8 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
 /**
  * Keeps the binary extrinsic-ID table in insertion order, making representation digests reproducible.
+ *
+ * @author cbrun
  */
 public class OrderedXMIResource extends XMIResourceImpl {
 

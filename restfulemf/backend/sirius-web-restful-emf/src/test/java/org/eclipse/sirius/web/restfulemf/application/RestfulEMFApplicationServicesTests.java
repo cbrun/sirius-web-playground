@@ -24,14 +24,24 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.eclipse.sirius.components.core.api.ErrorPayload;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.graphql.api.IEditingContextDispatcher;
+import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.web.restfulemf.GetResourceContentSuccessPayload;
 import org.eclipse.sirius.web.restfulemf.ReplaceResourceContentInput;
 import org.eclipse.sirius.web.restfulemf.ReplaceResourceContentSuccessPayload;
@@ -41,6 +51,8 @@ import org.eclipse.sirius.web.restfulemf.application.api.ResourceFormat;
 import org.eclipse.sirius.web.restfulemf.application.api.ResourceWriteStatus;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFError;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
+import org.eclipse.sirius.web.restfulemf.configuration.RestfulEMFProperties;
+import org.eclipse.sirius.web.restfulemf.services.ResourceFormatService;
 import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 import org.eclipse.sirius.web.restfulemf.services.api.IProjectDocumentsService;
 import org.eclipse.sirius.web.restfulemf.services.api.IResourceFormatService;
@@ -50,11 +62,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
+import org.springframework.util.unit.DataSize;
 
 import reactor.core.publisher.Mono;
 
 /**
  * Verifies application orchestration and errors at the collaborative dispatcher boundary.
+ *
+ * @author cbrun
  */
 public class RestfulEMFApplicationServicesTests {
 
@@ -67,27 +82,31 @@ public class RestfulEMFApplicationServicesTests {
     private static final String REVISION = "revision";
 
     @Test
-    public void givenSnapshotWhenReadingThenTheSnapshotMetadataAndFormatDriveTheRepresentation() throws IOException {
+    public void givenSnapshotWhenReadingThenTheRepresentationAndRevisionDescribeTheModel() throws IOException, NoSuchAlgorithmException {
         var document = new ResourceDocument(UUID.randomUUID(), PATH, false);
         var documents = List.of(document);
         var projectService = this.projects(documents);
         var dispatcher = mock(IEditingContextDispatcher.class);
-        var formats = mock(IResourceFormatService.class);
-        var snapshot = new ResourceSnapshot("{}", REVISION);
+        var formats = new ResourceFormatService(resource -> Optional.empty(), List.of(),
+                new RestfulEMFProperties(false, DataSize.ofMegabytes(1), DataSize.ofMegabytes(1), 2));
+        var resource = new JSONResourceFactory().createResource(URI.createURI("sirius:///" + document.id()));
+        var model = EcoreFactory.eINSTANCE.createEClass();
+        model.setName("Customer");
+        resource.getContents().add(model);
+        var json = new ByteArrayOutputStream();
+        resource.save(json, Map.of());
+        var snapshot = new ResourceSnapshot(json.toString(StandardCharsets.UTF_8), REVISION);
         when(dispatcher.dispatchQuery(eq(CONTEXT), any())).thenReturn(Mono.just(new GetResourceContentSuccessPayload(UUID.randomUUID(), snapshot, document, documents)));
-        when(formats.representationRevision(snapshot, document, documents, ResourceFormat.XMI, "\t")).thenReturn(REVISION);
         var service = new RestfulEMFReadApplicationService(projectService, dispatcher, formats, new ResourcePaths());
         assertThat(service.getDocuments(PROJECT)).containsExactly(document);
         var representation = service.getResource(PROJECT, PATH, ResourceFormat.XMI, "\t");
         var output = new ByteArrayOutputStream();
         representation.writer().write(output);
-        assertThat(representation.revision()).isEqualTo(REVISION);
-        verify(formats).serialize(snapshot, document, documents, ResourceFormat.XMI, "\t", output);
-        when(formats.ePackagesRevision(PROJECT, ResourceFormat.BINARY)).thenReturn(REVISION);
-        var packages = service.getEPackages(PROJECT, ResourceFormat.BINARY);
-        packages.writer().write(output);
-        assertThat(packages.revision()).isEqualTo(REVISION);
-        verify(formats).serializeEPackages(PROJECT, ResourceFormat.BINARY, output);
+        assertThat(representation.revision()).isEqualTo(HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(output.toByteArray())));
+        var restored = new XMIResourceImpl(URI.createURI(PATH));
+        restored.load(new ByteArrayInputStream(output.toByteArray()), Map.of());
+        assertThat(restored.getContents()).singleElement().isInstanceOfSatisfying(EClass.class,
+                eClass -> assertThat(eClass.getName()).isEqualTo("Customer"));
     }
 
     @Test
@@ -122,14 +141,20 @@ public class RestfulEMFApplicationServicesTests {
     @EnumSource(ResourceWriteStatus.class)
     public void givenWriteResultWhenDispatchingThenStatusAndRequestArePreserved(ResourceWriteStatus status) {
         var dispatcher = mock(IEditingContextDispatcher.class);
-        IPayload payload = status == ResourceWriteStatus.CONFLICT ? new ResourceRevisionConflictPayload(UUID.randomUUID(), REVISION)
-                : new ReplaceResourceContentSuccessPayload(UUID.randomUUID(), status);
+        IPayload payload;
+        String expectedRevision = "";
+        if (status == ResourceWriteStatus.CONFLICT) {
+            payload = new ResourceRevisionConflictPayload(UUID.randomUUID(), REVISION);
+            expectedRevision = REVISION;
+        } else {
+            payload = new ReplaceResourceContentSuccessPayload(UUID.randomUUID(), status);
+        }
         when(dispatcher.dispatchMutation(eq(CONTEXT), any())).thenReturn(Mono.just(payload));
         var service = new RestfulEMFWriteApplicationService(this.projects(List.of()), dispatcher);
         byte[] bytes = {1, 2, 3};
         var result = service.replaceResource(PROJECT, PATH, ResourceFormat.BINARY, new ByteArrayInputStream(bytes), List.of(REVISION), false);
         assertThat(result.status()).isEqualTo(status);
-        assertThat(result.revision()).isEqualTo(status == ResourceWriteStatus.CONFLICT ? REVISION : "");
+        assertThat(result.revision()).isEqualTo(expectedRevision);
         var input = ArgumentCaptor.forClass(ReplaceResourceContentInput.class);
         verify(dispatcher).dispatchMutation(eq(CONTEXT), input.capture());
         assertThat(input.getValue().content()).containsExactly(bytes);
@@ -169,4 +194,3 @@ public class RestfulEMFApplicationServicesTests {
         return service;
     }
 }
-

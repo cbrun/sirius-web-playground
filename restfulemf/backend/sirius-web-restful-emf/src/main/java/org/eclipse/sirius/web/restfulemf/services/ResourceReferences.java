@@ -14,6 +14,7 @@ package org.eclipse.sirius.web.restfulemf.services;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,14 +44,18 @@ import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 /**
  * Translates document references without resolving proxies or loading external resources.
  * Pending paths are stored as ordinary proxy URIs in the document content.
+ *
+ * @author cbrun
  */
 public class ResourceReferences {
 
     private static final URI DOCUMENT_BASE = URI.createURI("restfulemf:/documents/");
 
+    private static final String PATH_SEPARATOR = "/";
+
     public URI publicURI(ResourceDocument document) {
         URI uri = DOCUMENT_BASE.trimSegments(1);
-        for (String segment : document.path().split("/")) {
+        for (String segment : document.path().split(PATH_SEPARATOR)) {
             uri = uri.appendSegment(URI.encodeSegment(segment, false));
         }
         return uri;
@@ -65,9 +70,19 @@ public class ResourceReferences {
         paths.put(this.publicURI(document), document);
         Map<URI, Resource> resources = this.resources(existingResources);
         resources.put(this.canonicalURI(document), resource);
+        Map<Resource, Map<String, EObject>> objects = new IdentityHashMap<>();
         this.forEachReference(resource, proxy -> {
-            URI targetURI = proxy.eIsProxy() ? proxy.eProxyURI() : proxy.eResource() == null ? null : proxy.eResource().getURI();
-            if (targetURI != null && (DOCUMENT_BASE.scheme().equals(targetURI.scheme()) || "sirius".equals(targetURI.scheme()))) {
+            if (proxy.eIsProxy() && proxy.eResource() == resource) {
+                throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE,
+                        "Unresolved containment cannot survive the upstream JSON persistence format");
+            }
+            URI targetURI = proxy.eProxyURI();
+            Resource targetResource = proxy.eResource();
+            if (targetURI == null && targetResource != null) {
+                targetURI = targetResource.getURI();
+            }
+            boolean projectResource = targetURI != null && (DOCUMENT_BASE.scheme().equals(targetURI.scheme()) || "sirius".equals(targetURI.scheme()));
+            if (projectResource) {
                 this.validateReferenceTarget(proxy);
             }
             if (!proxy.eIsProxy()) {
@@ -75,24 +90,25 @@ public class ResourceReferences {
             }
             URI uri = proxy.eProxyURI();
             Resource loadedResource = resources.get(uri.trimFragment());
-            if (!DOCUMENT_BASE.scheme().equals(uri.scheme()) && !"sirius".equals(uri.scheme())
-                    && !existingResources.getPackageRegistry().containsKey(uri.trimFragment().toString())
-                    && !EPackage.Registry.INSTANCE.containsKey(uri.trimFragment().toString())
-                    && (loadedResource == null || !loadedResource.isLoaded() && loadedResource.getContents().isEmpty())) {
+            boolean loaded = loadedResource != null && (loadedResource.isLoaded() || !loadedResource.getContents().isEmpty());
+            boolean registered = existingResources.getPackageRegistry().containsKey(uri.trimFragment().toString())
+                    || EPackage.Registry.INSTANCE.containsKey(uri.trimFragment().toString());
+            if (!projectResource && !registered && !loaded) {
                 throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "An unresolved reference targets an external resource");
             }
-            this.bind(proxy, paths, resources);
+            this.bind(proxy, paths, resources, objects);
         });
     }
 
     public void reconcile(ResourceSet resourceSet, List<ResourceDocument> documents) {
         Map<URI, ResourceDocument> paths = this.paths(documents);
         Map<URI, Resource> resources = this.resources(resourceSet);
-        var readOnly = documents.stream().filter(ResourceDocument::readOnly).map(this::canonicalURI).collect(Collectors.toSet());
+        Map<Resource, Map<String, EObject>> objects = new IdentityHashMap<>();
+        var writable = documents.stream().filter(document -> !document.readOnly()).map(this::canonicalURI).collect(Collectors.toSet());
         // ponytail: one project scan per import; add a pending-reference index only if profiling warrants it.
-        for (Resource resource : List.copyOf(resourceSet.getResources())) {
-            if (!readOnly.contains(resource.getURI())) {
-                this.forEachProxy(resource, proxy -> this.bind(proxy, paths, resources));
+        for (Resource resource : resourceSet.getResources()) {
+            if (writable.contains(resource.getURI())) {
+                this.forEachProxy(resource, proxy -> this.bind(proxy, paths, resources, objects));
             }
         }
     }
@@ -112,7 +128,7 @@ public class ResourceReferences {
         resource.setURI(this.publicURI(document));
     }
 
-    private void bind(InternalEObject proxy, Map<URI, ResourceDocument> paths, Map<URI, Resource> resources) {
+    private void bind(InternalEObject proxy, Map<URI, ResourceDocument> paths, Map<URI, Resource> resources, Map<Resource, Map<String, EObject>> objects) {
         URI uri = proxy.eProxyURI();
         if (DOCUMENT_BASE.scheme().equals(uri.scheme())) {
             uri = this.validatePendingURI(uri);
@@ -121,7 +137,7 @@ public class ResourceReferences {
             if (targetDocument != null) {
                 Resource target = resources.get(this.canonicalURI(targetDocument));
                 if (target != null) {
-                    EObject object = this.findObject(target, targetDocument.id(), uri.fragment());
+                    EObject object = this.findObject(target, targetDocument.id(), uri.fragment(), objects.computeIfAbsent(target, this::indexObjects));
                     if (object != null) {
                         this.validateReferenceTarget(object);
                         proxy.eSetProxyURI(this.canonicalURI(targetDocument).appendFragment(target.getURIFragment(object)));
@@ -132,24 +148,33 @@ public class ResourceReferences {
     }
 
     private void validateReferenceTarget(EObject target) {
-        if (target instanceof EAnnotation || target instanceof EOperation || target instanceof EParameter || target instanceof EGenericType
-                || target instanceof ETypeParameter || target instanceof EEnumLiteral || target instanceof EPackage ePackage && ePackage.getESuperPackage() != null
-                || EcorePackage.Literals.ESTRING_TO_STRING_MAP_ENTRY.isInstance(target)) {
+        boolean unsupported = switch (target) {
+            case EAnnotation ignored -> true;
+            case EOperation ignored -> true;
+            case EParameter ignored -> true;
+            case EGenericType ignored -> true;
+            case ETypeParameter ignored -> true;
+            case EEnumLiteral ignored -> true;
+            case EPackage ePackage -> ePackage.getESuperPackage() != null;
+            default -> EcorePackage.Literals.ESTRING_TO_STRING_MAP_ENTRY.isInstance(target);
+        };
+        if (unsupported) {
             throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE,
                     "References to this Ecore object type cannot survive the upstream JSON persistence format: " + target.eClass().getName());
         }
     }
 
     private URI validatePendingURI(URI uri) {
-        if (uri.authority() != null || uri.query() != null || uri.device() != null || !uri.hasAbsolutePath()
-                || uri.segmentCount() < 2 || !"documents".equals(uri.segment(0))) {
+        boolean invalidLocation = uri.authority() != null || uri.query() != null || uri.device() != null;
+        boolean outsideDocuments = !uri.hasAbsolutePath() || uri.segmentCount() < 2 || !"documents".equals(uri.segment(0));
+        if (invalidLocation || outsideDocuments) {
             throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "A relative reference escapes the project document space");
         }
         URI normalized = DOCUMENT_BASE.trimSegments(1);
         for (int index = 1; index < uri.segmentCount(); index++) {
             String segment = URI.decode(uri.segment(index));
             new ResourcePaths().validate(segment);
-            if (segment.contains("/")) {
+            if (segment.contains(PATH_SEPARATOR)) {
                 throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "Encoded reference path separators are not allowed");
             }
             normalized = normalized.appendSegment(URI.encodeSegment(segment, false));
@@ -157,33 +182,58 @@ public class ResourceReferences {
         return normalized.appendFragment(uri.fragment());
     }
 
-    private EObject findObject(Resource resource, UUID documentId, String fragment) {
-        EObject result = null;
-        if (fragment != null && !fragment.isEmpty() && !fragment.contains("/-1")) {
-            result = resource.getEObject(fragment);
-            if (result == null) {
-                var objects = EcoreUtil.<EObject>getAllProperContents(resource, false);
-                while (result == null && objects.hasNext()) {
-                    EObject object = objects.next();
-                    if (!object.eIsProxy() && fragment.equals(EcoreUtil.getID(object))) {
-                        result = object;
-                    }
+    private EObject findObject(Resource resource, UUID documentId, String fragment, Map<String, EObject> objects) {
+        if (fragment == null || fragment.isEmpty() || fragment.contains("/-1")) {
+            return null;
+        }
+        EObject result = objects.get(fragment);
+        if (result == null) {
+            result = objects.get(this.objectId(documentId, fragment));
+        }
+        if (result == null && fragment.startsWith("/?")) {
+            int separator = fragment.indexOf('/', 2);
+            EObject anchor = null;
+            if (separator > 2) {
+                anchor = this.findObject(resource, documentId, fragment.substring(2, separator), objects);
+            }
+            if (anchor != null) {
+                EObject root = EcoreUtil.getRootContainer(anchor);
+                String path = PATH_SEPARATOR + resource.getContents().indexOf(root);
+                if (anchor != root) {
+                    path += PATH_SEPARATOR + EcoreUtil.getRelativeURIFragmentPath(root, anchor);
                 }
+                result = objects.get(path + fragment.substring(separator));
             }
-            if (result == null) {
-                result = resource.getEObject(this.objectId(documentId, fragment));
-            }
-            if (result == null && fragment.startsWith("/?")) {
-                int separator = fragment.indexOf('/', 2);
-                if (separator > 2) {
-                    EObject anchor = this.findObject(resource, documentId, fragment.substring(2, separator));
-                    if (anchor != null) {
-                        result = resource.getEObject("/?" + resource.getURIFragment(anchor) + fragment.substring(separator));
+        }
+        return result;
+    }
+
+    private Map<String, EObject> indexObjects(Resource resource) {
+        // Resource.getEObject follows arbitrary feature paths and can resolve proxies. Index only owned contents.
+        Map<String, EObject> objects = new HashMap<>();
+        for (int index = 0; index < resource.getContents().size(); index++) {
+            EObject root = resource.getContents().get(index);
+            var contents = EcoreUtil.<EObject>getAllProperContents(List.of(root), false);
+            while (contents.hasNext()) {
+                EObject object = contents.next();
+                if (!object.eIsProxy()) {
+                    String path = "";
+                    if (object != root) {
+                        path = PATH_SEPARATOR + EcoreUtil.getRelativeURIFragmentPath(root, object);
+                    }
+                    objects.put(PATH_SEPARATOR + index + path, object);
+                    if (index == 0) {
+                        objects.put(PATH_SEPARATOR + path, object);
+                    }
+                    objects.put(resource.getURIFragment(object), object);
+                    String intrinsicId = EcoreUtil.getID(object);
+                    if (intrinsicId != null) {
+                        objects.putIfAbsent(intrinsicId, object);
                     }
                 }
             }
         }
-        return result;
+        return objects;
     }
 
     private Map<URI, ResourceDocument> paths(List<ResourceDocument> documents) {

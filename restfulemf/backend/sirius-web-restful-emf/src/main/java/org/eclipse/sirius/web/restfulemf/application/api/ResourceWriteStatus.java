@@ -16,6 +16,8 @@ package org.eclipse.sirius.web.restfulemf.application.api;
  * The outcome of a resource write.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public enum ResourceWriteStatus {
     CREATED,

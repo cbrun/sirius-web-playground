@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,8 @@ import reactor.core.publisher.Sinks.One;
 
 /**
  * Replaces one document resource inside the collaborative editing context.
+ *
+ * @author cbrun
  */
 @Service
 public class ReplaceDocumentEventHandler implements IEditingContextEventHandler {
@@ -95,6 +98,8 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
     }
 
     @Override
+    // Unchecked model or persistence failures must complete the response sink and suppress semantic-change publication.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
         this.counter.increment();
 
@@ -131,16 +136,33 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
         if (document.readOnly()) {
             throw new RestfulEMFException(RestfulEMFError.READ_ONLY, "The document is read-only");
         }
-        var uri = new JSONResourceFactory().createResourceURI(document.id().toString());
-        Resource target = created ? new JSONResourceFactory().createResource(uri) : resourceSet.getResource(uri, false);
-        String revision = created || input.expectedRevisions().isEmpty() ? ""
-                : this.resourceFormatService.representationRevision(this.snapshot(target), document, documents, input.format(), ",");
-        if (input.createOnly() && !created || !input.expectedRevisions().isEmpty() && (created || !this.matches(input.expectedRevisions(), revision))) {
+        var factory = new JSONResourceFactory();
+        var uri = factory.createResourceURI(document.id().toString());
+        Resource target;
+        if (created) {
+            target = factory.createResource(uri);
+        } else {
+            target = resourceSet.getResource(uri, false);
+        }
+        String revision = "";
+        if (!created && !input.expectedRevisions().isEmpty()) {
+            revision = this.resourceFormatService.representationRevision(this.snapshot(target), document, documents, input.format(), ",");
+        }
+        boolean conflict = input.createOnly() && !created;
+        if (!input.expectedRevisions().isEmpty()) {
+            boolean matches = input.expectedRevisions().contains("*") || input.expectedRevisions().contains(revision);
+            conflict = conflict || created || !matches;
+        }
+        if (conflict) {
             return new ResourceRevisionConflictPayload(input.id(), revision);
         }
         var replacement = this.resourceFormatService.deserialize(new ByteArrayInputStream(input.content()), document, input.format(), documents, resourceSet);
         this.apply(editingContext, input, target, replacement, created);
-        return new ReplaceResourceContentSuccessPayload(input.id(), created ? ResourceWriteStatus.CREATED : ResourceWriteStatus.UPDATED);
+        ResourceWriteStatus status = ResourceWriteStatus.UPDATED;
+        if (created) {
+            status = ResourceWriteStatus.CREATED;
+        }
+        return new ReplaceResourceContentSuccessPayload(input.id(), status);
     }
 
     private ResourceSnapshot snapshot(Resource resource) {
@@ -148,12 +170,18 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
                 .orElseThrow(() -> new IllegalStateException("An EMF resource could not be serialized"));
     }
 
+    // Any unchecked EMF or persistence failure requires rollback; a rollback failure must preserve the original cause.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void apply(IEMFEditingContext editingContext, ReplaceResourceContentInput input, Resource target, ResourceSnapshot replacement, boolean created) {
         var resourceSet = editingContext.getDomain().getResourceSet();
-        String oldContent = created ? "" : this.snapshot(target).content();
+        String oldContent = "";
+        List<ExternalReference> references = List.of();
+        if (!created) {
+            oldContent = this.snapshot(target).content();
+            references = this.getExternalReferences(target);
+        }
         Map<InternalEObject, URI> proxyURIs = this.getProxyURIs(resourceSet.getResources());
         List<ProxyReference> proxyReferences = this.getProxyReferences(resourceSet.getResources(), target);
-        var references = created ? List.<ExternalReference>of() : this.getExternalReferences(target);
         try {
             if (created) {
                 target.eAdapters().add(new ResourceMetadataAdapter(input.path()));
@@ -225,10 +253,6 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
         return result;
     }
 
-    private boolean matches(List<String> expectedRevisions, String currentRevision) {
-        return expectedRevisions.isEmpty() || expectedRevisions.contains("*") || expectedRevisions.contains(currentRevision);
-    }
-
     private List<ExternalReference> getExternalReferences(Resource targetResource) {
         Set<EObject> targets = Collections.newSetFromMap(new IdentityHashMap<>());
         EcoreUtil.<EObject>getAllProperContents(targetResource, false).forEachRemaining(object -> {
@@ -274,16 +298,28 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
             resource.load(inputStream, Map.of());
         }
         // emfjson first tries external document references as package URIs, reports this diagnostic,
-        // then correctly creates the proxy. Keep genuine metamodel lookup failures fatal.
-        var documentReferences = this.getProxyURIs(List.of(resource)).values().stream().map(URI::trimFragment)
-                .filter(uri -> uri.toString().startsWith("restfulemf:/documents/") || IEMFEditingContext.RESOURCE_SCHEME.equals(uri.scheme()))
-                .map(URI::toString).collect(java.util.stream.Collectors.toSet());
-        resource.getErrors().removeIf(error -> error instanceof PackageNotFoundError missingPackage && documentReferences.contains(missingPackage.getUri()));
+        // then correctly creates the proxy. Its diagnostic retains a relative URI even after the proxy URI is resolved.
+        // Keep genuine metamodel lookup failures fatal.
+        Set<URI> documentReferences = new HashSet<>();
+        EcoreUtil.<EObject>getAllProperContents(resource, false).forEachRemaining(object -> {
+            var references = ((InternalEList<EObject>) object.eCrossReferences()).basicIterator();
+            references.forEachRemaining(reference -> {
+                URI uri = EcoreUtil.getURI(reference).trimFragment();
+                if (uri.toString().startsWith("restfulemf:/documents/") || IEMFEditingContext.RESOURCE_SCHEME.equals(uri.scheme())) {
+                    documentReferences.add(uri);
+                }
+            });
+        });
+        resource.getErrors().removeIf(error -> error instanceof PackageNotFoundError missingPackage
+                && documentReferences.contains(URI.createURI(missingPackage.getUri()).resolve(resource.getURI()).trimFragment()));
         if (!resource.getErrors().isEmpty()) {
             throw new IOException(resource.getErrors().get(0).getMessage());
         }
     }
 
+    /**
+     * A resolved inbound reference whose target instance is replaced when its resource is reloaded.
+     */
     private record ExternalReference(EStructuralFeature.Setting setting, int index, String fragment, EClass eClass) {
 
         private void rebind(Resource resource) {
@@ -302,6 +338,9 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
         }
     }
 
+    /**
+     * Original proxy slots, retained because JSON serialization can resolve and replace them before a failed commit.
+     */
     private record ProxyReference(EStructuralFeature.Setting setting, Object value) {
 
         private void restore() {

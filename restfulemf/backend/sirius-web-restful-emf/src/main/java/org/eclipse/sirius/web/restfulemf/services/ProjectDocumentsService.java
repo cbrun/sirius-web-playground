@@ -14,9 +14,9 @@ package org.eclipse.sirius.web.restfulemf.services;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.eclipse.sirius.web.application.project.services.api.IProjectEditingContextService;
+import org.eclipse.sirius.web.application.UUIDParser;
 import org.eclipse.sirius.web.domain.boundedcontexts.semanticdata.services.api.ISemanticDataSearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,8 @@ import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 
 /**
  * Resolves the Sirius Web domain objects required by RESTful EMF.
+ *
+ * @author cbrun
  */
 @Service
 public class ProjectDocumentsService implements IProjectDocumentsService {
@@ -46,20 +48,18 @@ public class ProjectDocumentsService implements IProjectDocumentsService {
     @Override
     public Optional<ProjectDocuments> findByProjectId(String projectId) {
         return this.projectEditingContextService.getEditingContextId(projectId).flatMap(editingContextId -> {
-            try {
-                return this.semanticDataSearchService.findById(UUID.fromString(editingContextId))
-                        .map(semanticData -> new ProjectDocuments(editingContextId, semanticData.getDocuments().stream()
-                                .map(document -> new ResourceDocument(document.getId(), document.getName(), document.isReadOnly()))
-                                .toList()));
-            } catch (IllegalArgumentException exception) {
+            var optionalId = new UUIDParser().parse(editingContextId);
+            if (optionalId.isEmpty()) {
                 this.logger.atWarn()
                         .setMessage("Invalid editing context identifier")
                         .addKeyValue("projectId", projectId)
                         .addKeyValue("editingContextId", editingContextId)
-                        .setCause(exception)
                         .log();
-                return Optional.empty();
             }
+            return optionalId.flatMap(this.semanticDataSearchService::findById)
+                    .map(semanticData -> new ProjectDocuments(editingContextId, semanticData.getDocuments().stream()
+                            .map(document -> new ResourceDocument(document.getId(), document.getName(), document.isReadOnly()))
+                            .toList()));
         });
     }
 }

@@ -24,6 +24,8 @@ import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
  * Rejects an input stream after a configured number of bytes has been read.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public class SizeLimitedInputStream extends FilterInputStream {
 

@@ -18,32 +18,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
-import org.eclipse.sirius.components.collaborative.api.Monitoring;
-import org.eclipse.sirius.components.core.api.IEditingContextSearchService;
-import org.eclipse.sirius.components.core.api.IPayload;
-import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
-import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
-import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
-import org.eclipse.sirius.components.graphql.api.IEditingContextDispatcher;
-import org.eclipse.sirius.web.application.project.services.api.IProjectEditingContextService;
 import org.eclipse.sirius.web.tests.data.GivenSiriusWebServer;
 import org.eclipse.sirius.web.tests.services.api.IGivenInitialServerState;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,30 +48,36 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import fr.obeo.dsl.designer.sample.flow.FlowPackage;
-import org.eclipse.sirius.web.restfulemf.application.api.ResourceFormat;
-import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
-import org.eclipse.sirius.web.restfulemf.ReplaceDocumentEventHandler;
-import org.eclipse.sirius.web.restfulemf.ReplaceResourceContentInput;
-import org.eclipse.sirius.web.restfulemf.ReplaceResourceContentSuccessPayload;
 import org.eclipse.sirius.web.restfulemf.RestfulEMFURIHandler;
-import io.micrometer.core.instrument.MeterRegistry;
-import reactor.core.publisher.Sinks;
+import org.eclipse.sirius.web.restfulemf.client.RestfulEMFClient;
 
 /**
  * Integration tests of the RESTful EMF write endpoints.
+ *
+ * @author cbrun
  */
 @GivenSiriusWebServer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-        "sirius.web.restful-emf.max-request-size=1MB",
-        "sirius.web.restful-emf.max-uncompressed-size=1MB"
+    "sirius.web.restful-emf.max-request-size=1MB",
+    "sirius.web.restful-emf.max-uncompressed-size=1MB"
 })
 public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
+
+    private static final String PROJECTS_URI = "/api/rest/projects/";
+
+    private static final String SERVER_URI = "http://localhost:";
+
+    private static final String UPDATED_PROCESSOR_NAME = "CompositeProcessorRenamed";
+
+    private static final String ERROR_CODE_PATH = "$.code";
+
+    private static final String NAME_FEATURE = "name";
 
     private static final String FLOW_PROJECT_ID = "d419bbee-9cba-4b85-972c-660d875ad705";
 
     private static final String FLOW_DOCUMENT_ID = "96d6cae1-da84-40d8-94c3-f4af14462485";
 
-    private static final String FLOW_XMI_URI = "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/xmi/Flow";
+    private static final String FLOW_XMI_URI = PROJECTS_URI + FLOW_PROJECT_ID + "/documents/xmi/Flow";
 
     private static final Pattern XMI_ID_PATTERN = Pattern.compile("xmi:id=\"([^\"]+)\"");
 
@@ -95,27 +90,12 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    private IProjectEditingContextService projectEditingContextService;
-
-    @Autowired
-    private IEditingContextSearchService editingContextSearchService;
-
-    @Autowired
-    private IEditingContextDispatcher editingContextDispatcher;
-
-    @Autowired
-    private ReplaceDocumentEventHandler replaceDocumentEventHandler;
-
-    @Autowired
-    private MeterRegistry meterRegistry;
-
     private WebTestClient webTestClient;
 
     @BeforeEach
     public void beforeEach() {
         this.givenInitialServerState.initialize();
-        this.webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
+        this.webTestClient = WebTestClient.bindToServer().baseUrl(SERVER_URI + this.port).build();
     }
 
     @Test
@@ -124,7 +104,7 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         var initialResult = this.get(FLOW_XMI_URI);
         byte[] initialXMI = initialResult.getResponseBody();
         String initialRevision = initialResult.getResponseHeaders().getETag();
-        String updatedXMI = this.renameFirstElement(initialXMI, "CompositeProcessorRenamed");
+        String updatedXMI = this.renameFirstElement(initialXMI, UPDATED_PROCESSOR_NAME);
         List<String> initialIds = this.getIds(updatedXMI);
 
         this.put(FLOW_XMI_URI, updatedXMI.getBytes(StandardCharsets.UTF_8), initialRevision)
@@ -133,11 +113,11 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
                 .expectBody().isEmpty();
         assertThat(initialRevision).isNotBlank();
         String persistedXMI = new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8);
-        assertThat(persistedXMI).contains("CompositeProcessorRenamed");
+        assertThat(persistedXMI).contains(UPDATED_PROCESSOR_NAME);
         assertThat(this.getIds(persistedXMI)).containsExactlyElementsOf(initialIds);
 
         this.givenInitialServerState.initialize();
-        assertThat(new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8)).contains("CompositeProcessorRenamed");
+        assertThat(new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8)).contains(UPDATED_PROCESSOR_NAME);
     }
 
     @Test
@@ -156,7 +136,7 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         this.put(FLOW_XMI_URI, staleUpdate, initialRevision)
                 .expectStatus().isEqualTo(412)
                 .expectBody()
-                .jsonPath("$.code").isEqualTo("REVISION_CONFLICT");
+                .jsonPath(ERROR_CODE_PATH).isEqualTo("REVISION_CONFLICT");
 
         assertThat(new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8)).contains("FirstUpdate").doesNotContain("StaleUpdate");
     }
@@ -164,19 +144,19 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
     @Test
     @DisplayName("Given two EMF clients, when both save the same Flow document, then the stale Resource save fails")
     public void givenTwoEMFClientsWhenBothSaveTheSameFlowDocumentThenTheStaleResourceSaveFails() throws IOException {
-        URI uri = URI.createURI("http://localhost:" + this.port + FLOW_XMI_URI.replace("/xmi", "/bin"));
+        URI uri = URI.createURI(SERVER_URI + this.port + FLOW_XMI_URI.replace("/xmi", "/bin"));
         Resource firstClientResource = this.loadBinaryResource(uri);
         Resource secondClientResource = this.loadBinaryResource(uri);
         EObject firstClientObject = this.getNamedObject(firstClientResource);
         EObject secondClientObject = this.getNamedObject(secondClientResource);
-        EStructuralFeature firstClientName = firstClientObject.eClass().getEStructuralFeature("name");
-        EStructuralFeature secondClientName = secondClientObject.eClass().getEStructuralFeature("name");
+        EStructuralFeature firstClientName = firstClientObject.eClass().getEStructuralFeature(NAME_FEATURE);
+        EStructuralFeature secondClientName = secondClientObject.eClass().getEStructuralFeature(NAME_FEATURE);
 
         secondClientObject.eSet(secondClientName, secondClientObject.eGet(secondClientName) + "-second-client");
-        secondClientResource.save(this.getBinaryOptions());
+        secondClientResource.save(Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE));
         firstClientObject.eSet(firstClientName, firstClientObject.eGet(firstClientName) + "-first-client");
 
-        assertThatThrownBy(() -> firstClientResource.save(this.getBinaryOptions()))
+        assertThatThrownBy(() -> firstClientResource.save(Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE)))
                 .isInstanceOf(IOException.class)
                 .hasMessageContaining("412");
     }
@@ -185,39 +165,31 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
     @DisplayName("Given a cross-resource reference, when its target document is replaced, then the reference resolves to the new object")
     public void givenCrossResourceReferenceWhenItsTargetDocumentIsReplacedThenTheReferenceResolvesToTheNewObject() throws IOException {
         var initialResult = this.get(FLOW_XMI_URI);
-        IEMFEditingContext editingContext = this.getEditingContext();
-        Resource targetResource = editingContext.getDomain().getResourceSet().getResources().stream()
-                .filter(resource -> FLOW_DOCUMENT_ID.equals(resource.getURI().lastSegment()))
-                .findFirst()
-                .orElseThrow();
-        EObject previousTarget = this.getNamedObject(targetResource);
-        Resource referencingResource = new JSONResourceFactory().createResourceFromPath(UUID.randomUUID().toString());
-        referencingResource.eAdapters().add(new ResourceMetadataAdapter("references.ecore"));
+        Resource targetResource = this.loadBinaryResource(URI.createURI(SERVER_URI + this.port + FLOW_XMI_URI.replace("/xmi", "/bin")));
+        URI referencesURI = targetResource.getURI().trimSegments(1).appendSegment("references.ecore");
+        Resource referencingResource = new XMLResourceImpl(referencesURI);
+        targetResource.getResourceSet().getResources().add(referencingResource);
+        var ePackage = EcoreFactory.eINSTANCE.createEPackage();
+        ePackage.setName("references");
+        ePackage.setNsURI("urn:test:references");
+        ePackage.setNsPrefix("references");
         var annotation = EcoreFactory.eINSTANCE.createEAnnotation();
-        annotation.getReferences().add(previousTarget);
-        referencingResource.getContents().add(annotation);
-        editingContext.getDomain().getResourceSet().getResources().add(referencingResource);
-        assertThat(EcoreUtil.UsageCrossReferencer.find(previousTarget, editingContext.getDomain().getResourceSet())).isNotEmpty();
+        annotation.getReferences().add(this.getNamedObject(targetResource));
+        ePackage.getEAnnotations().add(annotation);
+        referencingResource.getContents().add(ePackage);
+        referencingResource.save(Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE));
 
-        try {
-            byte[] updatedXMI = this.renameFirstElement(initialResult.getResponseBody(), "CrossResourceTarget").getBytes(StandardCharsets.UTF_8);
-            var input = new ReplaceResourceContentInput(UUID.randomUUID(), "Flow", ResourceFormat.XMI, updatedXMI, List.of(), false);
-            var payloadSink = Sinks.<IPayload>one();
-            var counter = this.meterRegistry.get(Monitoring.EVENT_HANDLER)
-                    .tag(Monitoring.NAME, ReplaceDocumentEventHandler.class.getSimpleName())
-                    .counter();
-            double initialCount = counter.count();
-            this.replaceDocumentEventHandler.handle(payloadSink, Sinks.many().unicast().onBackpressureBuffer(), editingContext, input);
-            assertThat(payloadSink.asMono().block()).isInstanceOf(ReplaceResourceContentSuccessPayload.class);
-            assertThat(counter.count()).isEqualTo(initialCount + 1);
+        byte[] updatedXMI = this.renameFirstElement(initialResult.getResponseBody(), "CrossResourceTarget").getBytes(StandardCharsets.UTF_8);
+        this.put(FLOW_XMI_URI, updatedXMI).expectStatus().isNoContent();
+        this.givenInitialServerState.initialize();
 
-            EObject resolvedTarget = annotation.getReferences().get(0);
-            assertThat(resolvedTarget).isNotSameAs(previousTarget);
-            assertThat(resolvedTarget.eResource()).isSameAs(targetResource);
-            assertThat(resolvedTarget.eGet(resolvedTarget.eClass().getEStructuralFeature("name"))).isEqualTo("CrossResourceTarget");
-        } finally {
-            editingContext.getDomain().getResourceSet().getResources().remove(referencingResource);
-        }
+        var resourceSet = new ResourceSetImpl();
+        resourceSet.getPackageRegistry().put(FlowPackage.eNS_URI, FlowPackage.eINSTANCE);
+        new RestfulEMFClient().loadProject(referencesURI, resourceSet);
+        Resource reloadedReferences = resourceSet.getResource(referencesURI, false);
+        EObject resolvedTarget = ((EPackage) reloadedReferences.getContents().getFirst()).getEAnnotations().getFirst().getReferences().getFirst();
+        assertThat(resolvedTarget.eIsProxy()).isFalse();
+        assertThat(resolvedTarget.eGet(resolvedTarget.eClass().getEStructuralFeature(NAME_FEATURE))).isEqualTo("CrossResourceTarget");
     }
 
     @Test
@@ -226,20 +198,16 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         String initialXMI = new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8);
         String invalidContent = initialXMI.replace(FlowPackage.eNS_URI, "urn:unknown:flow");
         assertThat(invalidContent).isNotEqualTo(initialXMI);
-        String editingContextId = this.projectEditingContextService.getEditingContextId(FLOW_PROJECT_ID).orElseThrow();
-        var input = new ReplaceResourceContentInput(UUID.randomUUID(), "Flow", ResourceFormat.XMI,
-                invalidContent.getBytes(StandardCharsets.UTF_8), List.of(), false);
-
-        assertThatThrownBy(() -> this.editingContextDispatcher.dispatchMutation(editingContextId, input).block(Duration.ofSeconds(10)))
-                .isInstanceOf(RestfulEMFException.class);
+        this.put(FLOW_XMI_URI, invalidContent.getBytes(StandardCharsets.UTF_8)).expectStatus().isBadRequest()
+                .expectBody().jsonPath(ERROR_CODE_PATH).isEqualTo("INVALID_RESOURCE");
         assertThat(new String(this.getBytes(FLOW_XMI_URI), StandardCharsets.UTF_8)).isEqualTo(initialXMI);
     }
 
     @Test
     @DisplayName("Given a Flow document, when its zipped XMI and binary representations are written back, then both are accepted")
     public void givenFlowDocumentWhenItsZippedXMIAndBinaryRepresentationsAreWrittenBackThenBothAreAccepted() {
-        String zippedURI = "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/xmi.zip/Flow";
-        String binaryURI = "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/bin/Flow";
+        String zippedURI = PROJECTS_URI + FLOW_PROJECT_ID + "/documents/xmi.zip/Flow";
+        String binaryURI = PROJECTS_URI + FLOW_PROJECT_ID + "/documents/bin/Flow";
 
         this.put(zippedURI, this.getBytes(zippedURI)).expectStatus().isNoContent();
         this.put(binaryURI, this.getBytes(binaryURI)).expectStatus().isNoContent();
@@ -257,8 +225,8 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         this.put(FLOW_XMI_URI, unsafeXML)
                 .expectStatus().isBadRequest()
                 .expectBody()
-                .jsonPath("$.code").isEqualTo("INVALID_RESOURCE");
-        this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/bin/Flow", new byte[] { 1, 2, 3 }).expectStatus().isBadRequest();
+                .jsonPath(ERROR_CODE_PATH).isEqualTo("INVALID_RESOURCE");
+        this.put(PROJECTS_URI + FLOW_PROJECT_ID + "/documents/bin/Flow", new byte[] { 1, 2, 3 }).expectStatus().isBadRequest();
     }
 
     @Test
@@ -267,7 +235,7 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         this.put(FLOW_XMI_URI, new byte[1024 * 1024 + 1])
                 .expectStatus().isEqualTo(413)
                 .expectBody()
-                .jsonPath("$.code").isEqualTo("PAYLOAD_TOO_LARGE");
+                .jsonPath(ERROR_CODE_PATH).isEqualTo("PAYLOAD_TOO_LARGE");
 
         var compressedContent = new ByteArrayOutputStream();
         try (var zipOutputStream = new ZipOutputStream(compressedContent)) {
@@ -275,10 +243,10 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
             zipOutputStream.write(("<?xml version=\"1.0\"?><xmi:XMI xmlns:xmi=\"http://www.omg.org/XMI\">"
                     + " ".repeat(1024 * 1024) + "</xmi:XMI>").getBytes(StandardCharsets.UTF_8));
         }
-        this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/xmi.zip/Flow", compressedContent.toByteArray())
+        this.put(PROJECTS_URI + FLOW_PROJECT_ID + "/documents/xmi.zip/Flow", compressedContent.toByteArray())
                 .expectStatus().isEqualTo(413)
                 .expectBody()
-                .jsonPath("$.code").isEqualTo("PAYLOAD_TOO_LARGE");
+                .jsonPath(ERROR_CODE_PATH).isEqualTo("PAYLOAD_TOO_LARGE");
     }
 
     @Test
@@ -291,17 +259,17 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         this.put(FLOW_XMI_URI, xmi)
                 .expectStatus().isForbidden()
                 .expectBody()
-                .jsonPath("$.code").isEqualTo("READ_ONLY");
+                .jsonPath(ERROR_CODE_PATH).isEqualTo("READ_ONLY");
     }
 
     @Test
     @DisplayName("Given CSV output, when a CSV update is requested, then method not allowed is returned")
     public void givenCSVOutputWhenACSVUpdateIsRequestedThenMethodNotAllowedIsReturned() {
-        this.put("/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/csv/Flow", "id".getBytes(StandardCharsets.UTF_8))
+        this.put(PROJECTS_URI + FLOW_PROJECT_ID + "/documents/csv/Flow", "id".getBytes(StandardCharsets.UTF_8))
                 .expectStatus().isEqualTo(405)
                 .expectHeader().valueEquals(HttpHeaders.ALLOW, "GET,HEAD")
                 .expectBody()
-                .jsonPath("$.code").isEqualTo("METHOD_NOT_ALLOWED");
+                .jsonPath(ERROR_CODE_PATH).isEqualTo("METHOD_NOT_ALLOWED");
     }
 
     private byte[] getBytes(String uri) {
@@ -335,21 +303,15 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
         resourceSet.getPackageRegistry().put(FlowPackage.eNS_URI, FlowPackage.eINSTANCE);
         Resource resource = new XMLResourceImpl(uri);
         resourceSet.getResources().add(resource);
-        resource.load(this.getBinaryOptions());
+        resource.load(Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE));
         return resource;
-    }
-
-    private Map<String, Object> getBinaryOptions() {
-        Map<String, Object> options = new HashMap<>();
-        options.put(XMLResource.OPTION_BINARY, Boolean.TRUE);
-        return options;
     }
 
     private EObject getNamedObject(Resource resource) {
         var iterator = resource.getAllContents();
         while (iterator.hasNext()) {
             EObject object = iterator.next();
-            EStructuralFeature name = object.eClass().getEStructuralFeature("name");
+            EStructuralFeature name = object.eClass().getEStructuralFeature(NAME_FEATURE);
             if (name != null && object.eGet(name) != null) {
                 return object;
             }
@@ -363,13 +325,5 @@ public class RestfulEMFWriteIntegrationTests extends AbstractIntegrationTests {
 
     private List<String> getIds(String xmi) {
         return XMI_ID_PATTERN.matcher(xmi).results().map(result -> result.group(1)).toList();
-    }
-
-    private IEMFEditingContext getEditingContext() {
-        String editingContextId = this.projectEditingContextService.getEditingContextId(FLOW_PROJECT_ID).orElseThrow();
-        return this.editingContextSearchService.findById(editingContextId)
-                .filter(IEMFEditingContext.class::isInstance)
-                .map(IEMFEditingContext.class::cast)
-                .orElseThrow();
     }
 }

@@ -18,6 +18,8 @@ import java.io.OutputStream;
  * Writes a resource representation without materializing it in memory.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 @FunctionalInterface
 public interface IResourceWriter {

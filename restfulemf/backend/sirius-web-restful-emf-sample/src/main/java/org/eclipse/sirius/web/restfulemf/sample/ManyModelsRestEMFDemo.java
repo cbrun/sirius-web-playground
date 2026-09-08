@@ -32,6 +32,8 @@ import org.eclipse.sirius.web.restfulemf.client.RestfulEMFClient;
 
 /**
  * Demonstrates how a plain EMF client can load a Sirius Web project and save a document.
+ *
+ * @author cbrun
  */
 public class ManyModelsRestEMFDemo {
 

@@ -25,6 +25,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
  * Integration tests of mandatory optimistic concurrency.
+ *
+ * @author cbrun
  */
 @GivenSiriusWebServer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "sirius.web.restful-emf.require-if-match=true")

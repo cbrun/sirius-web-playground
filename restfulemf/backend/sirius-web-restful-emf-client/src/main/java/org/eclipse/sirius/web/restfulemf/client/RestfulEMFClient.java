@@ -39,6 +39,7 @@ import tools.jackson.core.json.JsonFactory;
  * Loads a Sirius Web project's semantic documents into an EMF resource set.
  * Resources use public HTTP document URIs and can be saved with {@code resource.save(Map.of())}.
  *
+ * @author cbrun
  * @since 2026.7.3
  */
 public class RestfulEMFClient {
@@ -81,6 +82,8 @@ public class RestfulEMFClient {
      * @return the supplied resource set
      * @throws IOException if discovery or loading fails
      */
+    // EMF and parser failures must restore the caller's ResourceSet registrations, not leave a partial project.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public ResourceSet loadProject(URI projectURI, ResourceSet resourceSet) throws IOException {
         Objects.requireNonNull(resourceSet);
         if (!resourceSet.getResources().isEmpty()) {
@@ -129,7 +132,10 @@ public class RestfulEMFClient {
         }
         for (int index = 0; index + 1 < segments.length; index++) {
             if ("projects".equals(segments[index]) && !segments[index + 1].isEmpty()) {
-                int prefixLength = index >= 2 && "api".equals(segments[index - 2]) && "rest".equals(segments[index - 1]) ? index - 2 : index;
+                int prefixLength = index;
+                if (index >= 2 && "api".equals(segments[index - 2]) && "rest".equals(segments[index - 1])) {
+                    prefixLength -= 2;
+                }
                 URI endpoint = uri.trimFragment().trimQuery().trimSegments(segments.length - prefixLength);
                 return endpoint.appendSegments(new String[] { "api", "rest", "projects", segments[index + 1] });
             }
@@ -139,7 +145,9 @@ public class RestfulEMFClient {
 
     private void validateSegment(String segment) {
         String decoded = URI.decode(segment);
-        if (".".equals(decoded) || "..".equals(decoded) || decoded.indexOf('/') >= 0 || decoded.indexOf('\\') >= 0
+        boolean traversal = ".".equals(decoded) || "..".equals(decoded);
+        boolean separator = decoded.indexOf('/') >= 0 || decoded.indexOf('\\') >= 0;
+        if (traversal || separator
                 || decoded.indexOf('%') >= 0 || decoded.chars().anyMatch(Character::isISOControl)) {
             throw new IllegalArgumentException("Unsafe URL path segment");
         }

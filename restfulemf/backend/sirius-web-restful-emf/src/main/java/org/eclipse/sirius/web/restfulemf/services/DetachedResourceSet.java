@@ -18,6 +18,8 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 /**
  * Isolates deserialization from filesystem and network resource loading.
+ *
+ * @author cbrun
  */
 public class DetachedResourceSet extends ResourceSetImpl {
 

@@ -20,6 +20,8 @@ import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
  * Read use cases exposed by the RESTful EMF application layer.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public interface IRestfulEMFReadApplicationService {
 

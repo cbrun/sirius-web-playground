@@ -44,8 +44,20 @@ import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 
 /**
  * Tests the bounded transfer capacity of the REST controller.
+ *
+ * @author cbrun
  */
 public class RestfulEMFTransferCapacityTests {
+
+    private static final String PROJECT_ID = "project";
+
+    private static final String SEPARATOR = "\t";
+
+    private static final String FORMAT = "xmi";
+
+    private static final String GET_METHOD = "GET";
+
+    private static final String DOCUMENT_URI = "/api/rest/projects/project/documents/xmi/document";
 
     @Test
     public void givenAnActiveTransferWhenAnotherTransferStartsThenServiceUnavailableIsReturned() throws Exception {
@@ -54,7 +66,7 @@ public class RestfulEMFTransferCapacityTests {
         when(capabilityEvaluator.hasCapability(anyString(), anyString(), anyString())).thenReturn(true);
         var transferStarted = new CountDownLatch(1);
         var releaseTransfer = new CountDownLatch(1);
-        when(readApplicationService.getResource("project", "document", ResourceFormat.XMI, "\t"))
+        when(readApplicationService.getResource(PROJECT_ID, "document", ResourceFormat.XMI, SEPARATOR))
                 .thenReturn(new ResourceRepresentation(outputStream -> {
                     transferStarted.countDown();
                     try {
@@ -70,23 +82,27 @@ public class RestfulEMFTransferCapacityTests {
         try {
             Future<?> firstTransfer = executor.submit(() -> {
                 try {
-                    controller.getResource("project", "xmi", "\t", new MockHttpServletRequest("GET", "/api/rest/projects/project/documents/xmi/document"), new MockHttpServletResponse());
+                    controller.getResource(PROJECT_ID, FORMAT, SEPARATOR, new MockHttpServletRequest(GET_METHOD, DOCUMENT_URI), new MockHttpServletResponse());
                 } catch (IOException exception) {
                     throw new UncheckedIOException(exception);
                 }
             });
             assertThat(transferStarted.await(5, TimeUnit.SECONDS)).isTrue();
 
-            assertThatThrownBy(() -> controller.getResource("project", "xmi", "\t", new MockHttpServletRequest("GET", "/api/rest/projects/project/documents/xmi/document"), new MockHttpServletResponse()))
-                    .isInstanceOfSatisfying(RestfulEMFException.class,
-                            exception -> assertThat(exception.getError()).isEqualTo(RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED));
-            var response = new RestfulEMFExceptionHandler().handleRestfulEMFException(
-                    new RestfulEMFException(RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED, "busy"));
-            assertThat(response.getStatusCode().value()).isEqualTo(503);
-            assertThat(response.getHeaders().getFirst("Retry-After")).isEqualTo("1");
+            assertThatThrownBy(() -> controller.getResource(PROJECT_ID, FORMAT, SEPARATOR, new MockHttpServletRequest(GET_METHOD, DOCUMENT_URI), new MockHttpServletResponse()))
+                    .isInstanceOfSatisfying(RestfulEMFException.class, exception -> {
+                        assertThat(exception.getError()).isEqualTo(RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED);
+                        var response = new RestfulEMFExceptionHandler().handleRestfulEMFException(exception);
+                        assertThat(response.getStatusCode().value()).isEqualTo(503);
+                        assertThat(response.getHeaders().getFirst("Retry-After")).isEqualTo("1");
+                    });
 
             releaseTransfer.countDown();
             firstTransfer.get(5, TimeUnit.SECONDS);
+            var responseAfterCompletion = new MockHttpServletResponse();
+            controller.getResource(PROJECT_ID, FORMAT, SEPARATOR,
+                    new MockHttpServletRequest(GET_METHOD, DOCUMENT_URI), responseAfterCompletion);
+            assertThat(responseAfterCompletion.getStatus()).isEqualTo(200);
         } finally {
             releaseTransfer.countDown();
             executor.shutdownNow();

@@ -43,7 +43,6 @@ import org.eclipse.sirius.web.restfulemf.application.api.IRestfulEMFReadApplicat
 import org.eclipse.sirius.web.restfulemf.application.api.IRestfulEMFWriteApplicationService;
 import org.eclipse.sirius.web.restfulemf.application.api.ResourceFormat;
 import org.eclipse.sirius.web.restfulemf.application.api.ResourceRepresentation;
-import org.eclipse.sirius.web.restfulemf.application.api.ResourceWriteStatus;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFError;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
 import org.eclipse.sirius.web.restfulemf.configuration.RestfulEMFProperties;
@@ -53,6 +52,8 @@ import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 
 /**
  * Exposes Sirius Web EMF documents through simple REST representations.
+ *
+ * @author cbrun
  */
 @RestController
 public class RestfulEMFResourceController {
@@ -82,7 +83,7 @@ public class RestfulEMFResourceController {
         var nonNullProperties = Objects.requireNonNull(properties);
         this.requireIfMatch = nonNullProperties.requireIfMatch();
         this.maximumRequestSize = nonNullProperties.maxRequestSize().toBytes();
-        this.transferPermits = new Semaphore(nonNullProperties.maxConcurrentTransfers(), true);
+        this.transferPermits = new Semaphore(nonNullProperties.maxConcurrentTransfers());
     }
 
     @GetMapping("/api/rest/projects/{projectId}/epackages/{format}")
@@ -115,7 +116,11 @@ public class RestfulEMFResourceController {
         this.acquireTransferPermit();
         try {
             ResourceRepresentation representation = this.readApplicationService.getResource(projectId, documentPath, resourceFormat, separator);
-            this.writeRepresentation(representation, resourceFormat == ResourceFormat.CSV ? "text/plain;charset=UTF-8" : "application/octet-stream", request, response);
+            String contentType = "application/octet-stream";
+            if (resourceFormat == ResourceFormat.CSV) {
+                contentType = "text/plain;charset=UTF-8";
+            }
+            this.writeRepresentation(representation, contentType, request, response);
         } finally {
             this.transferPermits.release();
         }
@@ -144,15 +149,15 @@ public class RestfulEMFResourceController {
             var limitedContent = new SizeLimitedInputStream(content, this.maximumRequestSize);
             boolean createOnly = this.isCreateOnly(headers);
             var result = this.writeApplicationService.replaceResource(projectId, path, format, limitedContent, this.getExpectedRevisions(headers, createOnly), createOnly);
-            if (result.status() == ResourceWriteStatus.CONFLICT) {
-                ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.PRECONDITION_FAILED, "The document revision does not match If-Match");
-                problem.setProperty("code", "REVISION_CONFLICT");
-                return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(problem);
-            }
-            if (result.status() == ResourceWriteStatus.CREATED) {
-                return ResponseEntity.status(HttpStatus.CREATED).header(HttpHeaders.LOCATION, location).build();
-            }
-            return ResponseEntity.noContent().build();
+            return switch (result.status()) {
+                case CONFLICT -> {
+                    ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.PRECONDITION_FAILED, "The document revision does not match its precondition");
+                    problem.setProperty("code", "REVISION_CONFLICT");
+                    yield ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(problem);
+                }
+                case CREATED -> ResponseEntity.status(HttpStatus.CREATED).header(HttpHeaders.LOCATION, location).build();
+                case UPDATED -> ResponseEntity.noContent().build();
+            };
         } finally {
             this.transferPermits.release();
         }
@@ -169,7 +174,12 @@ public class RestfulEMFResourceController {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED, "If-Match or If-None-Match: * is required");
         }
         return entityTags.stream()
-                .map(entityTag -> entityTag.startsWith("\"") ? entityTag.substring(1, entityTag.length() - 1) : entityTag)
+                .map(entityTag -> {
+                    if (entityTag.startsWith("\"")) {
+                        return entityTag.substring(1, entityTag.length() - 1);
+                    }
+                    return entityTag;
+                })
                 .toList();
     }
 
@@ -193,7 +203,7 @@ public class RestfulEMFResourceController {
 
     private String getPath(HttpServletRequest request) {
         String rawPath = request.getRequestURI().toLowerCase(java.util.Locale.ROOT);
-        if (rawPath.contains("%2f") || rawPath.contains("%5c") || rawPath.contains("%25") || rawPath.contains(";") || rawPath.contains("//")) {
+        if (List.of("%2f", "%5c", "%25", ";", "//").stream().anyMatch(rawPath::contains)) {
             throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "Ambiguous document path encoding");
         }
         String lookupPath = request.getRequestURI().substring(request.getContextPath().length());

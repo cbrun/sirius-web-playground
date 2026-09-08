@@ -31,6 +31,8 @@ import reactor.core.publisher.Sinks.One;
 
 /**
  * Serializes one resource while its collaborative editing context is being processed.
+ *
+ * @author cbrun
  */
 @Service
 public class GetResourceContentEventHandler implements IEditingContextEventHandler {
@@ -50,10 +52,26 @@ public class GetResourceContentEventHandler implements IEditingContextEventHandl
     }
 
     @Override
+    // Unchecked EMF failures must reach the response sink instead of leaving the request without a result.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
-        IPayload payload = new ErrorPayload(input.id(), "Unexpected error");
         try {
-            payload = this.getPayload(editingContext, input, payload);
+            IPayload payload = new ErrorPayload(input.id(), "Unexpected error");
+            if (editingContext instanceof IEMFEditingContext emfEditingContext && input instanceof GetResourceContentInput resourceInput) {
+                var resourceSet = emfEditingContext.getDomain().getResourceSet();
+                var documents = this.resourcePaths.documents(resourceSet);
+                var optionalDocument = this.resourcePaths.find(documents, resourceInput.path());
+                if (optionalDocument.isPresent()) {
+                    var document = optionalDocument.get();
+                    var resourceURI = new JSONResourceFactory().createResourceURI(document.id().toString());
+                    payload = resourceSet.getResources().stream()
+                            .filter(resource -> resourceURI.equals(resource.getURI()))
+                            .findFirst()
+                            .flatMap(this.resourceSnapshotService::getSnapshot)
+                            .<IPayload>map(snapshot -> new GetResourceContentSuccessPayload(input.id(), snapshot, document, documents))
+                            .orElse(payload);
+                }
+            }
             payloadSink.tryEmitValue(payload);
         } catch (RuntimeException exception) {
             payloadSink.tryEmitError(exception);
@@ -61,24 +79,4 @@ public class GetResourceContentEventHandler implements IEditingContextEventHandl
         changeDescriptionSink.tryEmitNext(new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input));
     }
 
-    private IPayload getPayload(IEditingContext editingContext, IInput input, IPayload defaultPayload) {
-        IPayload payload = defaultPayload;
-        if (editingContext instanceof IEMFEditingContext emfEditingContext && input instanceof GetResourceContentInput resourceInput) {
-            var resourceSet = emfEditingContext.getDomain().getResourceSet();
-            var documents = this.resourcePaths.documents(resourceSet);
-            var optionalDocument = this.resourcePaths.find(documents, resourceInput.path());
-            if (optionalDocument.isPresent()) {
-                var document = optionalDocument.get();
-                var resourceURI = new JSONResourceFactory().createResourceURI(document.id().toString());
-                payload = resourceSet.getResources().stream()
-                    .filter(resource -> resourceURI.equals(resource.getURI()))
-                    .findFirst()
-                    .flatMap(this.resourceSnapshotService::getSnapshot)
-                    .<IPayload>map(snapshot -> new GetResourceContentSuccessPayload(input.id(), snapshot, document, documents))
-                    .orElse(payload);
-            }
-        }
-
-        return payload;
-    }
 }

@@ -22,12 +22,14 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Starts the PostgreSQL database shared by the integration tests.
+ *
+ * @author cbrun
  */
 @Import(GivenInitialServerState.class)
 @ExtendWith(OutputCaptureExtension.class)
 public abstract class AbstractIntegrationTests {
 
-    public static final PostgreSQLContainer POSTGRESQL_CONTAINER;
+    private static final PostgreSQLContainer POSTGRESQL_CONTAINER;
 
     static {
         POSTGRESQL_CONTAINER = new PostgreSQLContainer("postgres:17-alpine");

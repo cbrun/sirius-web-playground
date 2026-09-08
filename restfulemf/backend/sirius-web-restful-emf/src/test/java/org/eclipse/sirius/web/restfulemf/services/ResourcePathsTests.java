@@ -18,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
+import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFError;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
 import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
@@ -27,6 +29,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Covers public path assignment, collisions and validation independently from persistence.
+ *
+ * @author cbrun
  */
 public class ResourcePathsTests {
 
@@ -56,7 +60,19 @@ public class ResourcePathsTests {
     @Test
     public void givenRenamedDocumentWhenAssigningPathsThenItsIdentityIsPreserved() {
         UUID id = UUID.randomUUID();
-        var renamed = new ResourceDocument(id, "new/path.ecore", false);
-        assertThat(new ResourcePaths().assignPaths(List.of(renamed))).containsExactly(renamed);
+        var resources = new DetachedResourceSet();
+        var resource = new JSONResourceFactory().createResourceFromPath(id.toString());
+        var metadata = new ResourceMetadataAdapter("old/path.ecore", true);
+        resource.eAdapters().add(metadata);
+        resources.getResources().add(resource);
+        var paths = new ResourcePaths();
+        var previous = paths.documents(resources).getFirst();
+
+        metadata.setName("new/path.ecore");
+
+        var renamed = paths.documents(resources);
+        assertThat(renamed).containsExactly(new ResourceDocument(id, metadata.getName(), true));
+        assertThat(paths.find(renamed, previous.path())).isEmpty();
+        assertThat(paths.find(renamed, metadata.getName())).get().extracting(ResourceDocument::id).isEqualTo(previous.id());
     }
 }

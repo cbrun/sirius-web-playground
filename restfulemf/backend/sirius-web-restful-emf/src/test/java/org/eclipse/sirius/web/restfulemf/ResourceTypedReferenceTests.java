@@ -43,6 +43,8 @@ import org.springframework.util.unit.DataSize;
 
 /**
  * Reproduces emfjson's misleading missing-package diagnostic for a valid pending typed reference.
+ *
+ * @author cbrun
  */
 public class ResourceTypedReferenceTests {
 

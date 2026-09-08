@@ -18,6 +18,8 @@ import java.util.Objects;
  * Signals an application failure without depending on HTTP concepts.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public class RestfulEMFException extends RuntimeException {
 

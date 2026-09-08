@@ -16,6 +16,8 @@ package org.eclipse.sirius.web.restfulemf.application.api;
  * The supported external representations of an EMF resource.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public enum ResourceFormat {
     XMI,

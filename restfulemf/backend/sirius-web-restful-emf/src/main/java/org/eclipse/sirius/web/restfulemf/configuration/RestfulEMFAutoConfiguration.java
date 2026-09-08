@@ -31,13 +31,14 @@ import org.springframework.context.annotation.Import;
 /**
  * Configures RESTful EMF when the matching Sirius Web feature is enabled.
  *
+ * @author cbrun
  * @since 2026.7.3
  */
 @AutoConfiguration
 @Conditional(OnRestfulEMFEnabled.class)
 @EnableConfigurationProperties(RestfulEMFProperties.class)
 @Import({ GetResourceContentEventHandler.class, ReplaceDocumentEventHandler.class, ResourceSnapshotService.class,
-        RestfulEMFReadApplicationService.class, RestfulEMFWriteApplicationService.class, RestfulEMFExceptionHandler.class,
-        RestfulEMFResourceController.class, ProjectDocumentsService.class, ResourceFormatService.class, ResourcePaths.class, RestfulEMFPersistenceService.class })
+            RestfulEMFReadApplicationService.class, RestfulEMFWriteApplicationService.class, RestfulEMFExceptionHandler.class,
+            RestfulEMFResourceController.class, ProjectDocumentsService.class, ResourceFormatService.class, ResourcePaths.class, RestfulEMFPersistenceService.class })
 public class RestfulEMFAutoConfiguration {
 }

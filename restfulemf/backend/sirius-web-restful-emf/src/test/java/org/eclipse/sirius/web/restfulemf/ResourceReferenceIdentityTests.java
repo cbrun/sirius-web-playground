@@ -31,6 +31,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Prevents accepting references whose target identifiers the upstream JSON format would discard.
+ *
+ * @author cbrun
  */
 public class ResourceReferenceIdentityTests {
 

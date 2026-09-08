@@ -4,6 +4,9 @@ The sample runs Sirius Web 2026.7.3 on Java 21 with the Ecore, Flow, BPMN and UM
 It keeps the standard Blank, Studio, Blank Studio and Flow project templates, plus the playground's Many Models and
 1M-Modeling templates.
 
+The 1M-Modeling template is a synthetic workload: it loads the same bundled binary model twenty times into
+independent documents named `reverse1.ecorebin` through `reverse20.ecorebin`, each with its own identifiers.
+
 Start PostgreSQL:
 
 ```shell
@@ -16,7 +19,8 @@ docker run --rm --name playground-postgres \
 Then start the application from the repository root:
 
 ```shell
-mvn -f restfulemf/backend/pom.xml -Psample -pl sirius-web-restful-emf-sample -am spring-boot:run
+mvn -f restfulemf/backend/pom.xml -Psample install
+mvn -f restfulemf/backend/sirius-web-restful-emf-sample/pom.xml spring-boot:run
 ```
 
 The application is available at `http://localhost:8080`.
@@ -47,6 +51,7 @@ mvn clean verify -Psample,large-model-tests -f restfulemf/backend/pom.xml
 
 The tests use the Sirius Web Ecore and Flow fixtures, cover compatible and strict optimistic concurrency, rollback,
 native EMF directory imports, cyclic cross-resource references across editing-context reloads, concurrent creation and
-representation ETags. They exercise creation of the mixed-format Many Models template, verify the 1M-Modeling assets,
+representation ETags. They exercise creation of the mixed-format Many Models template,
 enforce streamed-transfer limits, and start an isolated PostgreSQL 17 container through Testcontainers. The large-model
-profile additionally creates the full 1M-Modeling project and performs an EMF binary load/save round-trip.
+profile additionally creates the full 1M-Modeling project, modifies a document through EMF binary load/save,
+and reloads the editing context to check that the change was persisted.

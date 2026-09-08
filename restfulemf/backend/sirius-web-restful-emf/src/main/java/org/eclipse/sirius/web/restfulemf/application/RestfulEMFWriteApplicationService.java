@@ -41,6 +41,8 @@ import org.eclipse.sirius.web.restfulemf.services.api.ProjectDocuments;
 
 /**
  * Orchestrates RESTful EMF write use cases.
+ *
+ * @author cbrun
  */
 @Service
 public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplicationService {
@@ -59,6 +61,8 @@ public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplic
     }
 
     @Override
+    // The collaborative boundary translates unchecked dispatch failures into the stable REST error contract.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public ResourceWriteResult replaceResource(String projectId, String path, ResourceFormat format, InputStream content, List<String> expectedRevisions, boolean createOnly) {
         ProjectDocuments projectDocuments = this.getProjectDocuments(projectId);
         try {

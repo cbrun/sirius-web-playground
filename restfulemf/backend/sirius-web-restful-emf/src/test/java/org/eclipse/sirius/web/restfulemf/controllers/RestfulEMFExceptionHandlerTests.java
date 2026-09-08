@@ -25,19 +25,25 @@ import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Verifies stable problem codes and HTTP error status mapping.
+ *
+ * @author cbrun
  */
 public class RestfulEMFExceptionHandlerTests {
 
     @ParameterizedTest
     @CsvSource({"CAPABILITY_DENIED,403", "READ_ONLY,403", "NOT_FOUND,404", "CONFLICT,409", "INVALID_RESOURCE,400", "PAYLOAD_TOO_LARGE,413",
-            "TRANSFER_CAPACITY_EXHAUSTED,503", "TIMEOUT,504", "PROCESSING_FAILURE,500"})
+                "TRANSFER_CAPACITY_EXHAUSTED,503", "TIMEOUT,504", "PROCESSING_FAILURE,500"})
     public void givenApplicationErrorWhenMappingThenStatusAndCodeArePreserved(RestfulEMFError error, int status) {
         var response = new RestfulEMFExceptionHandler().handleRestfulEMFException(new RestfulEMFException(error, "detail"));
         assertThat(response.getStatusCode().value()).isEqualTo(status);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getDetail()).isEqualTo("detail");
         assertThat(response.getBody().getProperties()).containsEntry("code", error.name());
-        assertThat(response.getHeaders().getFirst(HttpHeaders.RETRY_AFTER)).isEqualTo(error == RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED ? "1" : null);
+        if (error == RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED) {
+            assertThat(response.getHeaders().getFirst(HttpHeaders.RETRY_AFTER)).isEqualTo("1");
+        } else {
+            assertThat(response.getHeaders().getFirst(HttpHeaders.RETRY_AFTER)).isNull();
+        }
     }
 
     @Test
@@ -47,4 +53,3 @@ public class RestfulEMFExceptionHandlerTests {
         assertThat(response.getBody().getProperties()).containsEntry("code", HttpStatus.PRECONDITION_REQUIRED.name());
     }
 }
-

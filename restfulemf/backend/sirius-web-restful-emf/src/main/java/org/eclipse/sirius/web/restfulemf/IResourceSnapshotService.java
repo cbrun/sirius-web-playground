@@ -20,6 +20,8 @@ import org.eclipse.emf.ecore.resource.Resource;
  * Creates stable snapshots of EMF resources.
  *
  * @since 2026.7.3
+ *
+ * @author cbrun
  */
 public interface IResourceSnapshotService {
 

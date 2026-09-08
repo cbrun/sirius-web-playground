@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.emf.common.util.URI;
@@ -28,6 +29,7 @@ import org.eclipse.emf.ecore.resource.impl.URIHandlerImpl;
 /**
  * An EMF HTTP URI handler which propagates RESTful EMF entity tags from loads to saves.
  *
+ * @author cbrun
  * @since 2026.7.3
  */
 public class RestfulEMFURIHandler extends URIHandlerImpl {
@@ -39,6 +41,8 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
     private static final String IF_NONE_MATCH = "If-None-Match";
 
     private static final String RELOAD_REQUIRED = "";
+
+    private static final Set<String> RESERVED_HEADERS = Set.of("if-match", "if-none-match", "content-type", "content-length", "transfer-encoding", "host");
 
     private final Map<URI, String> entityTags = new ConcurrentHashMap<>();
 
@@ -69,9 +73,7 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
         }
         this.headers.forEach((name, value) -> {
             if (!name.matches("[!#$%&'*+.^_`|~0-9A-Za-z-]+") || value.indexOf('\r') >= 0 || value.indexOf('\n') >= 0
-                    || name.equalsIgnoreCase(IF_MATCH) || name.equalsIgnoreCase(IF_NONE_MATCH) || name.equalsIgnoreCase("Content-Type")
-                    || name.equalsIgnoreCase("Content-Length") || name.equalsIgnoreCase("Transfer-Encoding")
-                    || name.equalsIgnoreCase("Host")) {
+                    || RESERVED_HEADERS.contains(name.toLowerCase(java.util.Locale.ROOT))) {
                 throw new IllegalArgumentException("Invalid or reserved HTTP request header");
             }
         });
@@ -80,28 +82,37 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
     @Override
     public boolean canHandle(URI uri) {
         String path = uri.path();
-        return this.isHttpURI(uri) && path != null
-                && path.matches("(?:/[^/]+)*/api/rest/projects/[^/]+/(?:documents(?:/(?:xmi|xmi\\.zip|bin)/[^/]+(?:/[^/]+)*)?|epackages/(?:xmi|bin))")
-                && (this.projectEndpoint == null || (Objects.equals(uri.scheme(), this.projectEndpoint.scheme())
-                        && Objects.equals(uri.authority(), this.projectEndpoint.authority())
-                        && path.startsWith(this.projectEndpoint.path() + "/")));
+        boolean withinProject = true;
+        if (this.projectEndpoint != null) {
+            withinProject = Objects.equals(uri.scheme(), this.projectEndpoint.scheme())
+                    && Objects.equals(uri.authority(), this.projectEndpoint.authority())
+                    && path != null && path.startsWith(this.projectEndpoint.path() + "/");
+        }
+        return withinProject && this.isHttpURI(uri) && path != null
+                && path.matches("(?:/[^/]+)*/api/rest/projects/[^/]+/(?:documents(?:/(?:xmi|xmi\\.zip|bin)/[^/]+(?:/[^/]+)*)?|epackages/(?:xmi|bin))");
     }
 
     private boolean isHttpURI(URI uri) {
         if (!("http".equals(uri.scheme()) || "https".equals(uri.scheme())) || uri.authority() == null || uri.userInfo() != null) {
             return false;
         }
+        boolean safePath = true;
         for (String segment : uri.segments()) {
             String decoded = URI.decode(segment);
-            if (".".equals(decoded) || "..".equals(decoded) || decoded.contains("/") || decoded.contains("\\")
+            boolean traversal = ".".equals(decoded) || "..".equals(decoded);
+            boolean separator = decoded.contains("/") || decoded.contains("\\");
+            if (traversal || separator
                     || decoded.contains("%") || decoded.chars().anyMatch(Character::isISOControl)) {
-                return false;
+                safePath = false;
+                break;
             }
         }
-        return true;
+        return safePath;
     }
 
     @Override
+    // HTTP callbacks may fail unchecked; disconnect only before stream ownership reaches the caller.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public InputStream createInputStream(URI uri, Map<?, ?> options) throws IOException {
         HttpURLConnection connection = this.openConnection(uri, options);
         try {
@@ -128,6 +139,8 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
     }
 
     @Override
+    // HTTP callbacks may fail unchecked; successful request streams must remain open for the caller.
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public OutputStream createOutputStream(URI uri, Map<?, ?> options) throws IOException {
         String entityTag = this.entityTags.get(uri);
         if (RELOAD_REQUIRED.equals(entityTag)) {
@@ -158,22 +171,16 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
 
             @Override
             public void close() throws IOException {
-                IOException failure = null;
                 try {
                     super.close();
                     int status = connection.getResponseCode();
                     if (status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_CREATED || status == HttpURLConnection.HTTP_NO_CONTENT) {
                         RestfulEMFURIHandler.this.rememberEntityTag(uri, connection);
                     } else {
-                        failure = new IOException("PUT failed with HTTP response code " + status);
+                        throw new IOException("PUT failed with HTTP response code " + status);
                     }
-                } catch (IOException exception) {
-                    failure = exception;
                 } finally {
                     connection.disconnect();
-                }
-                if (failure != null) {
-                    throw failure;
                 }
             }
         };
@@ -196,7 +203,8 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
 
     private void rememberEntityTag(URI uri, HttpURLConnection connection) {
         String entityTag = connection.getHeaderField(ETAG);
-        if (entityTag != null && !entityTag.startsWith("W/")) {
+        // Only the entity-tag syntax is valid here: accepting "*" would disable revision matching on PUT.
+        if (entityTag != null && entityTag.matches("\"[\\x21\\x23-\\x7E\\x80-\\xFF]*\"")) {
             this.entityTags.put(uri, entityTag);
         } else {
             this.entityTags.put(uri, RELOAD_REQUIRED);

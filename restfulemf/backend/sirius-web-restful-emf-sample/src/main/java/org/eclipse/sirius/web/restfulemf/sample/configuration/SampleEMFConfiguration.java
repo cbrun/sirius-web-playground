@@ -26,7 +26,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configures the Ecore metamodel used by the sample.
+ * Registers the sample metamodels and their EMF.Edit item providers.
+ *
+ * @author cbrun
  */
 @Configuration
 public class SampleEMFConfiguration {

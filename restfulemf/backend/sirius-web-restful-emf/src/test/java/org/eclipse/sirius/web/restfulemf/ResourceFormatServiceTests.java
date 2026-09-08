@@ -49,8 +49,22 @@ import org.springframework.util.unit.DataSize;
 
 /**
  * Exercises real XMI, binary and JSON conversion, including durable forward references.
+ *
+ * @author cbrun
  */
 public class ResourceFormatServiceTests {
+
+    private static final String NODE_NAME = "Node";
+
+    private static final String SOURCE_PATH = "source.ecore";
+
+    private static final String LINK = "link";
+
+    private static final String XMI_ID = "xmi:id=\"";
+
+    private static final String ID = "id";
+
+    private static final String CSV_SEPARATOR = "\t";
 
     private static final String ANNOTATION = "<ecore:EClass xmlns:ecore=\"http://www.eclipse.org/emf/2002/Ecore\" xmlns:xmi=\"http://www.omg.org/XMI\" ";
 
@@ -59,6 +73,58 @@ public class ResourceFormatServiceTests {
     private static final String TARGET_PATH = "common/target.ecore";
 
     private static final String NODE = "<model:Node xmlns:model=\"urn:restful:test\" ";
+
+    @Test
+    public void unresolvedContainmentIsRejectedInsteadOfPersistedAsAnEmptyObject() {
+        var model = this.model();
+        var node = (EClass) model.getEClassifier(NODE_NAME);
+        var children = EcoreFactory.eINSTANCE.createEReference();
+        children.setName("children");
+        children.setEType(node);
+        children.setContainment(true);
+        children.setUpperBound(-1);
+        node.getEStructuralFeatures().add(children);
+        var service = new ResourceFormatService(this::snapshot, List.of(model),
+                new RestfulEMFProperties(false, DataSize.ofMegabytes(1), DataSize.ofMegabytes(1), 2));
+        var document = new ResourceDocument(UUID.randomUUID(), SOURCE_PATH, false);
+        String xmi = NODE + "><children href=\"target.ecore#child\"/></model:Node>";
+
+        assertThatThrownBy(() -> service.deserialize(this.content(xmi), document, ResourceFormat.XMI))
+                .isInstanceOf(org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException.class)
+                .hasMessageContaining("containment");
+    }
+
+    @Test
+    public void containedObjectsKeepTheirOppositeAndResourceAfterJsonPersistence() throws IOException {
+        var model = this.model();
+        var node = (EClass) model.getEClassifier(NODE_NAME);
+        var children = EcoreFactory.eINSTANCE.createEReference();
+        children.setName("children");
+        children.setEType(node);
+        children.setContainment(true);
+        children.setUpperBound(-1);
+        var parent = EcoreFactory.eINSTANCE.createEReference();
+        parent.setName("parent");
+        parent.setEType(node);
+        children.setEOpposite(parent);
+        parent.setEOpposite(children);
+        node.getEStructuralFeatures().addAll(List.of(children, parent));
+        var service = new ResourceFormatService(this::snapshot, List.of(model),
+                new RestfulEMFProperties(false, DataSize.ofMegabytes(1), DataSize.ofMegabytes(1), 2));
+        var document = new ResourceDocument(UUID.randomUUID(), SOURCE_PATH, false);
+        var resources = this.resourceSet();
+        resources.getPackageRegistry().put(model.getNsURI(), model);
+        String xmi = NODE + "id=\"owner\"><children id=\"child\" link=\"owner\"/></model:Node>";
+
+        var restored = this.load(service.deserialize(this.content(xmi), document, ResourceFormat.XMI), document, resources);
+
+        var owner = restored.getContents().getFirst();
+        var child = owner.eContents().getFirst();
+        assertThat(child.eContainer()).isSameAs(owner);
+        assertThat(child.eGet(parent)).isSameAs(owner);
+        assertThat(child.eGet(node.getEStructuralFeature(LINK))).isSameAs(owner);
+        assertThat(child.eResource()).isSameAs(restored);
+    }
 
     @Test
     public void givenMultipleMetamodelsWhenExportedAsXmiThenBothCanBeLoaded() throws IOException {
@@ -73,7 +139,7 @@ public class ResourceFormatServiceTests {
 
     @Test
     public void givenDuplicateObjectIdsWhenImportedThenTheDocumentIsRejected() {
-        String root = ANNOTATION + "xmi:id=\"" + TARGET_ID + "\"/>";
+        String root = ANNOTATION + XMI_ID + TARGET_ID + "\"/>";
         String xmi = "<xmi:XMI xmlns:xmi=\"http://www.omg.org/XMI\">" + root + root + "</xmi:XMI>";
         var document = new ResourceDocument(UUID.randomUUID(), TARGET_PATH, false);
         assertThatThrownBy(() -> this.service().deserialize(this.content(xmi), document, ResourceFormat.XMI))
@@ -97,11 +163,11 @@ public class ResourceFormatServiceTests {
         service.reconcileReferences(resources, documents);
         var firstObject = first.getContents().getFirst();
         var secondObject = second.getContents().getFirst();
-        var node = (EClass) model.getEClassifier("Node");
-        assertThat(firstObject.eGet(node.getEStructuralFeature("id"))).isEqualTo("first");
-        assertThat(secondObject.eGet(node.getEStructuralFeature("id"))).isEqualTo("second");
-        assertThat(firstObject.eGet(node.getEStructuralFeature("link"))).isSameAs(secondObject);
-        assertThat(secondObject.eGet(node.getEStructuralFeature("link"))).isSameAs(firstObject);
+        var node = (EClass) model.getEClassifier(NODE_NAME);
+        assertThat(firstObject.eGet(node.getEStructuralFeature(ID))).isEqualTo("first");
+        assertThat(secondObject.eGet(node.getEStructuralFeature(ID))).isEqualTo("second");
+        assertThat(firstObject.eGet(node.getEStructuralFeature(LINK))).isSameAs(secondObject);
+        assertThat(secondObject.eGet(node.getEStructuralFeature(LINK))).isSameAs(firstObject);
     }
 
     @Test
@@ -116,7 +182,7 @@ public class ResourceFormatServiceTests {
             ResourceSnapshot imported = service.deserialize(this.content(sourceXMI), source, ResourceFormat.XMI, documents, resources);
             assertThat(imported.content()).contains("restfulemf:/documents/common/target.ecore");
             Resource referencing = this.load(imported, source, resources);
-            String targetXMI = ANNOTATION + "xmi:id=\"" + targetId + "\" name=\"target\"/>";
+            String targetXMI = ANNOTATION + XMI_ID + targetId + "\" name=\"target\"/>";
             ResourceSnapshot targetSnapshot = service.deserialize(this.content(targetXMI), target, ResourceFormat.XMI, documents, resources);
             Resource targetResource = this.load(targetSnapshot, target, resources);
 
@@ -125,19 +191,19 @@ public class ResourceFormatServiceTests {
             var annotation = (EClass) referencing.getContents().getFirst();
             assertThat(annotation.getESuperTypes().getFirst()).isSameAs(targetResource.getContents().getFirst());
             var output = new ByteArrayOutputStream();
-            service.serialize(this.snapshot(referencing).orElseThrow(), source, documents, ResourceFormat.XMI, "\t", output);
+            service.serialize(this.snapshot(referencing).orElseThrow(), source, documents, ResourceFormat.XMI, CSV_SEPARATOR, output);
             assertThat(output.toString(StandardCharsets.UTF_8)).contains("../common/target.ecore#").doesNotContain("sirius:", "restfulemf:");
         }
     }
 
     @Test
     public void givenStructuralReferenceToExplicitUUIDWhenImportedThenTargetUUIDWinsOverDerivedId() throws Exception {
-        var source = new ResourceDocument(UUID.randomUUID(), "source.ecore", false);
+        var source = new ResourceDocument(UUID.randomUUID(), SOURCE_PATH, false);
         var target = new ResourceDocument(UUID.randomUUID(), TARGET_PATH, false);
         var documents = List.of(source, target);
         var service = this.service();
         var resources = this.resourceSet();
-        this.load(service.deserialize(this.content(ANNOTATION + "xmi:id=\"" + TARGET_ID + "\"/>"), target, ResourceFormat.XMI), target, resources);
+        this.load(service.deserialize(this.content(ANNOTATION + XMI_ID + TARGET_ID + "\"/>"), target, ResourceFormat.XMI), target, resources);
         String xmi = ANNOTATION + "><eSuperTypes href=\"common/target.ecore#/\"/></ecore:EClass>";
 
         Resource imported = this.load(service.deserialize(this.content(xmi), source, ResourceFormat.XMI, documents, resources), source, resources);
@@ -157,9 +223,9 @@ public class ResourceFormatServiceTests {
         assertThat(second.content()).isEqualTo(first.content());
         for (ResourceFormat format : List.of(ResourceFormat.XMI, ResourceFormat.BINARY, ResourceFormat.ZIPPED_XMI)) {
             var output = new ByteArrayOutputStream();
-            service.serialize(first, document, format, "\t", output);
+            service.serialize(first, document, format, CSV_SEPARATOR, output);
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(output.toByteArray()));
-            assertThat(service.representationRevision(first, document, List.of(document), format, "\t")).isEqualTo(digest);
+            assertThat(service.representationRevision(first, document, List.of(document), format, CSV_SEPARATOR)).isEqualTo(digest);
             ResourceSnapshot roundTrip = service.deserialize(new ByteArrayInputStream(output.toByteArray()), document, format);
             assertThat(roundTrip.content()).isEqualTo(first.content());
         }
@@ -174,8 +240,8 @@ public class ResourceFormatServiceTests {
         var snapshot = service.deserialize(this.content(xmi), document, ResourceFormat.XMI);
         var first = new ByteArrayOutputStream();
         var second = new ByteArrayOutputStream();
-        service.serialize(snapshot, document, ResourceFormat.BINARY, "\t", first);
-        service.serialize(snapshot, document, ResourceFormat.BINARY, "\t", second);
+        service.serialize(snapshot, document, ResourceFormat.BINARY, CSV_SEPARATOR, first);
+        service.serialize(snapshot, document, ResourceFormat.BINARY, CSV_SEPARATOR, second);
         assertThat(second.toByteArray()).isEqualTo(first.toByteArray());
     }
 
@@ -204,7 +270,7 @@ public class ResourceFormatServiceTests {
     @Test
     public void givenEscapingReferenceWhenImportedThenItIsRejectedWithoutLoadingExternalResources() {
         var service = this.service();
-        var document = new ResourceDocument(UUID.randomUUID(), "source.ecore", false);
+        var document = new ResourceDocument(UUID.randomUUID(), SOURCE_PATH, false);
         String xmi = ANNOTATION + "><eSuperTypes href=\"../../outside.ecore#/\"/></ecore:EClass>";
         assertThatThrownBy(() -> service.deserialize(this.content(xmi), document, ResourceFormat.XMI))
                 .hasMessageContaining("escapes");
@@ -222,15 +288,15 @@ public class ResourceFormatServiceTests {
         model.setNsPrefix("model");
         model.setNsURI("urn:restful:test");
         var node = EcoreFactory.eINSTANCE.createEClass();
-        node.setName("Node");
+        node.setName(NODE_NAME);
         model.getEClassifiers().add(node);
         var id = EcoreFactory.eINSTANCE.createEAttribute();
-        id.setName("id");
+        id.setName(ID);
         id.setID(true);
         id.setEType(EcorePackage.eINSTANCE.getEString());
         node.getEStructuralFeatures().add(id);
         var link = EcoreFactory.eINSTANCE.createEReference();
-        link.setName("link");
+        link.setName(LINK);
         link.setEType(node);
         node.getEStructuralFeatures().add(link);
         return model;

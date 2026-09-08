@@ -40,6 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Commits a REST write before its successful HTTP response can be emitted.
+ *
+ * @author cbrun
  */
 @Service
 @Primary

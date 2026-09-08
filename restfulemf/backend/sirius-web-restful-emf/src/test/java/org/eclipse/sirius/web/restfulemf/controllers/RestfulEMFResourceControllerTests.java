@@ -44,6 +44,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -52,8 +53,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Verifies HTTP-specific response and precondition rules at the controller boundary.
+ *
+ * @author cbrun
  */
 public class RestfulEMFResourceControllerTests {
+
+    private static final String SEPARATOR = "\t";
+
+    private static final String ANY_REVISION = "*";
 
     private static final String PROJECT = "project";
 
@@ -69,11 +76,11 @@ public class RestfulEMFResourceControllerTests {
         var read = mock(IRestfulEMFReadApplicationService.class);
         when(read.getResource(anyString(), anyString(), any(), anyString())).thenReturn(new ResourceRepresentation(output -> assertThatCode(() -> output.write(42)).doesNotThrowAnyException(), "tag"));
         var controller = this.controller(read, mock(IRestfulEMFWriteApplicationService.class), false);
-        var request = new MockHttpServletRequest("GET", ENDPOINT.replace(XMI, format));
+        var request = new MockHttpServletRequest(HttpMethod.GET.name(), ENDPOINT.replace(XMI, format));
         var response = new MockHttpServletResponse();
-        controller.getResource(PROJECT, format, "\t", request, response);
+        controller.getResource(PROJECT, format, SEPARATOR, request, response);
         assertThat(response.getContentAsByteArray()).containsExactly((byte) 42);
-        controller.getResource(PROJECT, format, "\t", request, new MockHttpServletResponse());
+        controller.getResource(PROJECT, format, SEPARATOR, request, new MockHttpServletResponse());
         if (format.equals("csv")) {
             assertThat(response.getContentType()).isEqualTo("text/plain;charset=UTF-8");
             assertThat(controller.putResource(PROJECT, format, request, new HttpHeaders()).getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -88,7 +95,7 @@ public class RestfulEMFResourceControllerTests {
         var controller = this.controller(read, mock(IRestfulEMFWriteApplicationService.class), false);
         assertThat(controller.getDocuments(PROJECT)).isEmpty();
         var response = new MockHttpServletResponse();
-        controller.getEPackages(PROJECT, "bin", new MockHttpServletRequest("GET", ENDPOINT), response);
+        controller.getEPackages(PROJECT, "bin", new MockHttpServletRequest(HttpMethod.GET.name(), ENDPOINT), response);
         assertThat(response.getContentAsByteArray()).containsExactly((byte) 7);
         assertThatThrownBy(() -> controller.getEPackages(PROJECT, "csv", new MockHttpServletRequest(), response)).isInstanceOf(RestfulEMFException.class);
         assertThatThrownBy(() -> controller.getEPackages(PROJECT, "invalid", new MockHttpServletRequest(), response)).isInstanceOf(RestfulEMFException.class);
@@ -100,10 +107,14 @@ public class RestfulEMFResourceControllerTests {
         var write = mock(IRestfulEMFWriteApplicationService.class);
         when(write.replaceResource(anyString(), anyString(), any(), any(), anyList(), anyBoolean())).thenReturn(new ResourceWriteResult(status, "current"));
         var headers = new HttpHeaders();
-        headers.setIfMatch(List.of("\"old\"", "*"));
+        headers.setIfMatch(List.of("\"old\"", ANY_REVISION));
         var response = this.controller(mock(IRestfulEMFReadApplicationService.class), write, false)
-                .putResource(PROJECT, XMI, new MockHttpServletRequest("PUT", ENDPOINT), headers);
-        assertThat(response.getStatusCode()).isEqualTo(status == ResourceWriteStatus.UPDATED ? HttpStatus.NO_CONTENT : HttpStatus.PRECONDITION_FAILED);
+                .putResource(PROJECT, XMI, new MockHttpServletRequest(HttpMethod.PUT.name(), ENDPOINT), headers);
+        HttpStatus expected = HttpStatus.PRECONDITION_FAILED;
+        if (status == ResourceWriteStatus.UPDATED) {
+            expected = HttpStatus.NO_CONTENT;
+        }
+        assertThat(response.getStatusCode()).isEqualTo(expected);
         assertThat(response.getHeaders().getETag()).isNull();
     }
 
@@ -111,12 +122,12 @@ public class RestfulEMFResourceControllerTests {
     public void givenInvalidConditionsOrOversizedBodyWhenWritingThenApplicationIsNotCalled() {
         var write = mock(IRestfulEMFWriteApplicationService.class);
         var controller = this.controller(mock(IRestfulEMFReadApplicationService.class), write, false);
-        var request = new MockHttpServletRequest("PUT", ENDPOINT);
+        var request = new MockHttpServletRequest(HttpMethod.PUT.name(), ENDPOINT);
         var headers = new HttpHeaders();
         headers.setIfNoneMatch("\"not-star\"");
         assertThatThrownBy(() -> controller.putResource(PROJECT, XMI, request, headers)).isInstanceOf(ResponseStatusException.class);
-        headers.setIfNoneMatch("*");
-        headers.setIfMatch("*");
+        headers.setIfNoneMatch(ANY_REVISION);
+        headers.setIfMatch(ANY_REVISION);
         assertThatThrownBy(() -> controller.putResource(PROJECT, XMI, request, headers)).isInstanceOf(ResponseStatusException.class);
         headers.clear();
         headers.setContentLength(DataSize.ofMegabytes(2).toBytes());
@@ -139,22 +150,22 @@ public class RestfulEMFResourceControllerTests {
     public void givenActiveTransferWhenAnotherStartsThenCapacityIsEnforced() throws IOException {
         var read = mock(IRestfulEMFReadApplicationService.class);
         var controller = this.controller(read, mock(IRestfulEMFWriteApplicationService.class), false);
-        var request = new MockHttpServletRequest("GET", ENDPOINT);
+        var request = new MockHttpServletRequest(HttpMethod.GET.name(), ENDPOINT);
         when(read.getResource(anyString(), anyString(), any(), anyString())).thenReturn(new ResourceRepresentation(output -> {
-            assertThatThrownBy(() -> controller.getResource(PROJECT, XMI, "\t", request, new MockHttpServletResponse()))
+            assertThatThrownBy(() -> controller.getResource(PROJECT, XMI, SEPARATOR, request, new MockHttpServletResponse()))
                     .isInstanceOfSatisfying(RestfulEMFException.class, exception -> assertThat(exception.getError()).isEqualTo(RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED));
         }, "capacity"));
-        controller.getResource(PROJECT, XMI, "\t", request, new MockHttpServletResponse());
+        controller.getResource(PROJECT, XMI, SEPARATOR, request, new MockHttpServletResponse());
     }
 
     @Test
     public void givenHeadWhenReadingThenTheTagIsReturnedWithoutSerializingTheBody() throws IOException {
         var read = mock(IRestfulEMFReadApplicationService.class);
         var writer = mock(IResourceWriter.class);
-        when(read.getResource(PROJECT, PATH, ResourceFormat.XMI, "\t")).thenReturn(new ResourceRepresentation(writer, "revision"));
+        when(read.getResource(PROJECT, PATH, ResourceFormat.XMI, SEPARATOR)).thenReturn(new ResourceRepresentation(writer, "revision"));
         var response = new MockHttpServletResponse();
         this.controller(read, mock(IRestfulEMFWriteApplicationService.class), false)
-                .getResource(PROJECT, XMI, "\t", new MockHttpServletRequest("HEAD", ENDPOINT), response);
+                .getResource(PROJECT, XMI, SEPARATOR, new MockHttpServletRequest("HEAD", ENDPOINT), response);
         assertThat(response.getHeader(HttpHeaders.ETAG)).isEqualTo("\"revision\"");
         assertThat(response.getContentAsByteArray()).isEmpty();
         verifyNoInteractions(writer);
@@ -166,9 +177,9 @@ public class RestfulEMFResourceControllerTests {
         when(write.replaceResource(anyString(), anyString(), any(), any(), anyList(), anyBoolean()))
                 .thenReturn(new ResourceWriteResult(ResourceWriteStatus.CREATED, ""));
         var headers = new HttpHeaders();
-        headers.setIfNoneMatch("*");
+        headers.setIfNoneMatch(ANY_REVISION);
         var response = this.controller(mock(IRestfulEMFReadApplicationService.class), write, true)
-                .putResource(PROJECT, XMI, new MockHttpServletRequest("PUT", ENDPOINT), headers);
+                .putResource(PROJECT, XMI, new MockHttpServletRequest(HttpMethod.PUT.name(), ENDPOINT), headers);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getHeaders().getLocation()).hasToString(ENDPOINT);
         assertThat(response.getHeaders().getETag()).isNull();
@@ -180,7 +191,7 @@ public class RestfulEMFResourceControllerTests {
     public void givenStrictModeWhenConditionIsMissingThenTheWriteIsRejected() {
         var write = mock(IRestfulEMFWriteApplicationService.class);
         var controller = this.controller(mock(IRestfulEMFReadApplicationService.class), write, true);
-        assertThatThrownBy(() -> controller.putResource(PROJECT, XMI, new MockHttpServletRequest("PUT", ENDPOINT), new HttpHeaders()))
+        assertThatThrownBy(() -> controller.putResource(PROJECT, XMI, new MockHttpServletRequest(HttpMethod.PUT.name(), ENDPOINT), new HttpHeaders()))
                 .isInstanceOfSatisfying(ResponseStatusException.class, exception -> assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.PRECONDITION_REQUIRED));
         verifyNoInteractions(write);
     }
@@ -190,8 +201,8 @@ public class RestfulEMFResourceControllerTests {
     public void givenAmbiguousEncodedPathWhenReadingThenTheRequestIsRejected(String encodedPath) {
         var read = mock(IRestfulEMFReadApplicationService.class);
         var controller = this.controller(read, mock(IRestfulEMFWriteApplicationService.class), false);
-        assertThatThrownBy(() -> controller.getResource(PROJECT, XMI, "\t",
-                new MockHttpServletRequest("GET", "/api/rest/projects/project/documents/xmi/" + encodedPath), new MockHttpServletResponse()))
+        assertThatThrownBy(() -> controller.getResource(PROJECT, XMI, SEPARATOR,
+                new MockHttpServletRequest(HttpMethod.GET.name(), "/api/rest/projects/project/documents/xmi/" + encodedPath), new MockHttpServletResponse()))
                 .isInstanceOf(RestfulEMFException.class);
         verifyNoInteractions(read);
     }

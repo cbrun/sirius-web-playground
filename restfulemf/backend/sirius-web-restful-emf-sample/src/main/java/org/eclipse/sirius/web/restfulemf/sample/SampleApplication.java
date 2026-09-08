@@ -17,6 +17,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Entry point of the RESTful EMF sample application.
+ *
+ * @author cbrun
  */
 @SpringBootApplication
 public class SampleApplication {

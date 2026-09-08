@@ -25,6 +25,8 @@ import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
 
 /**
  * Prevents REST errors from being converted to the Sirius Web frontend fallback page.
+ *
+ * @author cbrun
  */
 @RestControllerAdvice(assignableTypes = RestfulEMFResourceController.class)
 public class RestfulEMFExceptionHandler {

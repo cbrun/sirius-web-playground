@@ -30,22 +30,28 @@ import org.springframework.stereotype.Service;
 
 /**
  * Assigns public paths from document names without additional persistent metadata.
+ *
+ * @author cbrun
  */
 @Service
 public class ResourcePaths {
 
+    private static final String ID_PATH_PREFIX = "_by-id/";
+
     public List<ResourceDocument> assignPaths(List<ResourceDocument> documents) {
         var counts = documents.stream().map(ResourceDocument::name).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         return documents.stream().map(document -> {
-            String path = this.isValid(document.name()) && !document.name().startsWith("_by-id/") && !document.name().equals("_by-id")
-                    && counts.get(document.name()) == 1 ? document.name() : "_by-id/" + document.id();
+            String path = ID_PATH_PREFIX + document.id();
+            if (this.isValid(document.name()) && !document.name().startsWith(ID_PATH_PREFIX) && !document.name().equals("_by-id") && counts.get(document.name()) == 1) {
+                path = document.name();
+            }
             return new ResourceDocument(document.id(), document.name(), path, document.readOnly());
         }).sorted(Comparator.comparing(ResourceDocument::path)).toList();
     }
 
     public Optional<ResourceDocument> find(List<ResourceDocument> documents, String path) {
         this.validate(path);
-        if (!path.startsWith("_by-id/") && documents.stream().filter(document -> document.name().equals(path)).count() > 1) {
+        if (!path.startsWith(ID_PATH_PREFIX) && documents.stream().filter(document -> document.name().equals(path)).count() > 1) {
             throw new RestfulEMFException(RestfulEMFError.CONFLICT, "The document path is ambiguous");
         }
         return this.assignPaths(documents).stream().filter(document -> document.path().equals(path)).findFirst();
@@ -75,8 +81,10 @@ public class ResourcePaths {
     }
 
     private boolean isValid(String path) {
-        return path != null && !path.isEmpty() && path.indexOf('\\') < 0 && path.indexOf('%') < 0 && path.indexOf('?') < 0 && path.indexOf('#') < 0 && path.indexOf(';') < 0
-                && path.codePoints().noneMatch(Character::isISOControl)
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+        return path.codePoints().noneMatch(character -> "\\%?#;".indexOf(character) >= 0 || Character.isISOControl(character))
                 && Arrays.stream(path.split("/", -1)).noneMatch(segment -> segment.isEmpty() || segment.equals(".") || segment.equals(".."));
     }
 }

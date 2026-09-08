@@ -47,11 +47,17 @@ import fr.obeo.dsl.designer.sample.flow.FlowPackage;
 
 /**
  * Exercises the standalone client through the actual Sirius Web REST endpoints.
+ *
+ * @author cbrun
  */
 @GivenSiriusWebServer
 @Import({ CreateProjectExecutor.class, CreateProjectMutationRunner.class })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
+
+    private static final String SERVER_URI = "http://localhost:";
+
+    private static final String NAME_FEATURE = "name";
 
     private static final String FLOW_PROJECT_ID = "d419bbee-9cba-4b85-972c-660d875ad705";
 
@@ -72,7 +78,7 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
     @Test
     @DisplayName("Given a Flow project URL, when loaded and saved with the client, then identifiers survive and stale saves fail")
     public void givenFlowProjectURLWhenLoadedAndSavedThenIdentifiersSurviveAndStaleSavesFail() throws IOException {
-        URI uri = URI.createURI("http://localhost:" + this.port + "/projects/" + FLOW_PROJECT_ID + "/edit?selection=ignored#ignored");
+        URI uri = URI.createURI(SERVER_URI + this.port + "/projects/" + FLOW_PROJECT_ID + "/edit?selection=ignored#ignored");
         var configuredSet = new ResourceSetImpl();
         configuredSet.getPackageRegistry().put(FlowPackage.eNS_URI, FlowPackage.eINSTANCE);
         var client = new RestfulEMFClient();
@@ -86,14 +92,14 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
         EObject object = this.namedObject(resource);
         URI objectURI = EcoreUtil.getURI(object);
         assertThat(objectURI.scheme()).isEqualTo("http");
-        object.eSet(object.eClass().getEStructuralFeature("name"), "SavedByStandaloneClient");
+        object.eSet(object.eClass().getEStructuralFeature(NAME_FEATURE), "SavedByStandaloneClient");
         resource.save(Map.of());
 
-        var reloadedSet = new RestfulEMFClient().loadProject(URI.createURI("http://localhost:" + this.port
+        var reloadedSet = new RestfulEMFClient().loadProject(URI.createURI(SERVER_URI + this.port
                 + "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/bin/Flow"));
         EObject reloaded = reloadedSet.getEObject(objectURI, false);
         assertThat(reloaded).isNotNull();
-        assertThat(reloaded.eGet(reloaded.eClass().getEStructuralFeature("name"))).isEqualTo("SavedByStandaloneClient");
+        assertThat(reloaded.eGet(reloaded.eClass().getEStructuralFeature(NAME_FEATURE))).isEqualTo("SavedByStandaloneClient");
         assertThat(EcoreUtil.getURI(reloaded)).isEqualTo(objectURI);
         assertThatThrownBy(() -> staleSet.getResources().getFirst().save(Map.of()))
                 .isInstanceOf(IOException.class).hasMessageContaining("412");
@@ -105,12 +111,12 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
     public void givenManyModelsProjectWhenLoadedFromWorkbenchSubURLThenEveryDocumentIsLoaded(CapturedOutput capturedOutput) throws IOException {
         var input = new CreateProjectInput(UUID.randomUUID(), "Client integration", ManyModelsProjectTemplatesProvider.MANY_MODELS_TEMPLATE_ID, List.of());
         var projectId = this.createProjectExecutor.execute(input, capturedOutput).isSuccess().getProjectId();
-        var webClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
+        var webClient = WebTestClient.bindToServer().baseUrl(SERVER_URI + this.port).build();
         List<Map<String, Object>> documents = webClient.get().uri("/api/rest/projects/{projectId}/documents", projectId)
                 .exchange().expectStatus().isOk()
                 .expectBody(new org.springframework.core.ParameterizedTypeReference<List<Map<String, Object>>>() { }).returnResult().getResponseBody();
 
-        var resourceSet = new RestfulEMFClient().loadProject(URI.createURI("http://localhost:" + this.port + "/projects/" + projectId + "/edit"));
+        var resourceSet = new RestfulEMFClient().loadProject(URI.createURI(SERVER_URI + this.port + "/projects/" + projectId + "/edit"));
 
         assertThat(documents).hasSize(5);
         assertThat(resourceSet.getResources()).hasSize(5).allSatisfy(resource -> {
@@ -126,7 +132,7 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
         var contents = resource.getAllContents();
         while (contents.hasNext()) {
             EObject object = contents.next();
-            var name = object.eClass().getEStructuralFeature("name");
+            var name = object.eClass().getEStructuralFeature(NAME_FEATURE);
             if (name != null && object.eGet(name) != null) {
                 return object;
             }

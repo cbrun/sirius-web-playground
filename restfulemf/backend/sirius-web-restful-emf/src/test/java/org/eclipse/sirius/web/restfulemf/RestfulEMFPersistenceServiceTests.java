@@ -39,6 +39,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Protects the persistence failure boundary against silently dropping documents.
+ *
+ * @author cbrun
  */
 public class RestfulEMFPersistenceServiceTests {
 

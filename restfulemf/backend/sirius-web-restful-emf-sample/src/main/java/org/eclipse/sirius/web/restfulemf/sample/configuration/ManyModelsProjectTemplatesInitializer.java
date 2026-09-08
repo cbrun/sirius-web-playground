@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * Initializes the playground project templates from their bundled models.
+ *
+ * @author cbrun
  */
 @Service
 public class ManyModelsProjectTemplatesInitializer implements ISemanticDataInitializer {
@@ -62,17 +64,24 @@ public class ManyModelsProjectTemplatesInitializer implements ISemanticDataIniti
     @Override
     public void handle(ICause cause, IEditingContext editingContext, String projectTemplateId) {
         if (editingContext instanceof IEMFEditingContext emfEditingContext) {
-            var modelPaths = ManyModelsProjectTemplatesProvider.MANY_MODELS_TEMPLATE_ID.equals(projectTemplateId) ? MANY_MODELS : ONE_MILLION_MODELS;
+            var modelPaths = ONE_MILLION_MODELS;
+            if (ManyModelsProjectTemplatesProvider.MANY_MODELS_TEMPLATE_ID.equals(projectTemplateId)) {
+                modelPaths = MANY_MODELS;
+            }
             modelPaths.forEach(modelPath -> this.load(emfEditingContext, modelPath));
             this.editingContextPersistenceService.persist(cause, editingContext);
         }
     }
 
     private void load(IEMFEditingContext editingContext, String modelPath) {
-        var classPathResource = new ClassPathResource(modelPath);
+        String sourcePath = modelPath;
+        if (modelPath.startsWith("1Modeling/")) {
+            sourcePath = "1Modeling/reverse1.ecorebin";
+        }
+        var classPathResource = new ClassPathResource(sourcePath);
         try {
             if (modelPath.endsWith(".ecorebin")) {
-                this.loadBinary(editingContext, classPathResource);
+                this.loadBinary(editingContext, classPathResource, URI.createURI(modelPath).lastSegment());
                 return;
             }
             try (var inputStream = classPathResource.getInputStream()) {
@@ -87,14 +96,14 @@ public class ManyModelsProjectTemplatesInitializer implements ISemanticDataIniti
         }
     }
 
-    private void loadBinary(IEMFEditingContext editingContext, ClassPathResource classPathResource) throws IOException {
-        var source = new XMLResourceImpl(URI.createURI(classPathResource.getFilename()));
+    private void loadBinary(IEMFEditingContext editingContext, ClassPathResource classPathResource, String documentName) throws IOException {
+        var source = new XMLResourceImpl(URI.createURI(documentName));
         try (var inputStream = classPathResource.getInputStream()) {
             source.load(inputStream, Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE));
         }
 
         var target = new JSONResourceFactory().createResourceFromPath(UUID.randomUUID().toString());
-        target.eAdapters().add(new ResourceMetadataAdapter(classPathResource.getFilename()));
+        target.eAdapters().add(new ResourceMetadataAdapter(documentName));
         target.getContents().addAll(source.getContents());
         editingContext.getDomain().getResourceSet().getResources().add(target);
     }

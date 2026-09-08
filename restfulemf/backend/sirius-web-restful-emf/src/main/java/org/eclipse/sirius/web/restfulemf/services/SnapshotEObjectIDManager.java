@@ -21,6 +21,8 @@ import org.eclipse.sirius.components.emf.services.EObjectIDManager;
 /**
  * Gives omitted JSON object identifiers reproducible values in a detached snapshot only.
  * The JSON serializer omits identifiers for some Ecore objects, including operations and annotations.
+ *
+ * @author cbrun
  */
 public class SnapshotEObjectIDManager extends EObjectIDManager {
 
