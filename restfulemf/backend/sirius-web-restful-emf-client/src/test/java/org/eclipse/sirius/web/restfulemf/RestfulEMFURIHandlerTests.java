@@ -27,6 +27,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.URIConverter;
+import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -38,12 +41,41 @@ import com.sun.net.httpserver.HttpServer;
 public class RestfulEMFURIHandlerTests {
 
     @Test
-    @DisplayName("Given a missing ETag on reload, when saving, then the previous revision is not sent")
+    @DisplayName("Given a mapped local resource, when saving through the handler, then nested paths are created conditionally")
+    public void givenMappedLocalResourceWhenSavingThenNestedPathsAreCreatedConditionally() throws IOException {
+        var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
+        var requests = new CopyOnWriteArrayList<String>();
+        server.createContext("/api/rest/projects/project/documents/xmi/", exchange -> {
+            requests.add(exchange.getRequestMethod() + " " + exchange.getRequestURI().getRawPath()
+                    + " " + exchange.getRequestHeaders().getFirst("If-None-Match"));
+            exchange.getRequestBody().readAllBytes();
+            exchange.sendResponseHeaders(201, -1);
+            exchange.close();
+        });
+        server.start();
+        try {
+            URI endpoint = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project");
+            var resources = new ResourceSetImpl();
+            resources.getURIConverter().getURIHandlers().add(0, new RestfulEMFURIHandler(endpoint, Map.of()));
+            resources.getURIConverter().getURIMap().put(URI.createURI("file:/models/"), URI.createURI(endpoint + "/documents/xmi/"));
+            var resource = new XMIResourceImpl(URI.createURI("file:/models/domain/model%20one.ecore"));
+            resource.getContents().add(EcoreFactory.eINSTANCE.createEClass());
+            resources.getResources().add(resource);
+            resource.save(Map.of());
+            assertThatThrownBy(() -> resource.save(Map.of())).isInstanceOf(IOException.class).hasMessageContaining("Reload");
+            assertThat(requests).containsExactly("PUT /api/rest/projects/project/documents/xmi/domain/model%20one.ecore *");
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    @DisplayName("Given a missing ETag on reload, when saving, then an unprotected write is rejected")
     public void givenMissingETagOnReloadWhenSavingThenPreviousRevisionIsNotSent() throws IOException {
         var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         var loads = new AtomicInteger();
         var revisions = new CopyOnWriteArrayList<String>();
-        server.createContext("/api/rest/projects/project/document/bin", exchange -> {
+        server.createContext("/api/rest/projects/project/documents/bin/document", exchange -> {
             exchange.getRequestBody().readAllBytes();
             if ("GET".equals(exchange.getRequestMethod())) {
                 if (loads.incrementAndGet() == 1) {
@@ -60,16 +92,15 @@ public class RestfulEMFURIHandlerTests {
         server.start();
         try {
             var handler = new RestfulEMFURIHandler();
-            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/document/bin");
+            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/documents/bin/document");
             for (int index = 0; index < 2; index++) {
                 try (var input = handler.createInputStream(uri, Map.of())) {
                     input.readAllBytes();
                 }
             }
-            try (var output = handler.createOutputStream(uri, Map.of())) {
-                output.write(42);
-            }
-            assertThat(revisions).containsExactly("null");
+            assertThatThrownBy(() -> handler.createOutputStream(uri, Map.of()))
+                    .isInstanceOf(IOException.class).hasMessageContaining("Reload");
+            assertThat(revisions).isEmpty();
         } finally {
             server.stop(0);
         }
@@ -80,7 +111,7 @@ public class RestfulEMFURIHandlerTests {
     public void givenUnresponsiveEndpointWhenLoadHasEMFTimeoutThenItFails() throws IOException {
         var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         var release = new CountDownLatch(1);
-        server.createContext("/api/rest/projects/project/document/bin", exchange -> {
+        server.createContext("/api/rest/projects/project/documents/bin/document", exchange -> {
             try {
                 release.await(5, TimeUnit.SECONDS);
             } catch (InterruptedException exception) {
@@ -91,7 +122,7 @@ public class RestfulEMFURIHandlerTests {
         });
         server.start();
         try {
-            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/document/bin");
+            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/documents/bin/document");
             assertThatThrownBy(() -> new RestfulEMFURIHandler().createInputStream(uri, Map.of(URIConverter.OPTION_TIMEOUT, 100)))
                     .isInstanceOf(SocketTimeoutException.class);
         } finally {
@@ -113,7 +144,7 @@ public class RestfulEMFURIHandlerTests {
         server.start();
         try {
             URI endpoint = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project");
-            for (String header : new String[] { "iF-mAtCh", "Content-Type", "Host", "Content-Length", "Transfer-Encoding", "Bad Header" }) {
+            for (String header : new String[] { "iF-mAtCh", "If-None-Match", "Content-Type", "Host", "Content-Length", "Transfer-Encoding", "Bad Header" }) {
                 assertThatThrownBy(() -> new RestfulEMFURIHandler(endpoint, Map.of(header, "value")))
                         .isInstanceOf(IllegalArgumentException.class);
             }
@@ -121,12 +152,12 @@ public class RestfulEMFURIHandlerTests {
                     .isInstanceOf(IllegalArgumentException.class);
             var handler = new RestfulEMFURIHandler(endpoint, Map.of("Authorization", "Bearer test-token"));
             for (String document : new String[] { ".", "..", "%2e%2e", "%2F", "%5c", "%252e%252e", "%00" }) {
-                URI unsafe = URI.createURI(endpoint + "/" + document + "/bin");
+                URI unsafe = URI.createURI(endpoint + "/documents/bin/" + document);
                 assertThat(handler.canHandle(unsafe)).isFalse();
                 assertThatThrownBy(() -> handler.createInputStream(unsafe, Map.of())).isInstanceOf(IOException.class);
                 assertThatThrownBy(() -> handler.createOutputStream(unsafe, Map.of())).isInstanceOf(IOException.class);
             }
-            URI otherOrigin = URI.createURI(endpoint.toString().replace("localhost", "127.0.0.1") + "/document/bin");
+            URI otherOrigin = URI.createURI(endpoint.toString().replace("localhost", "127.0.0.1") + "/documents/bin/document");
             assertThat(handler.canHandle(otherOrigin)).isFalse();
             assertThatThrownBy(() -> handler.createInputStream(otherOrigin, Map.of())).isInstanceOf(IOException.class);
             assertThatThrownBy(() -> handler.createOutputStream(otherOrigin, Map.of())).isInstanceOf(IOException.class);
@@ -142,14 +173,14 @@ public class RestfulEMFURIHandlerTests {
         var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         server.createContext("/api/rest/projects/project", exchange -> {
             String[] segments = exchange.getRequestURI().getPath().split("/");
-            exchange.sendResponseHeaders(Integer.parseInt(segments[5]), -1);
+            exchange.sendResponseHeaders(Integer.parseInt(segments[7]), -1);
             exchange.close();
         });
         server.start();
         try {
             var handler = new RestfulEMFURIHandler();
             for (int status : new int[] { 401, 404 }) {
-                URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/" + status + "/bin");
+                URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/documents/bin/" + status + "");
                 assertThatThrownBy(() -> handler.createInputStream(uri, Map.of()))
                         .isInstanceOf(IOException.class).hasMessageContaining(Integer.toString(status));
             }
@@ -164,7 +195,7 @@ public class RestfulEMFURIHandlerTests {
         var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         var revisions = new CopyOnWriteArrayList<String>();
         var writes = new AtomicInteger();
-        server.createContext("/api/rest/projects/project/document/bin", exchange -> {
+        server.createContext("/api/rest/projects/project/documents/bin/document", exchange -> {
             exchange.getRequestBody().readAllBytes();
             if ("GET".equals(exchange.getRequestMethod())) {
                 exchange.getResponseHeaders().set("ETag", "\"initial\"");
@@ -182,16 +213,25 @@ public class RestfulEMFURIHandlerTests {
         server.start();
         try {
             var handler = new RestfulEMFURIHandler();
-            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/document/bin");
+            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/documents/bin/document");
             try (var input = handler.createInputStream(uri, Map.of())) {
                 assertThat(input.readAllBytes()).containsExactly((byte) 42);
             }
-            for (int index = 0; index < 3; index++) {
+            for (int index = 0; index < 2; index++) {
                 try (var output = handler.createOutputStream(uri, Map.of())) {
                     output.write(42);
                 }
             }
-            assertThat(revisions).containsExactly("\"initial\"", "\"updated\"", "null");
+            assertThatThrownBy(() -> handler.createOutputStream(uri, Map.of()))
+                    .isInstanceOf(IOException.class).hasMessageContaining("Reload");
+            assertThat(revisions).containsExactly("\"initial\"", "\"updated\"");
+            try (var input = handler.createInputStream(uri, Map.of())) {
+                input.readAllBytes();
+            }
+            try (var output = handler.createOutputStream(uri, Map.of())) {
+                output.write(42);
+            }
+            assertThat(revisions).containsExactly("\"initial\"", "\"updated\"", "\"initial\"");
         } finally {
             server.stop(0);
         }
@@ -202,7 +242,7 @@ public class RestfulEMFURIHandlerTests {
     public void givenStaleRevisionWhenSaveFailsThenHTTP412IsSurfacedWithoutRetry() throws IOException {
         var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         var revisions = new CopyOnWriteArrayList<String>();
-        server.createContext("/api/rest/projects/project/document/bin", exchange -> {
+        server.createContext("/api/rest/projects/project/documents/bin/document", exchange -> {
             exchange.getRequestBody().readAllBytes();
             if ("GET".equals(exchange.getRequestMethod())) {
                 exchange.getResponseHeaders().set("ETag", "\"stale\"");
@@ -218,7 +258,7 @@ public class RestfulEMFURIHandlerTests {
         server.start();
         try {
             var handler = new RestfulEMFURIHandler();
-            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/document/bin");
+            URI uri = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project/documents/bin/document");
             try (var input = handler.createInputStream(uri, Map.of())) {
                 input.readAllBytes();
             }
@@ -245,6 +285,7 @@ public class RestfulEMFURIHandlerTests {
                     + " " + exchange.getRequestHeaders().getFirst("Authorization"));
             exchange.getRequestBody().readAllBytes();
             byte[] body = "{}".getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("ETag", "\"authenticated\"");
             exchange.sendResponseHeaders(200, body.length);
             exchange.getResponseBody().write(body);
             exchange.close();
@@ -253,18 +294,18 @@ public class RestfulEMFURIHandlerTests {
         try {
             URI endpoint = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/context/api/rest/projects/project");
             var handler = new RestfulEMFURIHandler(endpoint, Map.of("Authorization", "Bearer test-token"));
-            for (String suffix : new String[] { "/documents", "/epackages/bin", "/document/bin" }) {
+            for (String suffix : new String[] { "/documents", "/epackages/bin", "/documents/bin/document" }) {
                 URI uri = URI.createURI(endpoint + suffix);
                 assertThat(handler.canHandle(uri)).isTrue();
                 try (var input = handler.createInputStream(uri, Map.of())) {
                     assertThat(input.readAllBytes()).isNotEmpty();
                 }
             }
-            try (var output = handler.createOutputStream(URI.createURI(endpoint + "/document/bin"), Map.of())) {
+            try (var output = handler.createOutputStream(URI.createURI(endpoint + "/documents/bin/document"), Map.of())) {
                 output.write(42);
             }
             assertThat(requests).hasSize(4).allSatisfy(request -> assertThat(request).endsWith("Bearer test-token"));
-            URI outside = URI.createURI(endpoint + "-other/document/bin");
+            URI outside = URI.createURI(endpoint + "-other/documents/bin/document");
             assertThat(handler.canHandle(outside)).isFalse();
             assertThatThrownBy(() -> handler.createInputStream(outside, Map.of())).isInstanceOf(IOException.class);
             assertThat(requests).hasSize(4);
@@ -278,7 +319,7 @@ public class RestfulEMFURIHandlerTests {
     public void givenHTTPRedirectWhenLoadingThenCredentialsAreNotForwarded() throws IOException {
         var server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         var redirectedRequests = new AtomicInteger();
-        server.createContext("/api/rest/projects/project/document/bin", exchange -> {
+        server.createContext("/api/rest/projects/project/documents/bin/document", exchange -> {
             exchange.getResponseHeaders().set("Location", "/outside");
             exchange.sendResponseHeaders(302, -1);
             exchange.close();
@@ -292,7 +333,7 @@ public class RestfulEMFURIHandlerTests {
         try {
             URI endpoint = URI.createURI("http://localhost:" + server.getAddress().getPort() + "/api/rest/projects/project");
             var handler = new RestfulEMFURIHandler(endpoint, Map.of("Authorization", "Bearer test-token"));
-            assertThatThrownBy(() -> handler.createInputStream(URI.createURI(endpoint + "/document/bin"), Map.of()))
+            assertThatThrownBy(() -> handler.createInputStream(URI.createURI(endpoint + "/documents/bin/document"), Map.of()))
                     .isInstanceOf(IOException.class).hasMessageContaining("302");
             assertThat(redirectedRequests).hasValue(0);
         } finally {

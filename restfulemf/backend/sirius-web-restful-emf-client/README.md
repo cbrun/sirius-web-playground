@@ -60,9 +60,9 @@ ResourceSet resources = new RestfulEMFClient().loadProject(
         URI.createURI("http://localhost:8080/projects/PROJECT_ID/edit"));
 ```
 
-Project URLs, workbench sub-URLs, and REST URLs such as `https://example.org/sirius/api/rest/projects/PROJECT_ID/DOCUMENT_ID/bin` identify the same project. Deployment context paths are retained; query strings and fragments are ignored. The URL must identify a project and use HTTP or HTTPS.
+Project URLs, workbench sub-URLs, and REST URLs such as `https://example.org/sirius/api/rest/projects/PROJECT_ID/documents/bin/domain/model.ecore` identify the same project. Deployment context paths are retained; query strings and fragments are ignored. The URL must identify a project and use HTTP or HTTPS.
 
-The client discovers all documents and downloads them in document-ID order using EMF binary serialization. Resources retain canonical `sirius:///DOCUMENT_ID` URIs, mapped to their HTTP endpoints through the URI converter, so cross-document references and object IDs survive round trips. The returned set contains document resources only.
+The client discovers all documents from the `/documents` JSON array (`id`, `name`, `path`, `readOnly`) and downloads them in path order using EMF binary serialization. Resources use public `/documents/bin/{path}` HTTP URIs. All resources are created before loading so relative cross-document references resolve within the set. The returned set contains document resources only.
 
 Registered metamodels are downloaded automatically from `/epackages/bin`. To use generated Java model types, register their packages in an initially empty ResourceSet before loading:
 
@@ -80,7 +80,7 @@ Replace `MyPackage` with your generated package. Existing package registrations 
 import java.util.Map;
 import org.eclipse.emf.ecore.resource.Resource;
 
-Resource document = resources.getResource(URI.createURI("sirius:///DOCUMENT_ID"), false);
+Resource document = resources.getResources().getFirst();
 // Modify document.getContents() using your generated or reflective EMF API.
 document.save(Map.of());
 
@@ -89,7 +89,62 @@ document.unload();
 document.load(Map.of());
 ```
 
-Binary load/save options are configured by the client. Keep the installed handler and URI mappings for subsequent loads and saves. The handler remembers each GET's ETag, supplies `If-Match` on PUT, and refreshes it after a successful save. A concurrent update produces an `IOException` reporting HTTP `412`; the client never retries or overwrites automatically. Preserve local work and explicitly reconcile it with the latest server revision before saving again. Other HTTP failures also surface as `IOException`.
+Binary load/save options are configured by the client. Keep the installed handler for subsequent loads and saves. The handler remembers each GET's strong ETag and supplies `If-Match` on PUT. Because the server transforms uploaded models, successful PUT responses have no ETag: unload and reload the resource before editing and saving again. A second save without reloading fails locally, and the handler never silently adopts a revision from a follow-up HEAD request. A new resource which has not been loaded is saved with `If-None-Match: *` (create only).
+
+A concurrent update or an existing create-only target produces an `IOException` reporting HTTP `412`; the client never retries or overwrites automatically. Preserve local work and explicitly reconcile it with the latest server revision before saving again. Other HTTP failures also surface as `IOException`. A GET without a strong ETag does not authorize an unprotected save.
+
+## Upload a local directory with EMF alone
+
+No client dependency, discovery request, document UUID, or separate creation call is required. The following example imports `.ecore` files into an **existing** project, keeping their directory-relative paths. It uses only Java and standard EMF APIs:
+
+```java
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
+
+Path directory = Path.of("models").toAbsolutePath().normalize();
+URI localRoot = URI.createFileURI(directory.toString()).appendSegment("");
+URI remoteRoot = URI.createURI(
+        "http://localhost:8080/api/rest/projects/PROJECT_ID/documents/xmi/");
+ResourceSet resources = new ResourceSetImpl();
+resources.getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
+resources.getResourceFactoryRegistry().getExtensionToFactoryMap()
+        .put("ecore", new EcoreResourceFactoryImpl());
+List<Resource> documents = new ArrayList<>();
+try (var files = Files.walk(directory)) {
+    for (Path file : files.filter(Files::isRegularFile)
+            .filter(path -> path.toString().endsWith(".ecore")).sorted().toList()) {
+        documents.add(resources.getResource(URI.createFileURI(file.toString()), true));
+    }
+}
+// Install the mapping only after reading all local files.
+resources.getURIConverter().getURIMap().put(localRoot, remoteRoot);
+for (Resource document : documents) {
+    document.save(Map.of());
+}
+```
+
+Configure the corresponding resource factories and generated packages to import other model types. XMI resources save through `/documents/xmi/`; use `/documents/bin/` with EMF's binary load/save option for binary payloads. Merely changing the URL does not change a resource's serialization. The default EMF HTTP handler sends PUT: a missing path is created (201), an existing path is replaced (204). Unconditional replacement is intentional here; this recipe requires the server's default permissive precondition policy.
+
+Relative references such as `../common/types.ecore#//Address` stay relative within the project. Files may be uploaded in either order, including cycles; references to not-yet-uploaded files remain unresolved until their targets arrive. Names are relative paths, so two directories may each contain `model.ecore`. Renaming a document in Sirius Web changes its public path; already-bound internal references remain valid, but external URLs and pending references to its old path do not. Existing documents with invalid or ambiguous names use the listing's reserved `_by-id/{uuid}` fallback; that namespace cannot create documents.
+
+For create-only import and scoped authentication, add the optional client dependency and install this handler before the save loop:
+
+```java
+resources.getURIConverter().getURIHandlers().add(0,
+        new org.eclipse.sirius.web.restfulemf.RestfulEMFURIHandler(
+                remoteRoot.trimSegments(3), Map.of("Authorization", "Bearer " + accessToken)));
+```
+
+The handler sees the mapped HTTP URIs and sends `If-None-Match: *` for these new local resources. To replace existing remote documents safely, load them through the handler first and modify that loaded state. Do not perform a fresh GET solely to adopt its ETag while retaining unrelated stale local contents.
 
 ## Authentication and standalone handler
 
@@ -116,7 +171,8 @@ URI endpoint = URI.createURI("http://localhost:8080/api/rest/projects/PROJECT_ID
 resources.getURIConverter().getURIHandlers().add(0,
         new RestfulEMFURIHandler(endpoint, Map.of()));
 // Register the document's generated or dynamic EPackages here.
-Resource document = new XMLResourceImpl(endpoint.appendSegment("DOCUMENT_ID").appendSegment("bin"));
+Resource document = new XMLResourceImpl(endpoint.appendSegments(
+        new String[] { "documents", "bin", "domain", "model.ecore" }));
 resources.getResources().add(document);
 Map<String, Object> options = Map.of(XMLResource.OPTION_BINARY, Boolean.TRUE);
 document.load(options);
@@ -124,7 +180,9 @@ document.load(options);
 document.save(options);
 ```
 
-The existing no-argument handler constructor remains available for unauthenticated use. Its package name is unchanged, but the class now belongs to the **client artifact**: consumers previously depending on the server artifact for this class must add the client dependency. Direct handler usage does not discover metamodels or install project-wide cross-resource URI mappings; use `loadProject` for that.
+The existing no-argument handler constructor remains available for unauthenticated use. Its package name is unchanged, but the class belongs to the **client artifact**: consumers previously depending on the server artifact for this class must add the client dependency. Direct handler usage does not discover metamodels or other documents; use `loadProject` for that.
+
+This is a breaking route and listing change: replace `/{documentId}/bin` with `/documents/bin/{path}` (likewise for XMI), consume the listing array instead of an ID-to-name object, and stop assuming loaded resources have `sirius:///` URIs. No database migration is required.
 
 ## Boundaries and build
 
@@ -145,5 +203,8 @@ mvn clean install -f restfulemf/backend/pom.xml -pl sirius-web-restful-emf-clien
 # Include the sample and PostgreSQL-backed integration tests; Docker is required.
 mvn clean verify -f restfulemf/backend/pom.xml -Psample
 ```
+
+`verify` requires at least 80% line coverage for this module, with no class exclusions. Open
+`target/site/jacoco/index.html` in the client module for the coverage report. The same check runs before snapshot publication.
 
 See the [sample README](../sirius-web-restful-emf-sample/README.md) for the runnable UML load/edit/save demo. The snapshot workflow publishes the client together with the parent and server artifacts; it does not publish the sample application.

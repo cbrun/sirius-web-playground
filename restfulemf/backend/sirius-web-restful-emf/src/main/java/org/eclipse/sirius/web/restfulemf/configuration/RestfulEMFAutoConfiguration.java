@@ -17,10 +17,12 @@ import org.eclipse.sirius.web.restfulemf.ReplaceDocumentEventHandler;
 import org.eclipse.sirius.web.restfulemf.ResourceSnapshotService;
 import org.eclipse.sirius.web.restfulemf.application.RestfulEMFReadApplicationService;
 import org.eclipse.sirius.web.restfulemf.application.RestfulEMFWriteApplicationService;
+import org.eclipse.sirius.web.restfulemf.application.RestfulEMFPersistenceService;
 import org.eclipse.sirius.web.restfulemf.controllers.RestfulEMFExceptionHandler;
 import org.eclipse.sirius.web.restfulemf.controllers.RestfulEMFResourceController;
 import org.eclipse.sirius.web.restfulemf.services.ProjectDocumentsService;
 import org.eclipse.sirius.web.restfulemf.services.ResourceFormatService;
+import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Conditional;
@@ -36,6 +38,6 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties(RestfulEMFProperties.class)
 @Import({ GetResourceContentEventHandler.class, ReplaceDocumentEventHandler.class, ResourceSnapshotService.class,
         RestfulEMFReadApplicationService.class, RestfulEMFWriteApplicationService.class, RestfulEMFExceptionHandler.class,
-        RestfulEMFResourceController.class, ProjectDocumentsService.class, ResourceFormatService.class })
+        RestfulEMFResourceController.class, ProjectDocumentsService.class, ResourceFormatService.class, ResourcePaths.class, RestfulEMFPersistenceService.class })
 public class RestfulEMFAutoConfiguration {
 }

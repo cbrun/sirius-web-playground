@@ -36,6 +36,10 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
 
     private static final String IF_MATCH = "If-Match";
 
+    private static final String IF_NONE_MATCH = "If-None-Match";
+
+    private static final String RELOAD_REQUIRED = "";
+
     private final Map<URI, String> entityTags = new ConcurrentHashMap<>();
 
     private final URI projectEndpoint;
@@ -65,7 +69,7 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
         }
         this.headers.forEach((name, value) -> {
             if (!name.matches("[!#$%&'*+.^_`|~0-9A-Za-z-]+") || value.indexOf('\r') >= 0 || value.indexOf('\n') >= 0
-                    || name.equalsIgnoreCase(IF_MATCH) || name.equalsIgnoreCase("Content-Type")
+                    || name.equalsIgnoreCase(IF_MATCH) || name.equalsIgnoreCase(IF_NONE_MATCH) || name.equalsIgnoreCase("Content-Type")
                     || name.equalsIgnoreCase("Content-Length") || name.equalsIgnoreCase("Transfer-Encoding")
                     || name.equalsIgnoreCase("Host")) {
                 throw new IllegalArgumentException("Invalid or reserved HTTP request header");
@@ -77,7 +81,7 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
     public boolean canHandle(URI uri) {
         String path = uri.path();
         return this.isHttpURI(uri) && path != null
-                && path.matches("(?:/[^/]+)*/api/rest/projects/[^/]+/(?:documents|[^/]+/(?:xmi|xmi\\.zip|bin))")
+                && path.matches("(?:/[^/]+)*/api/rest/projects/[^/]+/(?:documents(?:/(?:xmi|xmi\\.zip|bin)/[^/]+(?:/[^/]+)*)?|epackages/(?:xmi|bin))")
                 && (this.projectEndpoint == null || (Objects.equals(uri.scheme(), this.projectEndpoint.scheme())
                         && Objects.equals(uri.authority(), this.projectEndpoint.authority())
                         && path.startsWith(this.projectEndpoint.path() + "/")));
@@ -125,14 +129,19 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
 
     @Override
     public OutputStream createOutputStream(URI uri, Map<?, ?> options) throws IOException {
+        String entityTag = this.entityTags.get(uri);
+        if (RELOAD_REQUIRED.equals(entityTag)) {
+            throw new IOException("Reload the resource before saving again: no current strong ETag is available");
+        }
         HttpURLConnection connection = this.openConnection(uri, options);
         connection.setDoOutput(true);
         connection.setChunkedStreamingMode(64 * 1024);
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/octet-stream");
-        String entityTag = this.entityTags.get(uri);
         if (entityTag != null) {
             connection.setRequestProperty(IF_MATCH, entityTag);
+        } else {
+            connection.setRequestProperty(IF_NONE_MATCH, "*");
         }
         OutputStream output;
         try {
@@ -187,10 +196,10 @@ public class RestfulEMFURIHandler extends URIHandlerImpl {
 
     private void rememberEntityTag(URI uri, HttpURLConnection connection) {
         String entityTag = connection.getHeaderField(ETAG);
-        if (entityTag != null) {
+        if (entityTag != null && !entityTag.startsWith("W/")) {
             this.entityTags.put(uri, entityTag);
         } else {
-            this.entityTags.remove(uri);
+            this.entityTags.put(uri, RELOAD_REQUIRED);
         }
     }
 }

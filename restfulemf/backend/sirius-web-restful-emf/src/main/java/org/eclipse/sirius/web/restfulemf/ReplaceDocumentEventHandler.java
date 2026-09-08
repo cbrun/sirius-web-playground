@@ -21,15 +21,17 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.util.InternalEList;
 import org.eclipse.sirius.components.collaborative.api.ChangeDescription;
 import org.eclipse.sirius.components.collaborative.api.ChangeKind;
 import org.eclipse.sirius.components.collaborative.api.IEditingContextEventHandler;
@@ -39,7 +41,16 @@ import org.eclipse.sirius.components.core.api.IEditingContext;
 import org.eclipse.sirius.components.core.api.IInput;
 import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
+import org.eclipse.sirius.components.emf.ResourceMetadataAdapter;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
+import org.eclipse.sirius.emfjson.resource.PackageNotFoundError;
+import org.eclipse.sirius.web.restfulemf.application.RestfulEMFPersistenceService;
+import org.eclipse.sirius.web.restfulemf.application.api.ResourceWriteStatus;
+import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFError;
+import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
+import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
+import org.eclipse.sirius.web.restfulemf.services.api.IResourceFormatService;
+import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -57,12 +68,22 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
 
     private final IResourceSnapshotService resourceSnapshotService;
 
+    private final IResourceFormatService resourceFormatService;
+
+    private final ResourcePaths resourcePaths;
+
+    private final RestfulEMFPersistenceService persistenceService;
+
     private final Counter counter;
 
     private final Logger logger = LoggerFactory.getLogger(ReplaceDocumentEventHandler.class);
 
-    public ReplaceDocumentEventHandler(IResourceSnapshotService resourceSnapshotService, MeterRegistry meterRegistry) {
+    public ReplaceDocumentEventHandler(IResourceSnapshotService resourceSnapshotService, IResourceFormatService resourceFormatService,
+            ResourcePaths resourcePaths, RestfulEMFPersistenceService persistenceService, MeterRegistry meterRegistry) {
         this.resourceSnapshotService = Objects.requireNonNull(resourceSnapshotService);
+        this.resourceFormatService = Objects.requireNonNull(resourceFormatService);
+        this.resourcePaths = Objects.requireNonNull(resourcePaths);
+        this.persistenceService = Objects.requireNonNull(persistenceService);
         this.counter = Counter.builder(Monitoring.EVENT_HANDLER)
                 .tag(Monitoring.NAME, this.getClass().getSimpleName())
                 .register(meterRegistry);
@@ -81,124 +102,164 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
         ChangeDescription changeDescription = new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input);
 
         if (editingContext instanceof IEMFEditingContext emfEditingContext && input instanceof ReplaceResourceContentInput replaceInput) {
-            var resourceURI = new JSONResourceFactory().createResourceURI(replaceInput.documentId());
-            var optionalTargetResource = emfEditingContext.getDomain().getResourceSet().getResources().stream()
-                    .filter(resource -> resource.getURI().equals(resourceURI))
-                    .findFirst();
-            if (optionalTargetResource.isPresent()) {
-                Resource targetResource = optionalTargetResource.get();
-                var optionalCurrentSnapshot = this.resourceSnapshotService.getSnapshot(targetResource);
-                if (optionalCurrentSnapshot.isPresent()) {
-                    ResourceSnapshot currentSnapshot = optionalCurrentSnapshot.get();
-                    if (!this.matches(replaceInput.expectedRevisions(), currentSnapshot.revision())) {
-                        payload = new ResourceRevisionConflictPayload(input.id(), currentSnapshot.revision());
-                    } else if (currentSnapshot.content().equals(replaceInput.newResourceContent())) {
-                        payload = new ReplaceResourceContentSuccessPayload(input.id(), currentSnapshot.revision());
-                    } else {
-                        var optionalNewSnapshot = this.replaceContents(targetResource, replaceInput.newResourceContent(), currentSnapshot,
-                                editingContext.getId(), replaceInput.documentId());
-                        if (optionalNewSnapshot.isPresent()) {
-                            payload = new ReplaceResourceContentSuccessPayload(input.id(), optionalNewSnapshot.get().revision());
-                            changeDescription = new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, editingContext.getId(), input);
-                        }
-                    }
-                } else {
-                    this.logFailure(editingContext.getId(), replaceInput.documentId());
+            try {
+                payload = this.write(emfEditingContext, replaceInput);
+                if (payload instanceof ReplaceResourceContentSuccessPayload) {
+                    changeDescription = new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, editingContext.getId(), input);
                 }
-            } else {
-                this.logFailure(editingContext.getId(), replaceInput.documentId());
+            } catch (RuntimeException exception) {
+                this.logger.atWarn().setMessage("REST EMF write failed").addKeyValue("editingContextId", editingContext.getId()).setCause(exception).log();
+                payloadSink.tryEmitError(exception);
+                changeDescriptionSink.tryEmitNext(changeDescription);
+                return;
             }
-            this.logOutcome(editingContext.getId(), replaceInput.documentId(), payload);
         }
 
         payloadSink.tryEmitValue(payload);
         changeDescriptionSink.tryEmitNext(changeDescription);
     }
 
-    private void logOutcome(String editingContextId, String documentId, IPayload payload) {
-        if (payload instanceof ReplaceResourceContentSuccessPayload) {
-            this.logger.atInfo()
-                    .setMessage("EMF resource {} replaced")
-                    .addArgument(documentId)
-                    .addKeyValue("editingContextId", editingContextId)
-                    .addKeyValue("documentId", documentId)
-                    .log();
-        } else if (payload instanceof ResourceRevisionConflictPayload) {
-            this.logger.atWarn()
-                    .setMessage("Replacement of EMF resource {} rejected due to a revision conflict")
-                    .addArgument(documentId)
-                    .addKeyValue("editingContextId", editingContextId)
-                    .addKeyValue("documentId", documentId)
-                    .log();
+    private IPayload write(IEMFEditingContext editingContext, ReplaceResourceContentInput input) {
+        var resourceSet = editingContext.getDomain().getResourceSet();
+        var documents = this.resourcePaths.documents(resourceSet);
+        var optionalDocument = this.resourcePaths.find(documents, input.path());
+        boolean created = optionalDocument.isEmpty();
+        if (created && (input.path().equals("_by-id") || input.path().startsWith("_by-id/"))) {
+            throw new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Reserved document paths cannot be created");
         }
+        var document = optionalDocument.orElseGet(() -> new ResourceDocument(UUID.randomUUID(), input.path(), input.path(), false));
+        if (document.readOnly()) {
+            throw new RestfulEMFException(RestfulEMFError.READ_ONLY, "The document is read-only");
+        }
+        var uri = new JSONResourceFactory().createResourceURI(document.id().toString());
+        Resource target = created ? new JSONResourceFactory().createResource(uri) : resourceSet.getResource(uri, false);
+        String revision = created || input.expectedRevisions().isEmpty() ? ""
+                : this.resourceFormatService.representationRevision(this.snapshot(target), document, documents, input.format(), ",");
+        if (input.createOnly() && !created || !input.expectedRevisions().isEmpty() && (created || !this.matches(input.expectedRevisions(), revision))) {
+            return new ResourceRevisionConflictPayload(input.id(), revision);
+        }
+        var replacement = this.resourceFormatService.deserialize(new ByteArrayInputStream(input.content()), document, input.format(), documents, resourceSet);
+        this.apply(editingContext, input, target, replacement, created);
+        return new ReplaceResourceContentSuccessPayload(input.id(), created ? ResourceWriteStatus.CREATED : ResourceWriteStatus.UPDATED);
     }
 
-    private void logFailure(String editingContextId, String documentId) {
-        this.logger.atWarn()
-                .setMessage("Replacement of EMF resource {} failed")
-                .addArgument(documentId)
-                .addKeyValue("editingContextId", editingContextId)
-                .addKeyValue("documentId", documentId)
-                .log();
+    private ResourceSnapshot snapshot(Resource resource) {
+        return this.resourceSnapshotService.getSnapshot(resource)
+                .orElseThrow(() -> new IllegalStateException("An EMF resource could not be serialized"));
     }
 
-    private boolean matches(java.util.List<String> expectedRevisions, String currentRevision) {
-        return expectedRevisions.isEmpty() || expectedRevisions.contains("*") || expectedRevisions.contains(currentRevision);
-    }
-
-    private Optional<ResourceSnapshot> replaceContents(Resource targetResource, String newContent, ResourceSnapshot currentSnapshot, String editingContextId, String documentId) {
-        List<ExternalReference> externalReferences = this.getExternalReferences(targetResource);
+    private void apply(IEMFEditingContext editingContext, ReplaceResourceContentInput input, Resource target, ResourceSnapshot replacement, boolean created) {
+        var resourceSet = editingContext.getDomain().getResourceSet();
+        String oldContent = created ? "" : this.snapshot(target).content();
+        Map<InternalEObject, URI> proxyURIs = this.getProxyURIs(resourceSet.getResources());
+        List<ProxyReference> proxyReferences = this.getProxyReferences(resourceSet.getResources(), target);
+        var references = created ? List.<ExternalReference>of() : this.getExternalReferences(target);
         try {
-            this.reload(targetResource, newContent);
-            externalReferences.forEach(reference -> reference.rebind(targetResource));
-            return Optional.of(this.resourceSnapshotService.getSnapshot(targetResource)
-                    .orElseThrow(() -> new IllegalStateException("The updated EMF resource could not be serialized")));
-        } catch (IOException | RuntimeException replacementException) {
-            this.logger.atWarn()
-                    .setMessage("Replacement of EMF resource {} failed")
-                    .addArgument(documentId)
-                    .addKeyValue("editingContextId", editingContextId)
-                    .addKeyValue("documentId", documentId)
-                    .setCause(replacementException)
-                    .log();
-            try {
-                this.reload(targetResource, currentSnapshot.content());
-                externalReferences.forEach(reference -> reference.rebind(targetResource));
-            } catch (IOException | RuntimeException rollbackException) {
-                replacementException.addSuppressed(rollbackException);
-                this.logger.atError()
-                        .setMessage("Rollback of EMF resource {} failed")
-                        .addArgument(targetResource.getURI())
-                        .addKeyValue("editingContextId", editingContextId)
-                        .addKeyValue("documentId", documentId)
-                        .setCause(replacementException)
-                        .log();
+            if (created) {
+                target.eAdapters().add(new ResourceMetadataAdapter(input.path()));
+                resourceSet.getResources().add(target);
             }
-            return Optional.empty();
+            this.reload(target, replacement.content());
+            references.forEach(reference -> reference.rebind(target));
+            this.resourceFormatService.reconcileReferences(resourceSet, this.resourcePaths.documents(resourceSet));
+            this.persistenceService.persist(input, editingContext, target);
+        } catch (IOException | RuntimeException exception) {
+            try {
+                if (created) {
+                    resourceSet.getResources().remove(target);
+                } else {
+                    this.reload(target, oldContent);
+                }
+                proxyReferences.forEach(ProxyReference::restore);
+                references.forEach(reference -> reference.rebind(target));
+                proxyURIs.forEach(InternalEObject::eSetProxyURI);
+            } catch (IOException | RuntimeException rollbackException) {
+                exception.addSuppressed(rollbackException);
+                this.logger.atError().setMessage("REST EMF write rollback failed").addKeyValue("editingContextId", editingContext.getId()).setCause(exception).log();
+            }
+            if (exception instanceof RestfulEMFException restfulException) {
+                throw restfulException;
+            }
+            throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF document could not be persisted", exception);
         }
+    }
+
+    private List<ProxyReference> getProxyReferences(List<Resource> resources, Resource target) {
+        List<ProxyReference> result = new ArrayList<>();
+        resources.stream().filter(resource -> resource != target).forEach(resource ->
+                EcoreUtil.<EObject>getAllProperContents(resource, false).forEachRemaining(object -> {
+                    if (!object.eIsProxy()) {
+                        object.eClass().getEAllReferences().stream().filter(feature -> feature.isChangeable() && !feature.isDerived() && !feature.isContainer())
+                                .forEach(feature -> {
+                                    var setting = ((InternalEObject) object).eSetting(feature);
+                                    if (setting.get(false) instanceof InternalEList<?> list) {
+                                        var values = list.basicList();
+                                        if (values.stream().anyMatch(value -> value instanceof EObject proxy && proxy.eIsProxy())) {
+                                            result.add(new ProxyReference(setting, new ArrayList<>(values)));
+                                        }
+                                    } else if (setting.get(false) instanceof EObject proxy && proxy.eIsProxy()) {
+                                        result.add(new ProxyReference(setting, proxy));
+                                    }
+                                });
+                    }
+                }));
+        return result;
+    }
+
+    private Map<InternalEObject, URI> getProxyURIs(List<Resource> resources) {
+        Map<InternalEObject, URI> result = new IdentityHashMap<>();
+        for (var resource : List.copyOf(resources)) {
+            EcoreUtil.<EObject>getAllProperContents(resource, false).forEachRemaining(object -> {
+                if (object.eIsProxy() && object instanceof InternalEObject proxy) {
+                    result.put(proxy, proxy.eProxyURI());
+                    return;
+                }
+                var references = ((InternalEList<EObject>) object.eCrossReferences()).basicIterator();
+                while (references.hasNext()) {
+                    if (references.next() instanceof InternalEObject proxy && proxy.eIsProxy()) {
+                        result.put(proxy, proxy.eProxyURI());
+                    }
+                }
+            });
+        }
+        return result;
+    }
+
+    private boolean matches(List<String> expectedRevisions, String currentRevision) {
+        return expectedRevisions.isEmpty() || expectedRevisions.contains("*") || expectedRevisions.contains(currentRevision);
     }
 
     private List<ExternalReference> getExternalReferences(Resource targetResource) {
         Set<EObject> targets = Collections.newSetFromMap(new IdentityHashMap<>());
-        targetResource.getAllContents().forEachRemaining(targets::add);
+        EcoreUtil.<EObject>getAllProperContents(targetResource, false).forEachRemaining(object -> {
+            if (!object.eIsProxy()) {
+                targets.add(object);
+            }
+        });
         List<ExternalReference> references = new ArrayList<>();
         if (targetResource.getResourceSet() != null) {
-            EcoreUtil.UsageCrossReferencer.findAll(targets, targetResource.getResourceSet()).forEach((target, settings) -> settings.stream()
-                    .filter(setting -> setting.getEObject().eResource() != targetResource)
-                    .forEach(setting -> this.addExternalReferences(references, setting, target, targetResource.getURIFragment(target))));
+            targetResource.getResourceSet().getResources().stream().filter(resource -> resource != targetResource)
+                    .forEach(resource -> EcoreUtil.<EObject>getAllProperContents(resource, false).forEachRemaining(object -> {
+                        if (!object.eIsProxy()) {
+                            object.eClass().getEAllReferences().stream()
+                                    .filter(feature -> !feature.isContainment() && !feature.isContainer() && !feature.isDerived() && feature.isChangeable())
+                                    .forEach(feature -> this.addExternalReferences(references, ((InternalEObject) object).eSetting(feature), targets, targetResource));
+                        }
+                    }));
         }
         return references;
     }
 
-    private void addExternalReferences(List<ExternalReference> references, EStructuralFeature.Setting setting, EObject target, String fragment) {
-        if (setting.getEStructuralFeature().isMany() && setting.get(false) instanceof List<?> values) {
+    private void addExternalReferences(List<ExternalReference> references, EStructuralFeature.Setting setting, Set<EObject> targets, Resource resource) {
+        if (setting.getEStructuralFeature().isMany() && setting.get(false) instanceof InternalEList<?> list) {
+            var values = list.basicList();
             for (int index = 0; index < values.size(); index++) {
-                if (values.get(index) == target) {
-                    references.add(new ExternalReference(setting, index, fragment, target.eClass()));
+                if (values.get(index) instanceof EObject target && targets.contains(target)) {
+                    references.add(new ExternalReference(setting, index, resource.getURIFragment(target), target.eClass()));
                 }
             }
-        } else {
-            references.add(new ExternalReference(setting, -1, fragment, target.eClass()));
+        } else if (setting.get(false) instanceof EObject target && targets.contains(target)) {
+            references.add(new ExternalReference(setting, -1, resource.getURIFragment(target), target.eClass()));
         }
     }
 
@@ -212,6 +273,12 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
         try (var inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
             resource.load(inputStream, Map.of());
         }
+        // emfjson first tries external document references as package URIs, reports this diagnostic,
+        // then correctly creates the proxy. Keep genuine metamodel lookup failures fatal.
+        var documentReferences = this.getProxyURIs(List.of(resource)).values().stream().map(URI::trimFragment)
+                .filter(uri -> uri.toString().startsWith("restfulemf:/documents/") || IEMFEditingContext.RESOURCE_SCHEME.equals(uri.scheme()))
+                .map(URI::toString).collect(java.util.stream.Collectors.toSet());
+        resource.getErrors().removeIf(error -> error instanceof PackageNotFoundError missingPackage && documentReferences.contains(missingPackage.getUri()));
         if (!resource.getErrors().isEmpty()) {
             throw new IOException(resource.getErrors().get(0).getMessage());
         }
@@ -220,14 +287,7 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
     private record ExternalReference(EStructuralFeature.Setting setting, int index, String fragment, EClass eClass) {
 
         private void rebind(Resource resource) {
-            EObject target = null;
-            var iterator = resource.getAllContents();
-            while (target == null && iterator.hasNext()) {
-                EObject candidate = iterator.next();
-                if (this.fragment.equals(resource.getURIFragment(candidate))) {
-                    target = candidate;
-                }
-            }
+            EObject target = resource.getEObject(this.fragment);
             if (target == null) {
                 target = this.eClass.getEPackage().getEFactoryInstance().create(this.eClass);
                 ((InternalEObject) target).eSetProxyURI(resource.getURI().appendFragment(this.fragment));
@@ -239,6 +299,13 @@ public class ReplaceDocumentEventHandler implements IEditingContextEventHandler 
             } else {
                 this.setting.set(target);
             }
+        }
+    }
+
+    private record ProxyReference(EStructuralFeature.Setting setting, Object value) {
+
+        private void restore() {
+            this.setting.set(this.value);
         }
     }
 }

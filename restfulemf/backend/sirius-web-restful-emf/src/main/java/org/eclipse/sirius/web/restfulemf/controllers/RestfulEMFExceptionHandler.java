@@ -34,6 +34,7 @@ public class RestfulEMFExceptionHandler {
         var status = switch (exception.getError()) {
             case CAPABILITY_DENIED, READ_ONLY -> HttpStatus.FORBIDDEN;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case CONFLICT -> HttpStatus.CONFLICT;
             case INVALID_RESOURCE -> HttpStatus.BAD_REQUEST;
             case PAYLOAD_TOO_LARGE -> HttpStatus.CONTENT_TOO_LARGE;
             case TRANSFER_CAPACITY_EXHAUSTED -> HttpStatus.SERVICE_UNAVAILABLE;

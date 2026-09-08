@@ -30,7 +30,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "sirius.web.restful-emf.require-if-match=true")
 public class RestfulEMFStrictConcurrencyIntegrationTests extends AbstractIntegrationTests {
 
-    private static final String FLOW_XMI_URI = "/api/rest/projects/d419bbee-9cba-4b85-972c-660d875ad705/Flow/xmi";
+    private static final String FLOW_XMI_URI = "/api/rest/projects/d419bbee-9cba-4b85-972c-660d875ad705/documents/xmi/Flow";
 
     @LocalServerPort
     private int port;

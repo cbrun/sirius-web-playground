@@ -10,15 +10,19 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sirius.web.restfulemf.application.api;
+package org.eclipse.sirius.web.restfulemf.services;
+
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 /**
- * The outcome of a resource write.
- *
- * @since 2026.7.3
+ * Isolates deserialization from filesystem and network resource loading.
  */
-public enum ResourceWriteStatus {
-    CREATED,
-    UPDATED,
-    CONFLICT
+public class DetachedResourceSet extends ResourceSetImpl {
+
+    @Override
+    public Resource getResource(URI uri, boolean loadOnDemand) {
+        return super.getResource(uri, false);
+    }
 }

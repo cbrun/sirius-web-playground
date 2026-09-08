@@ -72,17 +72,20 @@ public class RestfulEMFLargeModelIT extends AbstractIntegrationTests {
                 ManyModelsProjectTemplatesProvider.ONE_MILLION_TEMPLATE_ID, List.of());
         var projectId = this.createProjectExecutor.execute(input, capturedOutput).isSuccess().getProjectId();
         var webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
-        Map<?, ?> documents = webTestClient.get()
+        List<Map<String, Object>> documents = webTestClient.get()
                 .uri("/api/rest/projects/{projectId}/documents", projectId)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(Map.class)
+                .expectBody(new org.springframework.core.ParameterizedTypeReference<List<Map<String, Object>>>() { })
                 .returnResult()
                 .getResponseBody();
         assertThat(documents).hasSize(20);
 
-        String documentId = documents.keySet().iterator().next().toString();
-        URI uri = URI.createURI("http://localhost:" + this.port + "/api/rest/projects/" + projectId + "/" + documentId + "/bin");
+        String path = documents.getFirst().get("path").toString();
+        URI uri = URI.createURI("http://localhost:" + this.port + "/api/rest/projects/" + projectId + "/documents/bin");
+        for (String segment : path.split("/")) {
+            uri = uri.appendSegment(URI.encodeSegment(segment, false));
+        }
         var resourceSet = new ResourceSetImpl();
         resourceSet.getURIConverter().getURIHandlers().add(0, new RestfulEMFURIHandler());
         resourceSet.getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);

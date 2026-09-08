@@ -37,7 +37,7 @@ import tools.jackson.core.json.JsonFactory;
 
 /**
  * Loads a Sirius Web project's semantic documents into an EMF resource set.
- * Resources retain canonical Sirius URIs and can be saved with {@code resource.save(Map.of())}.
+ * Resources use public HTTP document URIs and can be saved with {@code resource.save(Map.of())}.
  *
  * @since 2026.7.3
  */
@@ -95,11 +95,13 @@ public class RestfulEMFClient {
             var documents = this.documents(endpoint, handler, resourceSet.getLoadOptions());
             this.registerPackages(endpoint, handler, resourceSet);
             for (String document : documents) {
-                URI canonicalURI = URI.createURI("sirius:///").appendSegment(document);
-                var resource = new XMLResourceImpl(canonicalURI);
+                URI documentURI = endpoint.appendSegment("documents").appendSegment("bin");
+                for (String segment : document.split("/")) {
+                    documentURI = documentURI.appendSegment(URI.encodeSegment(segment, false));
+                }
+                var resource = new XMLResourceImpl(documentURI);
                 resource.getDefaultLoadOptions().put(XMLResource.OPTION_BINARY, true);
                 resource.getDefaultSaveOptions().put(XMLResource.OPTION_BINARY, true);
-                resourceSet.getURIConverter().getURIMap().put(canonicalURI, endpoint.appendSegment(document).appendSegment("bin"));
                 resourceSet.getResources().add(resource);
             }
             for (var resource : List.copyOf(resourceSet.getResources())) {
@@ -144,24 +146,41 @@ public class RestfulEMFClient {
     }
 
     private List<String> documents(URI endpoint, RestfulEMFURIHandler handler, Map<?, ?> options) throws IOException {
-        var ids = new TreeSet<String>();
+        var paths = new TreeSet<String>();
         try (var input = handler.createInputStream(endpoint.appendSegment("documents"), options);
                 var parser = new JsonFactory().createParser(ObjectReadContext.empty(), input)) {
-            if (parser.nextToken() != JsonToken.START_OBJECT) {
-                throw new IOException("Expected a document ID to name object");
+            if (parser.nextToken() != JsonToken.START_ARRAY) {
+                throw new IOException("Expected a document listing array");
             }
-            while (parser.nextToken() == JsonToken.PROPERTY_NAME) {
-                String id = parser.currentName();
-                this.validateSegment(id);
-                if (id.isBlank() || !URI.encodeSegment(id, false).equals(id) || !ids.add(id) || parser.nextToken() != JsonToken.VALUE_STRING) {
+            while (parser.nextToken() == JsonToken.START_OBJECT) {
+                String path = null;
+                while (parser.nextToken() == JsonToken.PROPERTY_NAME) {
+                    String field = parser.currentName();
+                    JsonToken value = parser.nextToken();
+                    if ("path".equals(field)) {
+                        if (path != null || value != JsonToken.VALUE_STRING) {
+                            throw new IOException("Invalid document path");
+                        }
+                        path = parser.getString();
+                    } else {
+                        parser.skipChildren();
+                    }
+                }
+                if (parser.currentToken() != JsonToken.END_OBJECT || path == null || path.isBlank() || !paths.add(path)) {
                     throw new IOException("Invalid document listing");
                 }
+                for (String segment : path.split("/", -1)) {
+                    this.validateSegment(segment);
+                    if (segment.isEmpty()) {
+                        throw new IOException("Empty document path segment");
+                    }
+                }
             }
-            if (parser.currentToken() != JsonToken.END_OBJECT || parser.nextToken() != null) {
+            if (parser.currentToken() != JsonToken.END_ARRAY || parser.nextToken() != null) {
                 throw new IOException("Invalid document listing");
             }
         }
-        return List.copyOf(ids);
+        return List.copyOf(paths);
     }
 
     private void registerPackages(URI endpoint, RestfulEMFURIHandler handler, ResourceSet target) throws IOException {

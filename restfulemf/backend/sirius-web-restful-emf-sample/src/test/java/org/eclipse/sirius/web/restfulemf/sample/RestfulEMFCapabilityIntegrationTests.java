@@ -39,7 +39,7 @@ public class RestfulEMFCapabilityIntegrationTests extends AbstractIntegrationTes
 
     private static final String FLOW_PROJECT_ID = "d419bbee-9cba-4b85-972c-660d875ad705";
 
-    private static final String FLOW_XMI_URI = "/api/rest/projects/" + FLOW_PROJECT_ID + "/Flow/xmi";
+    private static final String FLOW_XMI_URI = "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/xmi/Flow";
 
     @LocalServerPort
     private int port;

@@ -13,8 +13,7 @@
 package org.eclipse.sirius.web.restfulemf.application;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -37,6 +36,7 @@ import org.eclipse.sirius.web.restfulemf.services.api.IProjectDocumentsService;
 import org.eclipse.sirius.web.restfulemf.services.api.IResourceFormatService;
 import org.eclipse.sirius.web.restfulemf.services.api.ProjectDocuments;
 import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
+import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 
 /**
  * Orchestrates RESTful EMF read use cases.
@@ -52,41 +52,45 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
 
     private final IResourceFormatService resourceFormatService;
 
+    private final ResourcePaths resourcePaths;
+
     private final Logger logger = LoggerFactory.getLogger(RestfulEMFReadApplicationService.class);
 
     public RestfulEMFReadApplicationService(IProjectDocumentsService projectDocumentsService, IEditingContextDispatcher editingContextDispatcher,
-            IResourceFormatService resourceFormatService) {
+            IResourceFormatService resourceFormatService, ResourcePaths resourcePaths) {
         this.projectDocumentsService = Objects.requireNonNull(projectDocumentsService);
         this.editingContextDispatcher = Objects.requireNonNull(editingContextDispatcher);
         this.resourceFormatService = Objects.requireNonNull(resourceFormatService);
+        this.resourcePaths = Objects.requireNonNull(resourcePaths);
     }
 
     @Override
-    public Map<String, String> getDocuments(String projectId) {
-        Map<String, String> documents = new LinkedHashMap<>();
-        this.getProjectDocuments(projectId).documents().forEach(document -> documents.put(document.id().toString(), document.name()));
-        return documents;
+    public List<ResourceDocument> getDocuments(String projectId) {
+        return this.resourcePaths.assignPaths(this.getProjectDocuments(projectId).documents());
     }
 
     @Override
-    public IResourceWriter getEPackages(String projectId) {
+    public ResourceRepresentation getEPackages(String projectId, ResourceFormat format) {
         this.getProjectDocuments(projectId);
-        return outputStream -> this.resourceFormatService.serializeEPackages(projectId, outputStream);
+        return new ResourceRepresentation(outputStream -> this.resourceFormatService.serializeEPackages(projectId, format, outputStream),
+                this.resourceFormatService.ePackagesRevision(projectId, format));
     }
 
     @Override
     public ResourceRepresentation getResource(String projectId, String documentSelector, ResourceFormat format, String separator) {
         ProjectDocuments projectDocuments = this.getProjectDocuments(projectId);
-        ResourceDocument document = this.findDocument(projectDocuments, documentSelector);
-        var input = new GetResourceContentInput(UUID.randomUUID(), document.id().toString());
+        this.resourcePaths.validate(documentSelector);
+        var input = new GetResourceContentInput(UUID.randomUUID(), documentSelector);
         try {
             IPayload payload = this.editingContextDispatcher.dispatchQuery(projectDocuments.editingContextId(), input)
                     .timeout(EVENT_TIMEOUT)
                     .onErrorMap(TimeoutException.class, exception -> new RestfulEMFException(RestfulEMFError.TIMEOUT, "The EMF document read timed out", exception))
                     .block();
             if (payload instanceof GetResourceContentSuccessPayload successPayload) {
-                IResourceWriter writer = outputStream -> this.resourceFormatService.serialize(successPayload.snapshot(), document, format, separator, outputStream);
-                return new ResourceRepresentation(writer, successPayload.snapshot().revision());
+                IResourceWriter writer = outputStream -> this.resourceFormatService.serialize(successPayload.snapshot(), successPayload.document(), successPayload.documents(),
+                        format, separator, outputStream);
+                return new ResourceRepresentation(writer, this.resourceFormatService.representationRevision(successPayload.snapshot(), successPayload.document(),
+                        successPayload.documents(), format, separator));
             }
             throw new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Document resource not found");
         } catch (RestfulEMFException exception) {
@@ -96,7 +100,6 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
                     .setMessage("Document resource query failed")
                     .addKeyValue("projectId", projectId)
                     .addKeyValue("editingContextId", projectDocuments.editingContextId())
-                    .addKeyValue("documentId", document.id())
                     .setCause(exception)
                     .log();
             throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF document could not be read", exception);
@@ -108,10 +111,4 @@ public class RestfulEMFReadApplicationService implements IRestfulEMFReadApplicat
                 .orElseThrow(() -> new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Project not found"));
     }
 
-    private ResourceDocument findDocument(ProjectDocuments projectDocuments, String documentSelector) {
-        return projectDocuments.documents().stream()
-                .filter(document -> document.name().equals(documentSelector) || document.id().toString().equals(documentSelector))
-                .findFirst()
-                .orElseThrow(() -> new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Document not found"));
-    }
 }

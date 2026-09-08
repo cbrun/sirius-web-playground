@@ -20,6 +20,7 @@ package org.eclipse.sirius.web.restfulemf.application.api;
 public enum RestfulEMFError {
     CAPABILITY_DENIED,
     NOT_FOUND,
+    CONFLICT,
     READ_ONLY,
     INVALID_RESOURCE,
     PAYLOAD_TOO_LARGE,

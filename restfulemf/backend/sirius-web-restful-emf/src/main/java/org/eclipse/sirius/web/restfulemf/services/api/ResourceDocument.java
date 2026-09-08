@@ -20,10 +20,15 @@ import java.util.UUID;
  *
  * @since 2026.7.3
  */
-public record ResourceDocument(UUID id, String name, boolean readOnly) {
+public record ResourceDocument(UUID id, String name, String path, boolean readOnly) {
 
     public ResourceDocument {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
+        Objects.requireNonNull(path);
+    }
+
+    public ResourceDocument(UUID id, String name, boolean readOnly) {
+        this(id, name, name, readOnly);
     }
 }

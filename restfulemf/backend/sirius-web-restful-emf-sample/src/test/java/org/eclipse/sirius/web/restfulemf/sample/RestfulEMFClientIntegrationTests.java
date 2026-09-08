@@ -41,6 +41,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.obeo.dsl.designer.sample.flow.FlowPackage;
 
@@ -84,12 +85,12 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
         Resource resource = resourceSet.getResources().getFirst();
         EObject object = this.namedObject(resource);
         URI objectURI = EcoreUtil.getURI(object);
-        assertThat(objectURI.scheme()).isEqualTo("sirius");
+        assertThat(objectURI.scheme()).isEqualTo("http");
         object.eSet(object.eClass().getEStructuralFeature("name"), "SavedByStandaloneClient");
         resource.save(Map.of());
 
         var reloadedSet = new RestfulEMFClient().loadProject(URI.createURI("http://localhost:" + this.port
-                + "/api/rest/projects/" + FLOW_PROJECT_ID + "/Flow/bin"));
+                + "/api/rest/projects/" + FLOW_PROJECT_ID + "/documents/bin/Flow"));
         EObject reloaded = reloadedSet.getEObject(objectURI, false);
         assertThat(reloaded).isNotNull();
         assertThat(reloaded.eGet(reloaded.eClass().getEStructuralFeature("name"))).isEqualTo("SavedByStandaloneClient");
@@ -99,13 +100,15 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
     }
 
     @Test
+    @Transactional
     @DisplayName("Given a Many Models project, when loaded from a workbench sub-URL, then every semantic document is loaded")
     public void givenManyModelsProjectWhenLoadedFromWorkbenchSubURLThenEveryDocumentIsLoaded(CapturedOutput capturedOutput) throws IOException {
         var input = new CreateProjectInput(UUID.randomUUID(), "Client integration", ManyModelsProjectTemplatesProvider.MANY_MODELS_TEMPLATE_ID, List.of());
         var projectId = this.createProjectExecutor.execute(input, capturedOutput).isSuccess().getProjectId();
         var webClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
-        Map<?, ?> documents = webClient.get().uri("/api/rest/projects/{projectId}/documents", projectId)
-                .exchange().expectStatus().isOk().expectBody(Map.class).returnResult().getResponseBody();
+        List<Map<String, Object>> documents = webClient.get().uri("/api/rest/projects/{projectId}/documents", projectId)
+                .exchange().expectStatus().isOk()
+                .expectBody(new org.springframework.core.ParameterizedTypeReference<List<Map<String, Object>>>() { }).returnResult().getResponseBody();
 
         var resourceSet = new RestfulEMFClient().loadProject(URI.createURI("http://localhost:" + this.port + "/projects/" + projectId + "/edit"));
 
@@ -113,10 +116,10 @@ public class RestfulEMFClientIntegrationTests extends AbstractIntegrationTests {
         assertThat(resourceSet.getResources()).hasSize(5).allSatisfy(resource -> {
             assertThat(resource.isLoaded()).isTrue();
             assertThat(resource.getContents()).isNotEmpty();
-            assertThat(resource.getURI().scheme()).isEqualTo("sirius");
+            assertThat(resource.getURI().scheme()).isEqualTo("http");
         });
-        assertThat(resourceSet.getResources().stream().map(resource -> resource.getURI().lastSegment()).toList())
-                .containsExactlyElementsOf(documents.keySet().stream().map(Object::toString).sorted().toList());
+        assertThat(resourceSet.getResources().stream().map(resource -> URI.decode(resource.getURI().lastSegment())).toList())
+                .containsExactlyElementsOf(documents.stream().map(document -> document.get("path").toString()).sorted().toList());
     }
 
     private EObject namedObject(Resource resource) {

@@ -10,15 +10,20 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.sirius.web.restfulemf.application.api;
+package org.eclipse.sirius.web.restfulemf.services;
+
+import java.util.LinkedHashMap;
+
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
 /**
- * The outcome of a resource write.
- *
- * @since 2026.7.3
+ * Keeps the binary extrinsic-ID table in insertion order, making representation digests reproducible.
  */
-public enum ResourceWriteStatus {
-    CREATED,
-    UPDATED,
-    CONFLICT
+public class OrderedXMIResource extends XMIResourceImpl {
+
+    public OrderedXMIResource(URI uri) {
+        super(uri);
+        this.eObjectToIDMap = new LinkedHashMap<>();
+    }
 }

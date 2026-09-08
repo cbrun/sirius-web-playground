@@ -20,10 +20,10 @@ import org.eclipse.sirius.components.core.api.IInput;
 /**
  * Requests a serialized snapshot of one resource from the collaborative editing context.
  */
-public record GetResourceContentInput(UUID id, String documentId) implements IInput {
+public record GetResourceContentInput(UUID id, String path) implements IInput {
 
     public GetResourceContentInput {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(documentId);
+        Objects.requireNonNull(path);
     }
 }

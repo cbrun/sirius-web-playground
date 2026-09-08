@@ -51,9 +51,9 @@ public class RestfulEMFClientTests {
 
     private static final String NESTED_PACKAGE_NS_URI = "urn:nested";
 
-    private static final String FIRST_RESOURCE_URI = "sirius:///a";
+    private static final String FIRST_RESOURCE_URI = "http://example.org/documents/bin/domain/a.ecore";
 
-    private static final String SECOND_RESOURCE_URI = "sirius:///b";
+    private static final String SECOND_RESOURCE_URI = "http://example.org/documents/bin/common/b.ecore";
 
     private static final String HOLDER_ID = "holder-id";
 
@@ -61,9 +61,9 @@ public class RestfulEMFClientTests {
 
     private static final String METAMODELS_PATH = "epackages/bin";
 
-    private static final String FIRST_DOCUMENT_PATH = "a/bin";
+    private static final String FIRST_DOCUMENT_PATH = "documents/bin/domain/a.ecore";
 
-    private static final String SECOND_DOCUMENT_PATH = "b/bin";
+    private static final String SECOND_DOCUMENT_PATH = "documents/bin/common/b.ecore";
 
     private static final String HOST = "127.0.0.1";
 
@@ -85,7 +85,7 @@ public class RestfulEMFClientTests {
 
     private static final String PROJECT_PATH = "/projects/p";
 
-    private static final String VALID_DOCUMENT_LISTING = "{\"a\":\"a\"}";
+    private static final String VALID_DOCUMENT_LISTING = "[{\"id\":\"a\",\"name\":\"a\",\"path\":\"a\",\"readOnly\":false}]";
 
     private static final String PRESERVED_PACKAGE_KEY = "preserved";
 
@@ -125,7 +125,7 @@ public class RestfulEMFClientTests {
         second.getContents().add(target);
         second.setID(target, "target-id");
 
-        var payloads = Map.of(DOCUMENTS_PATH, "{\"b\":\"same name\",\"a\":\"same name\"}".getBytes(StandardCharsets.UTF_8),
+        var payloads = Map.of(DOCUMENTS_PATH, "[{\"path\":\"domain/a.ecore\"},{\"path\":\"common/b.ecore\"}]".getBytes(StandardCharsets.UTF_8),
                 METAMODELS_PATH, this.binary(metadata), FIRST_DOCUMENT_PATH, this.binary(first), SECOND_DOCUMENT_PATH, this.binary(second));
         var requests = new ArrayList<String>();
         var saved = new AtomicReference<byte[]>();
@@ -155,17 +155,20 @@ public class RestfulEMFClientTests {
             resourceSet.getPackageRegistry().put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
             new RestfulEMFClient(Map.of(AUTHORIZATION_HEADER, BEARER_TOKEN)).loadProject(
                     URI.createURI(ORIGIN_PREFIX + server.getAddress().getPort() + "/context/projects/project/edit/representation?view=tree#selection"), resourceSet);
-            assertThat(requests).containsExactly(DOCUMENTS_PATH, METAMODELS_PATH, FIRST_DOCUMENT_PATH, SECOND_DOCUMENT_PATH);
-            assertThat(resourceSet.getResources()).extracting(resource -> resource.getURI().toString()).containsExactly(FIRST_RESOURCE_URI, SECOND_RESOURCE_URI);
+            assertThat(requests).containsExactly(DOCUMENTS_PATH, METAMODELS_PATH, SECOND_DOCUMENT_PATH, FIRST_DOCUMENT_PATH);
+            String endpoint = ORIGIN_PREFIX + server.getAddress().getPort() + CONTEXT_PROJECT_ENDPOINT;
+            assertThat(resourceSet.getResources()).extracting(resource -> resource.getURI().toString())
+                    .containsExactly(endpoint + SECOND_DOCUMENT_PATH, endpoint + FIRST_DOCUMENT_PATH);
             assertThat(resourceSet.getPackageRegistry().getEPackage(EcorePackage.eNS_URI)).isSameAs(EcorePackage.eINSTANCE);
             assertThat(EcoreUtil.equals(generatedBeforeLoad, EcorePackage.eINSTANCE)).isTrue();
             assertThat(resourceSet.getPackageRegistry().getEPackage(NESTED_PACKAGE_NS_URI)).isNotNull();
-            var loaded = resourceSet.getResources().getFirst().getContents().getFirst();
+            var document = resourceSet.getResources().get(1);
+            var loaded = document.getContents().getFirst();
             var loadedReference = loaded.eClass().getEStructuralFeature(TARGET_REFERENCE_NAME);
             assertThat(loadedReference.getEType()).isSameAs(EcorePackage.Literals.ECLASS);
-            assertThat(loaded.eGet(loadedReference)).isSameAs(resourceSet.getResources().get(1).getContents().getFirst()).isInstanceOf(EClass.class);
-            assertThat(((XMLResource) resourceSet.getResources().getFirst()).getID(loaded)).isEqualTo(HOLDER_ID);
-            resourceSet.getResources().getFirst().save(Map.of());
+            assertThat(loaded.eGet(loadedReference)).isSameAs(resourceSet.getResources().getFirst().getContents().getFirst()).isInstanceOf(EClass.class);
+            assertThat(((XMLResource) document).getID(loaded)).isEqualTo(HOLDER_ID);
+            document.save(Map.of());
             assertThat(match.get()).isEqualTo(INITIAL_ETAG);
             var roundTrip = new XMLResourceImpl(URI.createURI(FIRST_RESOURCE_URI));
             var roundTripSet = new ResourceSetImpl();
@@ -174,7 +177,7 @@ public class RestfulEMFClientTests {
             roundTrip.load(new ByteArrayInputStream(saved.get()), Map.of(XMLResource.OPTION_BINARY, true));
             assertThat(roundTrip.getID(roundTrip.getContents().getFirst())).isEqualTo(HOLDER_ID);
             assertThat(EcoreUtil.getURI((org.eclipse.emf.ecore.EObject) roundTrip.getContents().getFirst().eGet(loadedReference, false)).toString())
-                    .isEqualTo("sirius:///b#target-id");
+                    .isEqualTo(SECOND_RESOURCE_URI + "#target-id");
         } finally {
             server.stop(0);
         }
@@ -185,7 +188,7 @@ public class RestfulEMFClientTests {
         byte[] metadata = this.binary(new XMLResourceImpl(URI.createURI(METADATA_URI)));
         HttpServer server = HttpServer.create(new InetSocketAddress(HOST, 0), 0);
         server.createContext(PROJECT_ENDPOINT, exchange -> {
-            byte[] response = exchange.getRequestURI().getPath().endsWith(DOCUMENTS_PATH) ? "{}".getBytes(StandardCharsets.UTF_8) : metadata;
+            byte[] response = exchange.getRequestURI().getPath().endsWith(DOCUMENTS_PATH) ? "[]".getBytes(StandardCharsets.UTF_8) : metadata;
             exchange.sendResponseHeaders(200, response.length);
             exchange.getResponseBody().write(response);
             exchange.close();
@@ -214,7 +217,7 @@ public class RestfulEMFClientTests {
         HttpServer server = HttpServer.create(new InetSocketAddress(HOST, 0), 0);
         server.createContext(PROJECT_ENDPOINT, exchange -> {
             String path = exchange.getRequestURI().getPath();
-            if (path.endsWith("/a/bin")) {
+            if (path.endsWith("/documents/bin/a")) {
                 exchange.sendResponseHeaders(500, -1);
             } else {
                 byte[] response = path.endsWith(DOCUMENTS_PATH) ? listing.get().getBytes(StandardCharsets.UTF_8) : metadata;
@@ -231,7 +234,8 @@ public class RestfulEMFClientTests {
             URI logical = URI.createURI("test:/logical");
             URI physical = URI.createURI("test:/physical");
             resourceSet.getURIConverter().getURIMap().put(logical, physical);
-            for (String documentListing : List.of(VALID_DOCUMENT_LISTING, "[]", "{\"a\":42}", "{\"a\":\"a\",\"a\":\"b\"}", "{\"../a\":\"a\"}")) {
+            for (String documentListing : List.of(VALID_DOCUMENT_LISTING, "{}", "[{\"path\":42}]", "[{\"path\":\"a\"},{\"path\":\"a\"}]",
+                    "[{\"path\":\"../a\"}]", "[{\"path\":\"a//b\"}]", "[{\"path\":\"a%2Fb\"}]")) {
                 listing.set(documentListing);
                 assertThatThrownBy(() -> new RestfulEMFClient().loadProject(URI.createURI(ORIGIN_PREFIX + server.getAddress().getPort() + PROJECT_PATH), resourceSet))
                         .isInstanceOf(IOException.class);

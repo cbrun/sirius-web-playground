@@ -17,16 +17,23 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IInput;
+import org.eclipse.sirius.web.restfulemf.application.api.ResourceFormat;
 
 /**
  * Describes the replacement of an EMF resource content.
  */
-public record ReplaceResourceContentInput(UUID id, String documentId, String newResourceContent, List<String> expectedRevisions) implements IInput {
+public record ReplaceResourceContentInput(UUID id, String path, ResourceFormat format, byte[] content, List<String> expectedRevisions, boolean createOnly) implements IInput {
 
     public ReplaceResourceContentInput {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(documentId);
-        Objects.requireNonNull(newResourceContent);
+        Objects.requireNonNull(path);
+        Objects.requireNonNull(format);
+        content = Objects.requireNonNull(content).clone();
         expectedRevisions = List.copyOf(Objects.requireNonNull(expectedRevisions));
+    }
+
+    @Override
+    public byte[] content() {
+        return this.content.clone();
     }
 }

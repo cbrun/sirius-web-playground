@@ -22,5 +22,5 @@ import java.util.List;
  */
 public interface IRestfulEMFWriteApplicationService {
 
-    ResourceWriteResult replaceResource(String projectId, String documentSelector, ResourceFormat format, InputStream content, List<String> expectedRevisions);
+    ResourceWriteResult replaceResource(String projectId, String path, ResourceFormat format, InputStream content, List<String> expectedRevisions, boolean createOnly);
 }

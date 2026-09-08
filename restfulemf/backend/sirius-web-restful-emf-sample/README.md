@@ -31,7 +31,7 @@ The demo uses the [standalone Maven client](../sirius-web-restful-emf-client/REA
 change. Press Enter immediately to test a successful save, or modify the model in Sirius Web during the pause to test
 the stale-update rejection.
 
-Resource URIs remain canonical `sirius:///DOCUMENT_ID` identifiers mapped to remote binary endpoints. Saving and reloading use the client's default binary options and ETag protection. Other project documents are loaded but are not saved by the demo.
+Resource URIs use the public `/api/rest/projects/PROJECT_ID/documents/bin/PATH` endpoints. Saving and reloading use the client's default binary options and ETag protection. A successful save must be followed by a reload before editing and saving again, since transformed PUT responses carry no ETag. Other project documents are loaded but are not saved by the demo.
 
 Run the full build and the PostgreSQL-backed integration tests with a running Docker daemon:
 
@@ -45,7 +45,8 @@ Run the opt-in 1M-Modeling round-trip with a 4 GiB test JVM:
 mvn clean verify -Psample,large-model-tests -f restfulemf/backend/pom.xml
 ```
 
-The tests use the Sirius Web Ecore and Flow fixtures, cover compatible and strict optimistic concurrency, rollback and
-cross-resource references, exercise creation of the mixed-format Many Models template, verify the 1M-Modeling assets,
+The tests use the Sirius Web Ecore and Flow fixtures, cover compatible and strict optimistic concurrency, rollback,
+native EMF directory imports, cyclic cross-resource references across editing-context reloads, concurrent creation and
+representation ETags. They exercise creation of the mixed-format Many Models template, verify the 1M-Modeling assets,
 enforce streamed-transfer limits, and start an isolated PostgreSQL 17 container through Testcontainers. The large-model
 profile additionally creates the full 1M-Modeling project and performs an EMF binary load/save round-trip.

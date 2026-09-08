@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.sirius.web.application.capability.services.api.ICapabilityEvaluator;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.unit.DataSize;
 
 import org.eclipse.sirius.web.restfulemf.application.api.IRestfulEMFReadApplicationService;
@@ -39,6 +40,7 @@ import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
 import org.eclipse.sirius.web.restfulemf.controllers.RestfulEMFExceptionHandler;
 import org.eclipse.sirius.web.restfulemf.controllers.RestfulEMFResourceController;
 import org.eclipse.sirius.web.restfulemf.configuration.RestfulEMFProperties;
+import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 
 /**
  * Tests the bounded transfer capacity of the REST controller.
@@ -62,20 +64,20 @@ public class RestfulEMFTransferCapacityTests {
                     }
                 }, "revision"));
         var controller = new RestfulEMFResourceController(readApplicationService, mock(IRestfulEMFWriteApplicationService.class), capabilityEvaluator,
-                new RestfulEMFProperties(false, DataSize.ofMegabytes(1), DataSize.ofMegabytes(1), 1));
+                new RestfulEMFProperties(false, DataSize.ofMegabytes(1), DataSize.ofMegabytes(1), 1), new ResourcePaths());
 
         var executor = Executors.newSingleThreadExecutor();
         try {
             Future<?> firstTransfer = executor.submit(() -> {
                 try {
-                    controller.getXMIResource("project", "document", new MockHttpServletResponse());
+                    controller.getResource("project", "xmi", "\t", new MockHttpServletRequest("GET", "/api/rest/projects/project/documents/xmi/document"), new MockHttpServletResponse());
                 } catch (IOException exception) {
                     throw new UncheckedIOException(exception);
                 }
             });
             assertThat(transferStarted.await(5, TimeUnit.SECONDS)).isTrue();
 
-            assertThatThrownBy(() -> controller.getXMIResource("project", "document", new MockHttpServletResponse()))
+            assertThatThrownBy(() -> controller.getResource("project", "xmi", "\t", new MockHttpServletRequest("GET", "/api/rest/projects/project/documents/xmi/document"), new MockHttpServletResponse()))
                     .isInstanceOfSatisfying(RestfulEMFException.class,
                             exception -> assertThat(exception.getError()).isEqualTo(RestfulEMFError.TRANSFER_CAPACITY_EXHAUSTED));
             var response = new RestfulEMFExceptionHandler().handleRestfulEMFException(

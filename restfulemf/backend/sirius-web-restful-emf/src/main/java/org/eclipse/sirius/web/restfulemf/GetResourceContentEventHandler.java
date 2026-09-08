@@ -24,6 +24,7 @@ import org.eclipse.sirius.components.core.api.IPayload;
 import org.eclipse.sirius.components.emf.services.JSONResourceFactory;
 import org.eclipse.sirius.components.emf.services.api.IEMFEditingContext;
 import org.springframework.stereotype.Service;
+import org.eclipse.sirius.web.restfulemf.services.ResourcePaths;
 
 import reactor.core.publisher.Sinks.Many;
 import reactor.core.publisher.Sinks.One;
@@ -36,8 +37,11 @@ public class GetResourceContentEventHandler implements IEditingContextEventHandl
 
     private final IResourceSnapshotService resourceSnapshotService;
 
-    public GetResourceContentEventHandler(IResourceSnapshotService resourceSnapshotService) {
+    private final ResourcePaths resourcePaths;
+
+    public GetResourceContentEventHandler(IResourceSnapshotService resourceSnapshotService, ResourcePaths resourcePaths) {
         this.resourceSnapshotService = Objects.requireNonNull(resourceSnapshotService);
+        this.resourcePaths = Objects.requireNonNull(resourcePaths);
     }
 
     @Override
@@ -48,17 +52,33 @@ public class GetResourceContentEventHandler implements IEditingContextEventHandl
     @Override
     public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
         IPayload payload = new ErrorPayload(input.id(), "Unexpected error");
+        try {
+            payload = this.getPayload(editingContext, input, payload);
+            payloadSink.tryEmitValue(payload);
+        } catch (RuntimeException exception) {
+            payloadSink.tryEmitError(exception);
+        }
+        changeDescriptionSink.tryEmitNext(new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input));
+    }
+
+    private IPayload getPayload(IEditingContext editingContext, IInput input, IPayload defaultPayload) {
+        IPayload payload = defaultPayload;
         if (editingContext instanceof IEMFEditingContext emfEditingContext && input instanceof GetResourceContentInput resourceInput) {
-            var resourceURI = new JSONResourceFactory().createResourceURI(resourceInput.documentId());
-            payload = emfEditingContext.getDomain().getResourceSet().getResources().stream()
+            var resourceSet = emfEditingContext.getDomain().getResourceSet();
+            var documents = this.resourcePaths.documents(resourceSet);
+            var optionalDocument = this.resourcePaths.find(documents, resourceInput.path());
+            if (optionalDocument.isPresent()) {
+                var document = optionalDocument.get();
+                var resourceURI = new JSONResourceFactory().createResourceURI(document.id().toString());
+                payload = resourceSet.getResources().stream()
                     .filter(resource -> resourceURI.equals(resource.getURI()))
                     .findFirst()
                     .flatMap(this.resourceSnapshotService::getSnapshot)
-                    .<IPayload>map(snapshot -> new GetResourceContentSuccessPayload(input.id(), snapshot))
+                    .<IPayload>map(snapshot -> new GetResourceContentSuccessPayload(input.id(), snapshot, document, documents))
                     .orElse(payload);
+            }
         }
 
-        payloadSink.tryEmitValue(payload);
-        changeDescriptionSink.tryEmitNext(new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input));
+        return payload;
     }
 }

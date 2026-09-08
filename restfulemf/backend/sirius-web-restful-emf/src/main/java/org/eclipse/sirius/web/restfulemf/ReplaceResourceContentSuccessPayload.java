@@ -16,16 +16,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.eclipse.sirius.components.core.api.IPayload;
+import org.eclipse.sirius.web.restfulemf.application.api.ResourceWriteStatus;
 
 /**
  * The successful result of a resource replacement.
  *
  * @since 2026.7.3
  */
-public record ReplaceResourceContentSuccessPayload(UUID id, String revision) implements IPayload {
+public record ReplaceResourceContentSuccessPayload(UUID id, ResourceWriteStatus status) implements IPayload {
 
     public ReplaceResourceContentSuccessPayload {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(revision);
+        Objects.requireNonNull(status);
     }
 }

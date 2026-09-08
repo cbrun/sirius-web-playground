@@ -12,7 +12,9 @@
  *******************************************************************************/
 package org.eclipse.sirius.web.restfulemf.application.api;
 
-import java.util.Map;
+import java.util.List;
+
+import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 
 /**
  * Read use cases exposed by the RESTful EMF application layer.
@@ -21,9 +23,9 @@ import java.util.Map;
  */
 public interface IRestfulEMFReadApplicationService {
 
-    Map<String, String> getDocuments(String projectId);
+    List<ResourceDocument> getDocuments(String projectId);
 
-    IResourceWriter getEPackages(String projectId);
+    ResourceRepresentation getEPackages(String projectId, ResourceFormat format);
 
     ResourceRepresentation getResource(String projectId, String documentSelector, ResourceFormat format, String separator);
 }

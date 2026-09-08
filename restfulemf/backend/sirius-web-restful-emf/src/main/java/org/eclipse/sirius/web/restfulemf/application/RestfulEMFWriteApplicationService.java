@@ -13,6 +13,7 @@
 package org.eclipse.sirius.web.restfulemf.application;
 
 import java.io.InputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.eclipse.sirius.web.restfulemf.ReplaceResourceContentInput;
 import org.eclipse.sirius.web.restfulemf.ReplaceResourceContentSuccessPayload;
 import org.eclipse.sirius.web.restfulemf.ResourceRevisionConflictPayload;
-import org.eclipse.sirius.web.restfulemf.ResourceSnapshot;
 import org.eclipse.sirius.web.restfulemf.application.api.IRestfulEMFWriteApplicationService;
 import org.eclipse.sirius.web.restfulemf.application.api.ResourceFormat;
 import org.eclipse.sirius.web.restfulemf.application.api.ResourceWriteResult;
@@ -37,9 +37,7 @@ import org.eclipse.sirius.web.restfulemf.application.api.ResourceWriteStatus;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFError;
 import org.eclipse.sirius.web.restfulemf.application.api.RestfulEMFException;
 import org.eclipse.sirius.web.restfulemf.services.api.IProjectDocumentsService;
-import org.eclipse.sirius.web.restfulemf.services.api.IResourceFormatService;
 import org.eclipse.sirius.web.restfulemf.services.api.ProjectDocuments;
-import org.eclipse.sirius.web.restfulemf.services.api.ResourceDocument;
 
 /**
  * Orchestrates RESTful EMF write use cases.
@@ -53,40 +51,34 @@ public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplic
 
     private final IEditingContextDispatcher editingContextDispatcher;
 
-    private final IResourceFormatService resourceFormatService;
-
     private final Logger logger = LoggerFactory.getLogger(RestfulEMFWriteApplicationService.class);
 
-    public RestfulEMFWriteApplicationService(IProjectDocumentsService projectDocumentsService, IEditingContextDispatcher editingContextDispatcher,
-            IResourceFormatService resourceFormatService) {
+    public RestfulEMFWriteApplicationService(IProjectDocumentsService projectDocumentsService, IEditingContextDispatcher editingContextDispatcher) {
         this.projectDocumentsService = Objects.requireNonNull(projectDocumentsService);
         this.editingContextDispatcher = Objects.requireNonNull(editingContextDispatcher);
-        this.resourceFormatService = Objects.requireNonNull(resourceFormatService);
     }
 
     @Override
-    public ResourceWriteResult replaceResource(String projectId, String documentSelector, ResourceFormat format, InputStream content, List<String> expectedRevisions) {
+    public ResourceWriteResult replaceResource(String projectId, String path, ResourceFormat format, InputStream content, List<String> expectedRevisions, boolean createOnly) {
         ProjectDocuments projectDocuments = this.getProjectDocuments(projectId);
-        ResourceDocument document = this.findDocument(projectDocuments, documentSelector);
-        if (document.readOnly()) {
-            throw new RestfulEMFException(RestfulEMFError.READ_ONLY, "The document is read-only");
-        }
-
-        ResourceSnapshot newSnapshot = this.resourceFormatService.deserialize(content, document, format);
-        var input = new ReplaceResourceContentInput(UUID.randomUUID(), document.id().toString(), newSnapshot.content(), expectedRevisions);
         try {
+            var input = new ReplaceResourceContentInput(UUID.randomUUID(), path, format, content.readAllBytes(), expectedRevisions, createOnly);
             IPayload payload = this.editingContextDispatcher.dispatchMutation(projectDocuments.editingContextId(), input)
                     .timeout(EVENT_TIMEOUT)
                     .onErrorMap(TimeoutException.class, exception -> new RestfulEMFException(RestfulEMFError.TIMEOUT, "The EMF document replacement timed out", exception))
                     .block();
             if (payload instanceof ReplaceResourceContentSuccessPayload successPayload) {
-                return new ResourceWriteResult(ResourceWriteStatus.SUCCESS, successPayload.revision());
+                return new ResourceWriteResult(successPayload.status(), "");
             } else if (payload instanceof ResourceRevisionConflictPayload conflictPayload) {
                 return new ResourceWriteResult(ResourceWriteStatus.CONFLICT, conflictPayload.currentRevision());
             } else if (payload == null || payload instanceof ErrorPayload) {
                 throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF document could not be replaced");
             }
             throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "Unexpected document replacement result");
+        } catch (IOException exception) {
+            this.logger.atWarn().setMessage("REST EMF request body could not be read")
+                    .addKeyValue("projectId", projectId).setCause(exception).log();
+            throw new RestfulEMFException(RestfulEMFError.INVALID_RESOURCE, "The request body could not be read", exception);
         } catch (RestfulEMFException exception) {
             throw exception;
         } catch (RuntimeException exception) {
@@ -94,7 +86,6 @@ public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplic
                     .setMessage("Document replacement failed")
                     .addKeyValue("projectId", projectId)
                     .addKeyValue("editingContextId", projectDocuments.editingContextId())
-                    .addKeyValue("documentId", document.id())
                     .setCause(exception)
                     .log();
             throw new RestfulEMFException(RestfulEMFError.PROCESSING_FAILURE, "The EMF document could not be replaced", exception);
@@ -106,10 +97,4 @@ public class RestfulEMFWriteApplicationService implements IRestfulEMFWriteApplic
                 .orElseThrow(() -> new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Project not found"));
     }
 
-    private ResourceDocument findDocument(ProjectDocuments projectDocuments, String documentSelector) {
-        return projectDocuments.documents().stream()
-                .filter(document -> document.name().equals(documentSelector) || document.id().toString().equals(documentSelector))
-                .findFirst()
-                .orElseThrow(() -> new RestfulEMFException(RestfulEMFError.NOT_FOUND, "Document not found"));
-    }
 }
